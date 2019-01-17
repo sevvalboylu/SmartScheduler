@@ -26,4 +26,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    MonthLoader.MonthChangeListener mMonthChangeListener = new MonthLoader.MonthChangeListener() {
+        public List<WeekViewEvent> onMonthChange(int newYear, int newMonth) {
+            // Populate the week view with some events.
+            List<WeekViewEvent> events = getEvents(newYear, newMonth);
+            return events;
+        }
+    };
+
+
+
 }

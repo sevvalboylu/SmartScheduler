@@ -11,9 +11,9 @@
         android:enabled="true"
         android:visible="true">
         <item
-            android:id="@+id/nav_tasks"
+            android:id="@+id/nav_sched"
             android:icon="@drawable/ic_menu_send"
-            android:title="All Tasks" />
+            android:title="Schedules" />
         <item
             android:id="@+id/nav_appointments"
             android:icon="@drawable/ic_menu_gallery"
