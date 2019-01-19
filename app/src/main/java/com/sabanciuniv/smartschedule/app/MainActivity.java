@@ -7,8 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-public class MainActivity extends AppCompatActivity {
 
+public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,15 +25,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-    MonthLoader.MonthChangeListener mMonthChangeListener = new MonthLoader.MonthChangeListener() {
-        public List<WeekViewEvent> onMonthChange(int newYear, int newMonth) {
-            // Populate the week view with some events.
-            List<WeekViewEvent> events = getEvents(newYear, newMonth);
-            return events;
-        }
-    };
-
-
-
-}
+    }
