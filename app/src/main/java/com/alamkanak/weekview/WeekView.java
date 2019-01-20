@@ -935,17 +935,7 @@ public class WeekView extends View {
         public float top;
         public float bottom;
 
-        /**
-         * Create a new instance of event rect. An EventRect is actually the rectangle that is drawn
-         * on the calendar for a given event. There may be more than one rectangle for a single
-         * event (an event that expands more than one day). In that case two instances of the
-         * EventRect will be used for a single event. The given event will be stored in
-         * "originalEvent". But the event that corresponds to rectangle the rectangle instance will
-         * be stored in "event".
-         * @param event Represents the event which this instance of rectangle represents.
-         * @param originalEvent The original event that was passed by the user.
-         * @param rectF The rectangle.
-         */
+
         public EventRect(WeekViewEvent event, WeekViewEvent originalEvent, RectF rectF) {
             this.event = event;
             this.rectF = rectF;
@@ -953,13 +943,6 @@ public class WeekView extends View {
         }
     }
 
-
-    /**
-     * Gets more events of one/more month(s) if necessary. This method is called when the user is
-     * scrolling the week view. The week view stores the events of three months: the visible month,
-     * the previous month, the next month.
-     * @param day The day where the user is currently is.
-     */
     private void getMoreEvents(Calendar day) {
 
         // Get more events if the month is changed.
