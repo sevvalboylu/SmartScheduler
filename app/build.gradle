@@ -28,7 +28,6 @@ dependencies {
     compileOnly 'com.google.android.wearable:wearable:2.4.0'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
+    implementation 'com.google.android.gms:play-services-maps:16.0.0'
 
 }
-
-
