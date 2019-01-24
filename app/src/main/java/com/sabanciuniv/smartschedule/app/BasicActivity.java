@@ -1,5 +1,12 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+
 import com.alamkanak.weekview.WeekViewEvent;
 
 import java.util.ArrayList;
@@ -8,9 +15,27 @@ import com.alamkanak.weekview.MonthLoader;
 import java.util.List;
 
 public class BasicActivity extends BaseActivity implements MonthLoader.MonthChangeListener  {
+   private DrawerLayout mDrawerLayout;
    @Override
    public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
        // Populate the week view with some events.
+
+       Toolbar toolbar = findViewById(R.id.toolbar);
+       setSupportActionBar(toolbar);
+
+       ActionBar actbar = getSupportActionBar();
+       actbar.setDisplayHomeAsUpEnabled(true);
+       actbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+       mDrawerLayout = findViewById(R.id.drawer_layout);
+
+       ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+               this, mDrawerLayout, toolbar,
+               R.string.navigation_drawer_open,
+               R.string.navigation_drawer_close);
+       mDrawerLayout.addDrawerListener(toggle);
+       toggle.syncState();
+
+
        List<WeekViewEvent> events = new ArrayList<WeekViewEvent>();
 
        Calendar startTime = Calendar.getInstance();
