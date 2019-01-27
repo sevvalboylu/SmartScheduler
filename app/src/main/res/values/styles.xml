@@ -10,7 +10,7 @@
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="colorControlActivated">@color/accent</item>
     </style>
-    
+
     <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
         <!-- android:textColorPrimary is the color of the title text in the Toolbar  -->
         <item name="android:textColorPrimary">@android:color/holo_blue_light</item>
@@ -37,6 +37,7 @@
         <item name="android:textSize">21sp</item>
         <item name="android:textStyle">italic</item>
     </style>
+
     <style name="Button">
         <item name="android:background">?selectableItemBackground</item>
         <item name="android:gravity">left|center_vertical</item>

@@ -115,11 +115,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Set up a date time interpreter which will show short date values when in week view and long
-     * date values otherwise.
-     * @param shortDate True if the date values should be short.
-     */
+
     private void setupDateTimeInterpreter(final boolean shortDate) {
         mWeekView.setDateTimeInterpreter(new DateTimeInterpreter() {
             @Override
