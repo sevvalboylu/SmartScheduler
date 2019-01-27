@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="495dp"
         android:orientation="vertical"
-        tools:layout_editor_absoluteX="89dp"
+        tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 
         <TextView
@@ -63,6 +63,7 @@
             android:text="Select from frequent locations"
             tools:layout_editor_absoluteX="14dp"
             tools:layout_editor_absoluteY="98dp" />
+
         <Spinner
             android:id="@+id/spinner2"
             android:layout_width="150dp"
@@ -81,9 +82,9 @@
             android:layout_width="150sp"
             android:layout_height="60sp"
             android:background="@color/colorAccent"
-            android:text="Select from map"
             android:clickable="true"
             android:onClick="goToMap"
+            android:text="Select from map"
             android:textColor="@color/colorPrimaryDark" />
 
     </LinearLayout>

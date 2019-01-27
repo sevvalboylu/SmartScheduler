@@ -1,20 +1,20 @@
 
-        package com.sabanciuniv.smartschedule.app;
+   package com.sabanciuniv.smartschedule.app;
 
-        import android.os.Bundle;
-        import android.app.Activity;
+   import android.os.Bundle;
+   import android.app.Activity;
 
-        import com.yandex.mapkit.Animation;
-        import com.yandex.mapkit.MapKitFactory;
-        import com.yandex.mapkit.geometry.Point;
-        import com.yandex.mapkit.map.CameraPosition;
-
-        import com.yandex.mapkit.mapview.MapView;
+   import com.yandex.mapkit.Animation;
+   import com.yandex.mapkit.MapKitFactory;
+   import com.yandex.mapkit.geometry.Point;
+   import com.yandex.mapkit.map.CameraPosition;
+   import com.yandex.mapkit.mapview.MapView;
 
 public class MapViewActivity extends Activity {
 
     private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
-    private final Point TARGET_LOCATION = new Point(59.945933, 30.320045);
+    private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
+
 
     private MapView mapView;
 
