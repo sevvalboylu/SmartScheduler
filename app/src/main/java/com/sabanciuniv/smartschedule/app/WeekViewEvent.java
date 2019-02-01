@@ -1,15 +1,9 @@
-package com.alamkanak.weekview;
+package com.sabanciuniv.smartschedule.app;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import static com.alamkanak.weekview.WeekViewUtil.*;
-
-/**
- * Created by Raquib-ul-Alam Kanak on 7/21/2014.
- * Website: http://april-shower.com
- */
+        import java.util.ArrayList;
+        import java.util.Calendar;
+        import java.util.List;
+        
 public class WeekViewEvent {
     private long mId;
     private Calendar mStartTime;
@@ -22,22 +16,7 @@ public class WeekViewEvent {
     public WeekViewEvent(){
 
     }
-
-    /**
-     * Initializes the event for week view.
-     * @param id The id of the event.
-     * @param name Name of the event.
-     * @param startYear Year when the event starts.
-     * @param startMonth Month when the event starts.
-     * @param startDay Day when the event starts.
-     * @param startHour Hour (in 24-hour format) when the event starts.
-     * @param startMinute Minute when the event starts.
-     * @param endYear Year when the event ends.
-     * @param endMonth Month when the event ends.
-     * @param endDay Day when the event ends.
-     * @param endHour Hour (in 24-hour format) when the event ends.
-     * @param endMinute Minute when the event ends.
-     */
+    
     public WeekViewEvent(long id, String name, int startYear, int startMonth, int startDay, int startHour, int startMinute, int endYear, int endMonth, int endDay, int endHour, int endMinute) {
         this.mId = id;
 
@@ -58,15 +37,6 @@ public class WeekViewEvent {
         this.mName = name;
     }
 
-    /**
-     * Initializes the event for week view.
-     * @param id The id of the event.
-     * @param name Name of the event.
-     * @param location The location of the event.
-     * @param startTime The time when the event starts.
-     * @param endTime The time when the event ends.
-     * @param allDay Is the event an all day event.
-     */
     public WeekViewEvent(long id, String name, String location, Calendar startTime, Calendar endTime, boolean allDay) {
         this.mId = id;
         this.mName = name;
@@ -76,25 +46,10 @@ public class WeekViewEvent {
         this.mAllDay = allDay;
     }
 
-    /**
-     * Initializes the event for week view.
-     * @param id The id of the event.
-     * @param name Name of the event.
-     * @param location The location of the event.
-     * @param startTime The time when the event starts.
-     * @param endTime The time when the event ends.
-     */
     public WeekViewEvent(long id, String name, String location, Calendar startTime, Calendar endTime) {
         this(id, name, location, startTime, endTime, false);
     }
 
-    /**
-     * Initializes the event for week view.
-     * @param id The id of the event.
-     * @param name Name of the event.
-     * @param startTime The time when the event starts.
-     * @param endTime The time when the event ends.
-     */
     public WeekViewEvent(long id, String name, Calendar startTime, Calendar endTime) {
         this(id, name, null, startTime, endTime);
     }
@@ -217,5 +172,9 @@ public class WeekViewEvent {
         }
 
         return events;
+    }
+
+    public static boolean isSameDay(Calendar dayOne, Calendar dayTwo) {
+        return dayOne.get(Calendar.YEAR) == dayTwo.get(Calendar.YEAR) && dayOne.get(Calendar.DAY_OF_YEAR) == dayTwo.get(Calendar.DAY_OF_YEAR);
     }
 }

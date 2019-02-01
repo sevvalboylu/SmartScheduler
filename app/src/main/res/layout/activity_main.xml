@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+    <include
+        layout="@layout/app_bar_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -22,6 +27,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <include
+        android:id="@+id/include"
         layout="@layout/content_main"
         app:layout_anchor="@+id/fab"
         app:layout_anchorGravity="left|bottom" />
@@ -37,15 +43,14 @@
         app:srcCompat="@android:drawable/ic_input_add" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/buttonBasic"
         android:layout_width="150sp"
         android:layout_height="60sp"
         android:layout_marginLeft="120sp"
         android:layout_marginTop="450sp"
         android:background="@color/colorAccent"
         android:text="Create New Schedule"
-        android:textColor="@color/colorPrimaryDark"
-    />
+        android:textColor="@color/colorPrimaryDark" />
 
     <EditText
         android:id="@+id/editText"
@@ -53,25 +58,17 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Tasks" />
+        android:text="Week" />
 
-    <com.alamkanak.weekview.WeekView
-        android:id="@+id/weekView"
+
+    <Button
+        android:id="@+id/buttonAsynchronous"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:eventTextColor="@android:color/white"
-        app:textSize="12sp"
-        app:hourHeight="60dp"
-        app:headerColumnPadding="8dp"
-        app:headerColumnTextColor="#8f000000"
-        app:headerRowPadding="12dp"
-        app:columnGap="8dp"
-        app:noOfVisibleDays="3"
-        app:headerRowBackgroundColor="#ffefefef"
-        app:dayBackgroundColor="#05000000"
-        app:todayBackgroundColor="#1848adff"
-        app:headerColumnBackground="#ffffffff"
-    />
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_anchor="@+id/include"
+        app:layout_anchorGravity="left|bottom" />
+
 
 
 </android.support.design.widget.CoordinatorLayout>
