@@ -14,7 +14,7 @@
         tools:layout_editor_absoluteY="0dp">
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/taskTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -86,6 +86,12 @@
             android:onClick="goToMap"
             android:text="Select from map"
             android:textColor="@color/colorPrimaryDark" />
+
+        <Button
+            android:id="@+id/addTask"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ADD TASK" />
 
     </LinearLayout>
 

@@ -6,13 +6,30 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import com.firebase.client.Firebase;
+
+import com.google.firebase.*;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.quickstart.database.R;
+import com.google.firebase.quickstart.database.java.models.Post;
+import com.google.firebase.quickstart.database.java.models.User;
 
 public class AddTask extends AppCompatActivity {
+
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mTitleField = findViewById(R.id.fieldTitle);
+        mBodyField = findViewById(R.id.fieldBody);
+        mSubmitButton = findViewById(R.id.fabSubmitPost);
         //get the spinner from the xml.
         Spinner dropdown = findViewById(R.id.spinner1);
         //create a list of items for the spinner.
