@@ -14,6 +14,7 @@ import com.alamkanak.weekview.DateTimeInterpreter;
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
+import com.firebase.client.Firebase;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -37,7 +38,9 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
-
+        Firebase.setAndroidContext(this);
+        Firebase rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
+        
         // Get a reference for the week view in the layout.
         mWeekView = (WeekView) findViewById(R.id.weekView);
 
