@@ -94,7 +94,7 @@ public class AddTask extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             // Write new post
-                            addnewTask(userId, user.username, title, location);
+                           // addnewTask(userId, user.username, title, location);
                         }
 
                         // Finish this Activity, back to the stream
@@ -126,14 +126,19 @@ public class AddTask extends AppCompatActivity {
         Map<String, Object> postValues = task.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/posts/" + key, postValues);
-        childUpdates.put("/user-posts/" + userId + "/" + key, postValues);
+        childUpdates.put("/tasks/" + key, postValues);
+        childUpdates.put("/user-tasks/" + userId + "/" + key, postValues);
 
         mDatabase.updateChildren(childUpdates);
     }
     public void goToMap(View view)
     {
         Intent intent = new Intent(AddTask.this, MapViewActivity.class);
+        startActivity(intent);
+    }
+    public void goToSearch(View view)
+    {
+        Intent intent = new Intent(AddTask.this, SearchActivity.class);
         startActivity(intent);
     }
     public String getUid() {
