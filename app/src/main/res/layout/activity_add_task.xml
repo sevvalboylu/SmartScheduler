@@ -23,7 +23,7 @@
             tools:layout_editor_absoluteY="18dp" />
 
         <EditText
-            android:id="@+id/mytextText"
+            android:id="@+id/mytaskTitle"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -43,7 +43,7 @@
             tools:layout_editor_absoluteY="98dp" />
 
         <Spinner
-            android:id="@+id/spinner1"
+            android:id="@+id/impspin"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
