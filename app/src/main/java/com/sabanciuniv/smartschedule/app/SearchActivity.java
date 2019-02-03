@@ -57,7 +57,7 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
         MapKitFactory.initialize(this);
         SearchFactory.initialize(this);
 
-        setContentView(R.layout.activity_search);
+        setContentView(R.layout.search);
         super.onCreate(savedInstanceState);
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED);

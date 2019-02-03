@@ -26,7 +26,7 @@ public class UserLocationActivity extends Activity implements UserLocationObject
      * Replace "your_api_key" with a valid developer key.
      * You can get it at the https://developer.tech.yandex.ru/ website.
      */
-    private final String MAPKIT_API_KEY = " e9704f28-2c92-49b7-a560-dd270b81ac8c";
+    private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
 
     private MapView mapView;
     private UserLocationLayer userLocationLayer;

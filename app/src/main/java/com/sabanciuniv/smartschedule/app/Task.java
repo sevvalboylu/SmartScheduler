@@ -35,7 +35,6 @@ public class Task {
 
         return result;
     }
-    // [END post_to_map]
 
 }
-// [END post_class]
+

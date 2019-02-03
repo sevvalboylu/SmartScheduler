@@ -31,6 +31,7 @@ public class AddTask extends AppCompatActivity {
     private EditText mTitleField;
     private Spinner spinner1, spinner2;
     private Button mSubmitButton;
+    private static final Point location = new Point(41.0082, 28.9784);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +95,7 @@ public class AddTask extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             // Write new post
-                           // addnewTask(userId, user.username, title, location);
+                            addnewTask(userId, user.username, title, location);
                         }
 
                         // Finish this Activity, back to the stream
@@ -138,6 +139,7 @@ public class AddTask extends AppCompatActivity {
     }
 
     public String getUid() {
+
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 

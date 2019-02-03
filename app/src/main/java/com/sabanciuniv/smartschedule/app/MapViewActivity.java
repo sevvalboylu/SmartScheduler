@@ -17,7 +17,6 @@ public class MapViewActivity extends Activity {
     private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
     private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
 
-
     private MapView mapView;
 
     @Override
