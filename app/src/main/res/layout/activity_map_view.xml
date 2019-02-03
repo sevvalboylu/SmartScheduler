@@ -17,7 +17,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="10dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="53dp"
             android:clickable="true"
             android:onClick="goToSearch"
             app:srcCompat="?android:attr/actionModeWebSearchDrawable" />

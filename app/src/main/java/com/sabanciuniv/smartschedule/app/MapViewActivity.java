@@ -1,8 +1,10 @@
 
    package com.sabanciuniv.smartschedule.app;
 
+   import android.content.Intent;
    import android.os.Bundle;
    import android.app.Activity;
+   import android.view.View;
 
    import com.yandex.mapkit.Animation;
    import com.yandex.mapkit.MapKitFactory;
@@ -41,7 +43,11 @@ public class MapViewActivity extends Activity {
         MapKitFactory.getInstance().onStop();
         super.onStop();
     }
-
+    public void goToSearch(View view)
+    {
+        Intent intent = new Intent(MapViewActivity.this, SearchActivity.class);
+        startActivity(intent);
+    }
     @Override
     protected void onStart() {
         // Activity onStart call must be passed to both MapView and MapKit instance.

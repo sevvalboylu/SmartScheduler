@@ -136,11 +136,7 @@ public class AddTask extends AppCompatActivity {
         Intent intent = new Intent(AddTask.this, MapViewActivity.class);
         startActivity(intent);
     }
-    public void goToSearch(View view)
-    {
-        Intent intent = new Intent(AddTask.this, SearchActivity.class);
-        startActivity(intent);
-    }
+
     public String getUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }

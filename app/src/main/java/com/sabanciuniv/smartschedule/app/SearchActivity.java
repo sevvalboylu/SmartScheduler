@@ -29,17 +29,13 @@ import com.yandex.runtime.image.ImageProvider;
 import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
-/**
- * This example shows how to add and interact with a layer that displays search results on the map.
- * Note: search API calls count towards MapKit daily usage limits. Learn more at
- * https://tech.yandex.ru/mapkit/doc/3.x/concepts/conditions-docpage/#conditions__limits
- */
+
 public class SearchActivity extends Activity implements Session.SearchListener, CameraListener {
     /**
      * Replace "your_api_key" with a valid developer key.
      * You can get it at the https://developer.tech.yandex.ru/ website.
      */
-    private final String MAPKIT_API_KEY = "your_api_key";
+    private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
 
     private MapView mapView;
     private EditText searchEdit;
@@ -60,7 +56,7 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
         MapKitFactory.initialize(this);
         SearchFactory.initialize(this);
 
-        setContentView(R.layout.search);
+        setContentView(R.layout.activity_search);
         super.onCreate(savedInstanceState);
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED);
