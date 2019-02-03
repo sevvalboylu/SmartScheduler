@@ -31,7 +31,7 @@ public class MapViewActivity extends Activity {
 
         // And to show what can be done with it, we move the camera to the center of Saint Petersburg.
         mapView.getMap().move(
-                new CameraPosition(TARGET_LOCATION, 14.0f, 0.0f, 0.0f),
+                new CameraPosition(TARGET_LOCATION, 8.0f, 0.0f, 0.0f),
                 new Animation(Animation.Type.SMOOTH, 5),
                 null);
     }

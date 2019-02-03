@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.GeoObjectCollection;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.Point;
@@ -36,7 +37,7 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
      * You can get it at the https://developer.tech.yandex.ru/ website.
      */
     private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
-
+    private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
     private MapView mapView;
     private EditText searchEdit;
     private SearchManager searchManager;
@@ -77,7 +78,9 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
         });
 
         mapView.getMap().move(
-                new CameraPosition(new Point(59.945933, 30.320045), 14.0f, 0.0f, 0.0f));
+                new CameraPosition(TARGET_LOCATION, 8.0f, 0.0f, 0.0f),
+                new Animation(Animation.Type.SMOOTH, 5),
+                null);
 
         submitQuery(searchEdit.getText().toString());
     }
