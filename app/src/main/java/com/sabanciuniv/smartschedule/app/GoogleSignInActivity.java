@@ -15,7 +15,6 @@
  */
 
 package com.sabanciuniv.smartschedule.app;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -36,12 +35,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.quickstart.auth.R;
-
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
  */
-public class GoogleSignInActivity extends BaseActivity implements
+public class GoogleSignInActivity extends FireBaseActivity implements
         View.OnClickListener {
 
     private static final String TAG = "GoogleActivity";
