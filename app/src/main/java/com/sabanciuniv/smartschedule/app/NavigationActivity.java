@@ -2,17 +2,17 @@ package com.sabanciuniv.smartschedule.app;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class NavigationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -34,6 +34,7 @@ public class NavigationActivity extends AppCompatActivity
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
                         // set item as selected to persist highlight
+
                         menuItem.setChecked(true);
                         // close drawer when item is tapped
                         mDrawerLayout.closeDrawers();
@@ -101,6 +102,7 @@ public class NavigationActivity extends AppCompatActivity
 
         if (id == R.id.nav_sched) {
             // view schedules
+
         } else if (id == R.id.nav_reminders) {
 
         } else if (id == R.id.nav_settings) {
@@ -112,6 +114,7 @@ public class NavigationActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
 
         }
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

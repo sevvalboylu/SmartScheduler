@@ -33,7 +33,6 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="68dp"
             android:clickable="true"
-            android:backgroundTint="@color/colorAccent"
             app:srcCompat="@android:drawable/checkbox_on_background"/>
 
     </com.yandex.mapkit.mapview.MapView>

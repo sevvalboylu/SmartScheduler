@@ -25,6 +25,7 @@ import com.yandex.mapkit.geometry.Point;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class AddTask extends AppCompatActivity {
 
@@ -100,7 +101,9 @@ public class AddTask extends AppCompatActivity {
         // [START single_value_read]
         final String userId = getUid();
         com.sabanciuniv.smartschedule.app.Task task = new com.sabanciuniv.smartschedule.app.Task(userId,lvl, title, location);
-        mDatabase.child("tasks").child(userId).setValue(task);
+        Random rand = new Random();
+        String taskId = String.valueOf(rand.nextInt(100));
+        mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
        /* mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
