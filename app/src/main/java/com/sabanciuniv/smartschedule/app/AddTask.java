@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,8 +15,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.firebase.auth.AuthResult;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,6 +38,7 @@ public class AddTask extends AppCompatActivity {
     private EditText mTitleField;
     private Spinner spinner1, spinner2;
     private Button mSubmitButton;
+    private short lvl;
     private static final Point location = new Point(41.0082, 28.9784);
     private FirebaseAuth mAuth;
 
@@ -73,7 +75,7 @@ public class AddTask extends AppCompatActivity {
                 submitTask();
             }
         });
-        String[] items = new String[]{"1", "2", "three"};
+        String[] items = new String[]{"1", "2", "3"};
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
        //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
@@ -85,6 +87,7 @@ public class AddTask extends AppCompatActivity {
 
     private void submitTask() {
         final String title = mTitleField.getText().toString();
+
        // final Point location =
 
         // Title is required
@@ -114,8 +117,8 @@ public class AddTask extends AppCompatActivity {
                                     "Error: could not fetch user.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            // Write new post
-                            addnewTask(userId, user.username, title, location);
+                            // new task
+                            addnewTask(userId,lvl, title, location);
                         }
 
                         // Finish this Activity, back to the stream
@@ -137,13 +140,18 @@ public class AddTask extends AppCompatActivity {
 
     public void addListenerOnSpinnerItemSelection() {
         spinner1 = (Spinner) findViewById(R.id.impspin);
-        spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener());
+        spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long arg3) {
+
+            }
+        });
     }
-    private void addnewTask(String userId, String username, String title, Point location) {
+    private void addnewTask(String userId, short lvl,String title, Point location) {
         // Create new post at /user-posts/$userid/$postid and at
         // /posts/$postid simultaneously
         String key = mDatabase.child("").push().getKey();
-        com.sabanciuniv.smartschedule.app.Task task = new com.sabanciuniv.smartschedule.app.Task(userId, title, location);
+        com.sabanciuniv.smartschedule.app.Task task = new com.sabanciuniv.smartschedule.app.Task(userId,lvl, title, location);
         Map<String, Object> postValues = task.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
