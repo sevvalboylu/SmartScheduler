@@ -14,13 +14,13 @@ public class Task {
     public String uid;
     public String title;
     public Point location;
-    public short lvl;
+    public int lvl;
 
     public Task() {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
 
-    public Task(String uid, short lvl, String title, Point location) {
+    public Task(String uid, int lvl, String title, Point location) {
         this.uid = uid;
         this.lvl=lvl;
         this.title = title;

@@ -5,18 +5,6 @@
     "project_id": "smart-scheduler-1548361925633",
     "storage_bucket": "smart-scheduler-1548361925633.appspot.com"
   },
-
-
-  "rules": {
-    "users": {
-      "$uid": {
-        ".read": "$uid === auth.uid",
-        ".write": "$uid === auth.uid"
-      }
-    }
-  },
-
-
   "client": [
     {
       "client_info": {
@@ -48,7 +36,6 @@
         "analytics_service": {
           "status": 1
         },
-
         "appinvite_service": {
           "status": 2,
           "other_platform_oauth_client": [

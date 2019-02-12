@@ -19,11 +19,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.yandex.mapkit.geometry.Point;
 
 import java.util.HashMap;
@@ -38,8 +35,8 @@ public class AddTask extends AppCompatActivity {
     private EditText mTitleField;
     private Spinner spinner1, spinner2;
     private Button mSubmitButton;
-    private short lvl;
-    private static final Point location = new Point(41.0082, 28.9784);
+    private int lvl;
+    private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
     private FirebaseAuth mAuth;
 
     @Override
@@ -102,13 +99,14 @@ public class AddTask extends AppCompatActivity {
 
         // [START single_value_read]
         final String userId = getUid();
-        mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
+        com.sabanciuniv.smartschedule.app.Task task = new com.sabanciuniv.smartschedule.app.Task(userId,lvl, title, location);
+        mDatabase.child("tasks").child(userId).setValue(task);
+       /* mDatabase.child("users").child(userId).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // Get user value
                         User user = dataSnapshot.getValue(User.class);
-
                         // [START_EXCLUDE]
                         if (user == null) {
                             // User is null, error out
@@ -118,11 +116,10 @@ public class AddTask extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             // new task
-                            addnewTask(userId,lvl, title, location);
+                            addnewTask(userId, lvl, title, location);
                         }
 
                         // Finish this Activity, back to the stream
-                        //setEditingEnabled(true);
                         finish();
                         // [END_EXCLUDE]
                     }
@@ -136,27 +133,27 @@ public class AddTask extends AppCompatActivity {
                     }
                 });
         // [END single_value_read]
+    */
     }
-
     public void addListenerOnSpinnerItemSelection() {
         spinner1 = (Spinner) findViewById(R.id.impspin);
         spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
-            @Override
-            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long arg3) {
 
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
+                 lvl =(int) Integer.parseInt(parent.getItemAtPosition(pos).toString());
             }
         });
     }
-    private void addnewTask(String userId, short lvl,String title, Point location) {
+    private void addnewTask(String userId, short lvl, String title, Point location) {
         // Create new post at /user-posts/$userid/$postid and at
         // /posts/$postid simultaneously
-        String key = mDatabase.child("").push().getKey();
+        String key = mDatabase.child("tasks").push().getKey();
         com.sabanciuniv.smartschedule.app.Task task = new com.sabanciuniv.smartschedule.app.Task(userId,lvl, title, location);
-        Map<String, Object> postValues = task.toMap();
+        Map<String, Object> taskValues = task.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/tasks/" + key, postValues);
-        childUpdates.put("/user-tasks/" + userId + "/" + key, postValues);
+        childUpdates.put("/tasks/" + key, taskValues);
 
         mDatabase.updateChildren(childUpdates);
     }
