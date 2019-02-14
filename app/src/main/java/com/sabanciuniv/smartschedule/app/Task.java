@@ -16,6 +16,19 @@ public class Task {
     public Point location;
     public int lvl;
 
+    public String getTitle() {
+        return title;
+    }
+
+    public int getLvl() {
+        return lvl;
+    }
+
+    public Point getLocation() {
+
+        return location;
+    }
+
     public Task() {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
