@@ -13,50 +13,26 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/controlActivated"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
-
-
-    </FrameLayout>
-
-    <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_navigation"
-        app:menu="@menu/activity_nav_drawer">
-
-    </android.support.design.widget.NavigationView>
-
-
 
     <com.alamkanak.weekview.WeekView
-        android:id="@+id/weekView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:columnGap="8dp"
-        app:dayBackgroundColor="#05000000"
-        app:eventTextColor="@android:color/white"
-        app:headerColumnBackground="#ffffffff"
-        app:headerColumnPadding="8dp"
-        app:headerColumnTextColor="@color/toolbar_text"
-        app:headerRowBackgroundColor="@color/toolbar"
-        app:headerRowPadding="12dp"
-        app:hourHeight="60dp"
-        app:noOfVisibleDays="3"
-        app:textSize="12sp"
-        app:todayBackgroundColor="#1848adff"
-        app:todayHeaderTextColor="@color/accent"
-        />
-    <FrameLayout
-        android:layout_height="match_parent"
-        android:layout_width="match_parent">
+    android:id="@+id/weekView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:columnGap="8dp"
+    app:dayBackgroundColor="#05000000"
+    app:eventTextColor="@android:color/white"
+    app:headerColumnBackground="#ffffffff"
+    app:headerColumnPadding="8dp"
+    app:headerColumnTextColor="@color/toolbar_text"
+    app:headerRowBackgroundColor="@color/toolbar"
+    app:headerRowPadding="12dp"
+    app:hourHeight="60dp"
+    app:noOfVisibleDays="3"
+    app:textSize="12sp"
+    app:todayBackgroundColor="#1848adff"
+    app:todayHeaderTextColor="@color/accent"
+    />
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floatingActionButton"
@@ -70,5 +46,16 @@
         app:srcCompat="@android:drawable/ic_input_add" />
 
     </FrameLayout>
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_navigation"
+        app:menu="@menu/activity_nav_drawer">
+
+    </android.support.design.widget.NavigationView>
 
 </android.support.v4.widget.DrawerLayout>
