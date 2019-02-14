@@ -40,7 +40,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         setContentView(R.layout.activity_base);
         Firebase.setAndroidContext(this);
         Firebase rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
-        
+
         // Get a reference for the week view in the layout.
         mWeekView = (WeekView) findViewById(R.id.weekView);
 

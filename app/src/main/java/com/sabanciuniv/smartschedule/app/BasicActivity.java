@@ -2,11 +2,11 @@
 package com.sabanciuniv.smartschedule.app;
 
 
+import com.alamkanak.weekview.WeekViewEvent;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import com.alamkanak.weekview.WeekViewEvent;
 
 public class BasicActivity extends BaseActivity {
 
@@ -114,5 +114,6 @@ public class BasicActivity extends BaseActivity {
 
         return events;
     }
+
 
 }

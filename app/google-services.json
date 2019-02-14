@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "545871567838",
+    "firebase_url": "https://smart-scheduler-1548361925633.firebaseio.com",
+    "project_id": "smart-scheduler-1548361925633",
+    "storage_bucket": "smart-scheduler-1548361925633.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545871567838:android:b82c211065f94d50",
+        "android_client_info": {
+          "package_name": "com.sabanciuniv.smartschedule.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "545871567838-hq5hbon15dksf0d2ttng9p76jv4edrfj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sabanciuniv.smartschedule.app",
+            "certificate_hash": "d3b642e780486d4505e25baf4e969473e1170695"
+          }
+        },
+        {
+          "client_id": "545871567838-9bnlmgh0nofbpevbuvl583d7g4l9fv4a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdMZIl3ot5h_zouYkh_Oyw6q50bUjyctQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "545871567838-9bnlmgh0nofbpevbuvl583d7g4l9fv4a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -52,4 +52,5 @@
         <attr name="allDayEventHeight" format="dimension"/>
         <attr name="scrollDuration" format="integer"/>
     </declare-styleable>
+
 </resources>
