@@ -3,7 +3,12 @@ package com.sabanciuniv.smartschedule.app;
 import android.content.Intent;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,11 +26,12 @@ import java.util.Calendar;
 import java.util.Locale;
 
 
-public abstract class BaseActivity extends AppCompatActivity implements WeekView.EventClickListener, MonthLoader.MonthChangeListener, WeekView.EventLongPressListener, WeekView.EmptyViewLongPressListener {
+public abstract class BaseActivity extends AppCompatActivity implements WeekView.EventClickListener, MonthLoader.MonthChangeListener, WeekView.EventLongPressListener, WeekView.EmptyViewLongPressListener,  NavigationView.OnNavigationItemSelectedListener {
     private static final int TYPE_DAY_VIEW = 1;
     private static final int TYPE_THREE_DAY_VIEW = 2;
     private static final int TYPE_WEEK_VIEW = 3;
     private int mWeekViewType = TYPE_THREE_DAY_VIEW;
+    private DrawerLayout mDrawerLayout;
     private WeekView mWeekView;
 
     public void addTask(View view)
@@ -40,6 +46,52 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         setContentView(R.layout.activity_base);
         Firebase.setAndroidContext(this);
         Firebase rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        //ActionBar actionbar = getSupportActionBar();
+        //actionbar.setDisplayHomeAsUpEnabled(true);
+        //actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        // set item as selected to persist highlight
+
+                        menuItem.setChecked(true);
+                        // close drawer when item is tapped
+                        mDrawerLayout.closeDrawers();
+
+                        // Add code here to update the UI based on the item selected
+                        // For example, swap UI fragments here
+
+                        return true;
+                    }
+                });
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        //ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        //     this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+
+        //drawer.setDrawerListener(toggle);
+
+
+        //NavigationView navigationView = (NavigationView)
+        //    findViewById(R.id.nav_view);
+
+        navigationView.setNavigationItemSelectedListener(this);
+
+
 
         // Get a reference for the week view in the layout.
         mWeekView = (WeekView) findViewById(R.id.weekView);
@@ -74,6 +126,10 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         int id = item.getItemId();
         setupDateTimeInterpreter(id == R.id.action_week_view);
         switch (id){
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+
             case R.id.action_today:
                 mWeekView.goToToday();
                 return true;
@@ -114,7 +170,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
                 }
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -164,4 +219,50 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
     public WeekView getWeekView() {
         return mWeekView;
     }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer =findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_sched) {
+            // view schedules
+
+        }
+        else if (id == R.id.nav_tasks){
+            Intent intent = new Intent(BaseActivity.this, MainActivity.class);
+            startActivity(intent);
+
+        }
+        else if (id == R.id.nav_reminders) {
+
+        } else if (id == R.id.nav_settings) {
+
+        } else if (id == R.id.nav_appointments) {
+
+        } else if (id == R.id.nav_feedback) {
+
+        } else if (id == R.id.nav_share) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+
 }
+
+
