@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "";
     private RecyclerView mRecyclerView;
     private ArrayList<Task> tasks = new ArrayList<Task>();
-    private final String userId= "";
+    private String userId= "fVujOYBPfIgR1YzpkNwZM3xwhjQ2";
     public interface DataStatus{
     void DataIsLoaded(List<Task> tasks, List<String> keys);
 
@@ -36,18 +36,14 @@ public class MainActivity extends AppCompatActivity {
                 new RecyclerView_Config().setConfig(mRecyclerView,MainActivity.this,tasks,keys);
             }
         });
-        //ArrayAdapter adapter = new ArrayAdapter<>(this, R.layout.activity_main, tasks);
-        //RecyclerView list =  findViewById(R.id.recyclerview_tasks);
-        //list.setAdapter(adapter);
     }
     public void readTasks(final DataStatus dataStatus)
     {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference ref = database.child("tasks");
+        DatabaseReference ref = database.child("tasks").child(userId);
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(tasks != null)
                     tasks.clear();
                 if (dataSnapshot.exists()) {
                     List<String> keys = new ArrayList<>();

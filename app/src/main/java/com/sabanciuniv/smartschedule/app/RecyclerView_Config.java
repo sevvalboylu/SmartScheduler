@@ -39,7 +39,7 @@ public class RecyclerView_Config {
 
         public void bind(Task task, String key) {
             mTitle.setText(task.getTitle());
-            mLocation.setText((CharSequence) task.getLocation());
+            mLocation.setText(Double.toString(task.getLocation().getLatitude())+ Double.toString(task.getLocation().getLongitude()));
             mImp.setText(task.getLvl());
             this.key = key;
         }
