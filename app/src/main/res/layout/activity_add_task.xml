@@ -10,22 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="495dp"
         android:orientation="vertical"
-        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteX="73dp"
         tools:layout_editor_absoluteY="0dp">
-
-        <TextView
-            android:id="@+id/taskTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Enter the title of the task"
-            tools:layout_editor_absoluteX="18dp"
-            tools:layout_editor_absoluteY="18dp" />
 
         <EditText
             android:id="@+id/mytaskTitle"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
+            android:hint="Enter the title of the task"
             android:layout_marginStart="8dp"
             tools:layout_editor_absoluteX="20dp"
             tools:layout_editor_absoluteY="60dp">
