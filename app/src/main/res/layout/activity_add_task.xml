@@ -81,7 +81,7 @@
             android:id="@+id/buttonBasic"
             android:layout_width="150sp"
             android:layout_height="60sp"
-            android:background="@color/colorAccent"
+            android:background="@color/colorPrimary"
             android:clickable="true"
             android:onClick="goToMap"
             android:text="Select from map"
