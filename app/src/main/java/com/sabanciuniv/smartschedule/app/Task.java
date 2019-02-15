@@ -20,8 +20,8 @@ public class Task {
         return title;
     }
 
-    public int getLvl() {
-        return lvl;
+    public String getLvl() {
+        return Integer.toString(lvl);
     }
 
     public Point getLocation() {
