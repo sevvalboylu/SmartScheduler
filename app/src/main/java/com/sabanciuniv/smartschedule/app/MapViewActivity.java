@@ -89,6 +89,7 @@
         b.putDouble("PointLatitude", selectedPoint[0].getLatitude());
         b.putDouble("PointLongitude", selectedPoint[0].getLongitude());
         intent.putExtras(b);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivityForResult(intent, 10);
     }
 
