@@ -23,7 +23,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.yandex.mapkit.geometry.Point;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -75,9 +77,9 @@ public class AddTask extends AppCompatActivity {
         });
         String[] items = new String[]{"1", "2", "3"};
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
-       //There are multiple variations of this, but this is the basic variant.
+        //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
-       //set the spinners adapter to the previously created one.
+        //set the spinners adapter to the previously created one.
         dropdown.setAdapter(adapter);
 
         //go to map or dropdown list of most frequent places
@@ -138,6 +140,7 @@ public class AddTask extends AppCompatActivity {
         // [END single_value_read]
     */
     }
+
     public void addListenerOnSpinnerItemSelection() {
         spinner1 = (Spinner) findViewById(R.id.impspin);
         spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
