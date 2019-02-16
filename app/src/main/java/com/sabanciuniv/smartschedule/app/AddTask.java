@@ -36,7 +36,7 @@ public class AddTask extends AppCompatActivity {
     private static final String REQUIRED = "Required";
     private DatabaseReference mDatabase;
     private EditText mTitleField;
-    private Spinner spinner1, spinner2;
+    private Spinner spinner1, freqLocationSpinner;
     private Button mSubmitButton;
     private int lvl;
     private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
@@ -61,12 +61,12 @@ public class AddTask extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mTitleField = findViewById(R.id.mytaskTitle);
+        mTitleField = findViewById(R.id.taskTitleText);
 
         mSubmitButton = findViewById(R.id.addTask);
 
         //get the spinner from the xml.
-        Spinner dropdown = findViewById(R.id.impspin);
+        Spinner dropdown = findViewById(R.id.importanceSpinner);
         addListenerOnSpinnerItemSelection();
         //create a list of items for the spinner.
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
@@ -142,7 +142,7 @@ public class AddTask extends AppCompatActivity {
     }
 
     public void addListenerOnSpinnerItemSelection() {
-        spinner1 = (Spinner) findViewById(R.id.impspin);
+        spinner1 = (Spinner) findViewById(R.id.importanceSpinner);
         spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
 
             @Override
