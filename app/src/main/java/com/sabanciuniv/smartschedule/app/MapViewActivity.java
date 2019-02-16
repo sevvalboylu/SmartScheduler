@@ -29,10 +29,11 @@
     private MapView mapView;
     private MapObjectCollection mapObjects;
 
+    final Point[] selectedPoint = new Point[1];
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        final Point[] selectedPoint = new Point[1];
-
+        selectedPoint[0] = TARGET_LOCATION;
         MapKitFactory.setApiKey(MAPKIT_API_KEY);
         MapKitFactory.initialize(this);
         // Now MapView can be created.
@@ -80,9 +81,15 @@
         Intent intent = new Intent(MapViewActivity.this, SearchActivity.class);
         startActivity(intent);
     }
+
     public void selectPoint(View view)
     {
-        super.finish();
+        Intent intent = new Intent( MapViewActivity.this, AddTask.class);
+        Bundle b = new Bundle();
+        b.putDouble("PointLatitude", selectedPoint[0].getLatitude());
+        b.putDouble("PointLongitude", selectedPoint[0].getLongitude());
+        intent.putExtras(b);
+        startActivityForResult(intent, 10);
     }
 
     @Override
@@ -92,6 +99,5 @@
         MapKitFactory.getInstance().onStart();
         mapView.onStart();
     }
-
 
 }

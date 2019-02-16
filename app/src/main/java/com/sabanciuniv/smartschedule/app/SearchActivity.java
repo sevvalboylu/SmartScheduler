@@ -1,9 +1,11 @@
 package com.sabanciuniv.smartschedule.app;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -50,6 +52,8 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
     private SearchManager searchManager;
     private Session searchSession;
     PlacemarkMapObject mark; // initialized later on
+
+    final Point[] selectedPoint = new Point[1];
 
     public SearchActivity() {
         mark = null;
@@ -114,7 +118,7 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
 
     @Override
     public void onSearchResponse(Response response) {
-        final Point[] selectedPoint = new Point[1];
+
         MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
         mapObjects.clear();
 
@@ -130,6 +134,8 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
         Point firstPoint = null;
         List<GeoObjectCollection.Item> firstResult = response.getCollection().getChildren();
         firstPoint = firstResult.get(0).getObj().getGeometry().get(0).getPoint();
+
+        selectedPoint[0] = firstPoint; //by default selected point is the first query result
 
         mark = mapObjects.addPlacemark( firstPoint,
                 ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
@@ -173,5 +179,15 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
         if (finished) {
             submitQuery(searchEdit.getText().toString());
         }
+    }
+
+    public void selectPoint(View view)
+    {
+        Intent intent = new Intent( SearchActivity.this, AddTask.class);
+        Bundle b = new Bundle();
+        b.putDouble("PointLatitude", selectedPoint[0].getLatitude());
+        b.putDouble("PointLongitude", selectedPoint[0].getLongitude());
+        intent.putExtras(b);
+        startActivityForResult(intent, 10);
     }
 }
