@@ -1,6 +1,8 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -31,8 +33,36 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
     private static final int TYPE_THREE_DAY_VIEW = 2;
     private static final int TYPE_WEEK_VIEW = 3;
     private int mWeekViewType = TYPE_THREE_DAY_VIEW;
+    //private Context mContext;
     private DrawerLayout mDrawerLayout;
     private WeekView mWeekView;
+
+    public class SharePref {
+
+        public static final String PREF_NAME = "smartschedule.shared.pref";
+        public static final String PREF_KEY = "smartschedule.shared.username";
+
+        public SharePref() {
+        }
+
+        public void save(Context context, String text) {
+            SharedPreferences sharePref;
+            SharedPreferences.Editor editor;
+            sharePref = context.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE);
+            editor = sharePref.edit();
+            editor.putString(PREF_KEY,text);
+            editor.apply();
+        }
+
+        public String getData(Context context) {
+            SharedPreferences sharePref;
+            String text;
+            sharePref = getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE);
+            text = sharePref.getString(PREF_KEY,null);
+            return text;
+        }
+    }
+
 
     public void addTask(View view)
     {
@@ -49,49 +79,9 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        //ActionBar actionbar = getSupportActionBar();
-        //actionbar.setDisplayHomeAsUpEnabled(true);
-        //actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        // set item as selected to persist highlight
-
-                        menuItem.setChecked(true);
-                        // close drawer when item is tapped
-                        mDrawerLayout.closeDrawers();
-
-                        // Add code here to update the UI based on the item selected
-                        // For example, swap UI fragments here
-
-                        return true;
-                    }
-                });
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        //ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-        //     this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar,
-                R.string.navigation_drawer_open,
-                R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-
-        //drawer.setDrawerListener(toggle);
-
-
-        //NavigationView navigationView = (NavigationView)
-        //    findViewById(R.id.nav_view);
-
-        navigationView.setNavigationItemSelectedListener(this);
-
-
+        SharePref sharePref = new SharePref();
+        String username = sharePref.getData(this);
 
         // Get a reference for the week view in the layout.
         mWeekView = (WeekView) findViewById(R.id.weekView);
@@ -112,6 +102,37 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         // Set up a date time interpreter to interpret how the date and time will be formatted in
         // the week view. This is optional.
         setupDateTimeInterpreter(false);
+        if(username == null) {
+            //go to SignIn view
+            Intent intent = new Intent(BaseActivity.this, SignInActivity.class);
+            startActivity(intent);
+        }
+        else {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        // set item as selected to persist highlight
+
+                        menuItem.setChecked(true);
+                        // close drawer when item is tapped
+                        mDrawerLayout.closeDrawers();
+
+                        return true;
+                    }
+                });
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        navigationView.setNavigationItemSelectedListener(this);
+
+        }
     }
 
 
