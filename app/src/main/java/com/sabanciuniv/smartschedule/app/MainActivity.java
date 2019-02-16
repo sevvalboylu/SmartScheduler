@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "";
     private RecyclerView mRecyclerView;
     private ArrayList<Task> tasks = new ArrayList<Task>();
-    private final String userId= "";
+    private final String userId= "fVujOYBPfIgR1YzpkNwZM3xwhjQ2";
     public interface DataStatus{
     void DataIsLoaded(List<Task> tasks, List<String> keys);
 
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     public void readTasks(final DataStatus dataStatus)
     {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference ref = database.child("tasks");
+        DatabaseReference ref = database.child("tasks").child(userId);
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
