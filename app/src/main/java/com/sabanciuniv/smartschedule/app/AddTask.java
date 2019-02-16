@@ -1,5 +1,6 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,8 +11,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,19 +26,22 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.yandex.mapkit.geometry.Point;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class AddTask extends AppCompatActivity {
+public class AddTask extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
 
     private static final String TAG = "AddTask";
 
     private static final String REQUIRED = "Required";
     private DatabaseReference mDatabase;
     private EditText mTitleField;
-    private Spinner spinner1, spinner2;
+    private Spinner spinner1, freqLocationSpinner;
     private Button mSubmitButton;
+    private Switch mPickDateSwitch;
     private int lvl;
     private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
     private FirebaseAuth mAuth;
@@ -59,12 +65,13 @@ public class AddTask extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mTitleField = findViewById(R.id.mytaskTitle);
-
+        mTitleField = findViewById(R.id.taskTitleText);
         mSubmitButton = findViewById(R.id.addTask);
+        mPickDateSwitch = (Switch) findViewById(R.id.pickDateSwitch);
+        mPickDateSwitch.setOnCheckedChangeListener(this);
 
         //get the spinner from the xml.
-        Spinner dropdown = findViewById(R.id.impspin);
+        Spinner dropdown = findViewById(R.id.importanceSpinner);
         addListenerOnSpinnerItemSelection();
         //create a list of items for the spinner.
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
@@ -75,9 +82,9 @@ public class AddTask extends AppCompatActivity {
         });
         String[] items = new String[]{"1", "2", "3"};
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
-       //There are multiple variations of this, but this is the basic variant.
+        //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
-       //set the spinners adapter to the previously created one.
+        //set the spinners adapter to the previously created one.
         dropdown.setAdapter(adapter);
 
         //go to map or dropdown list of most frequent places
@@ -85,8 +92,12 @@ public class AddTask extends AppCompatActivity {
 
     private void submitTask() {
         final String title = mTitleField.getText().toString();
+        Intent intent = getIntent();
+        double latitude = 0, longitude = 0;
+        intent.getDoubleExtra("PointLatitude", latitude);
+        intent.getDoubleExtra( "PointLongitude", longitude);
 
-       // final Point location =
+        final Point location = new Point(latitude, longitude);
 
         // Title is required
         if (TextUtils.isEmpty(title)) {
@@ -138,8 +149,9 @@ public class AddTask extends AppCompatActivity {
         // [END single_value_read]
     */
     }
+
     public void addListenerOnSpinnerItemSelection() {
-        spinner1 = (Spinner) findViewById(R.id.impspin);
+        spinner1 = (Spinner) findViewById(R.id.importanceSpinner);
         spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
 
             @Override
@@ -166,6 +178,7 @@ public class AddTask extends AppCompatActivity {
         Intent intent = new Intent(AddTask.this, MapViewActivity.class);
         startActivity(intent);
     }
+
 
     public String getUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();

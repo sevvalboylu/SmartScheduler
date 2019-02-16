@@ -1,8 +1,11 @@
 package com.sabanciuniv.smartschedule.app;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -16,7 +19,10 @@ import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.CameraUpdateSource;
 import com.yandex.mapkit.map.Map;
+import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
+import com.yandex.mapkit.map.MapObjectDragListener;
+import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.map.VisibleRegionUtils;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.search.Response;
@@ -30,6 +36,8 @@ import com.yandex.runtime.image.ImageProvider;
 import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
+import java.util.List;
+
 
 public class SearchActivity extends Activity implements Session.SearchListener, CameraListener {
     /**
@@ -39,9 +47,17 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
     private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
     private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
     private MapView mapView;
+    private MapObjectCollection mapObjects;
     private EditText searchEdit;
     private SearchManager searchManager;
     private Session searchSession;
+    PlacemarkMapObject mark; // initialized later on
+
+    final Point[] selectedPoint = new Point[1];
+
+    public SearchActivity() {
+        mark = null;
+    }
 
     private void submitQuery(String query) {
         searchSession = searchManager.submit(
@@ -82,6 +98,7 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
                 new Animation(Animation.Type.SMOOTH, 5),
                 null);
 
+
         submitQuery(searchEdit.getText().toString());
     }
 
@@ -101,6 +118,7 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
 
     @Override
     public void onSearchResponse(Response response) {
+
         MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
         mapObjects.clear();
 
@@ -112,6 +130,32 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
                         ImageProvider.fromResource(this, R.drawable.search_result));
             }
         }
+
+        Point firstPoint = null;
+        List<GeoObjectCollection.Item> firstResult = response.getCollection().getChildren();
+        firstPoint = firstResult.get(0).getObj().getGeometry().get(0).getPoint();
+
+        selectedPoint[0] = firstPoint; //by default selected point is the first query result
+
+        mark = mapObjects.addPlacemark( firstPoint,
+                ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
+        mark.setDraggable(true);
+        mark.setDragListener(new MapObjectDragListener() {
+            @Override
+            public void onMapObjectDragStart(@NonNull MapObject mapObject) {
+
+            }
+
+            @Override
+            public void onMapObjectDrag(@NonNull MapObject mapObject, @NonNull Point point) {
+
+            }
+
+            @Override
+            public void onMapObjectDragEnd(@NonNull MapObject mapObject) {
+                selectedPoint[0] = mark.getGeometry();
+            }
+        });
     }
 
     @Override
@@ -135,5 +179,16 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
         if (finished) {
             submitQuery(searchEdit.getText().toString());
         }
+    }
+
+    public void selectPoint(View view)
+    {
+        Intent intent = new Intent( SearchActivity.this, AddTask.class);
+        Bundle b = new Bundle();
+        b.putDouble("PointLatitude", selectedPoint[0].getLatitude());
+        b.putDouble("PointLongitude", selectedPoint[0].getLongitude());
+        intent.putExtras(b);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivityForResult(intent, 10);
     }
 }
