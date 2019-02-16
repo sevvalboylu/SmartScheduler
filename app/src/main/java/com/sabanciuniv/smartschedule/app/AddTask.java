@@ -111,7 +111,7 @@ public class AddTask extends AppCompatActivity implements CompoundButton.OnCheck
 
         // [START single_value_read]
         final String userId = getUid();
-        com.sabanciuniv.smartschedule.app.Task task = new com.sabanciuniv.smartschedule.app.Task(userId,lvl, title, location);
+        com.sabanciuniv.smartschedule.app.Task task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location);
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
