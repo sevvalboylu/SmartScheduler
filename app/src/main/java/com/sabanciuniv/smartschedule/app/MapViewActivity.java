@@ -14,7 +14,9 @@
    import com.yandex.mapkit.MapKitFactory;
    import com.yandex.mapkit.geometry.Point;
    import com.yandex.mapkit.map.CameraPosition;
+   import com.yandex.mapkit.map.MapObject;
    import com.yandex.mapkit.map.MapObjectCollection;
+   import com.yandex.mapkit.map.MapObjectDragListener;
    import com.yandex.mapkit.map.PlacemarkMapObject;
    import com.yandex.mapkit.mapview.MapView;
    import com.yandex.runtime.image.ImageProvider;
@@ -46,20 +48,24 @@
                 null);
 
         final PlacemarkMapObject mark = mapObjects.addPlacemark(TARGET_LOCATION);
-        mark.setOpacity(0.5f);
         mark.setIcon(ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
         mark.setDraggable(true);
-
-
-        mapView.setLongClickable(true);
-        mapView.setOnLongClickListener(new View.OnLongClickListener() {
+        mark.setDragListener(new MapObjectDragListener() {
             @Override
-            public boolean onLongClick(View view) {
-                Log.d("long", "onLongClick() returned: ");
-                return true;
+            public void onMapObjectDragStart(@NonNull MapObject mapObject) {
+
+            }
+
+            @Override
+            public void onMapObjectDrag(@NonNull MapObject mapObject, @NonNull Point point) {
+
+            }
+
+            @Override
+            public void onMapObjectDragEnd(@NonNull MapObject mapObject) {
+                selectedPoint[0] = mark.getGeometry();
             }
         });
-
     }
 
     @Override
@@ -74,6 +80,11 @@
         Intent intent = new Intent(MapViewActivity.this, SearchActivity.class);
         startActivity(intent);
     }
+    public void selectPoint(View view)
+    {
+        super.finish();
+    }
+
     @Override
     protected void onStart() {
         // Activity onStart call must be passed to both MapView and MapKit instance.
