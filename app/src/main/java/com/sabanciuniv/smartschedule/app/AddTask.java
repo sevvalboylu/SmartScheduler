@@ -10,8 +10,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class AddTask extends AppCompatActivity {
+public class AddTask extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
 
     private static final String TAG = "AddTask";
 
@@ -38,6 +40,7 @@ public class AddTask extends AppCompatActivity {
     private EditText mTitleField;
     private Spinner spinner1, freqLocationSpinner;
     private Button mSubmitButton;
+    private Switch mPickDateSwitch;
     private int lvl;
     private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
     private FirebaseAuth mAuth;
@@ -62,8 +65,9 @@ public class AddTask extends AppCompatActivity {
         setContentView(R.layout.activity_add_task);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mTitleField = findViewById(R.id.taskTitleText);
-
         mSubmitButton = findViewById(R.id.addTask);
+        mPickDateSwitch = (Switch) findViewById(R.id.pickDateSwitch);
+        mPickDateSwitch.setOnCheckedChangeListener(this);
 
         //get the spinner from the xml.
         Spinner dropdown = findViewById(R.id.importanceSpinner);
