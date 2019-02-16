@@ -36,6 +36,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
     //private Context mContext;
     private DrawerLayout mDrawerLayout;
     private WeekView mWeekView;
+    private String uid;
 
     public class SharePref {
 
@@ -74,6 +75,10 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        if(extras!=null)
+          uid = extras.getString("uid");
         Firebase.setAndroidContext(this);
         Firebase rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -104,8 +109,8 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         setupDateTimeInterpreter(false);
         if(username == null) {
             //go to SignIn view
-            Intent intent = new Intent(BaseActivity.this, SignInActivity.class);
-            startActivity(intent);
+            Intent intent1 = new Intent(BaseActivity.this, SignInActivity.class);
+            startActivity(intent1);
         }
         else {
         NavigationView navigationView = findViewById(R.id.nav_view);
