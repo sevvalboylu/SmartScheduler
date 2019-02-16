@@ -40,6 +40,7 @@ public class Task {
         this.location = location;
     }
 
+
     // [START post_to_map]
     @Exclude
     public Map<String, Object> toMap() {
