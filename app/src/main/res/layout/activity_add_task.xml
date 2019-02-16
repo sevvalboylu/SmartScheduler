@@ -5,137 +5,151 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AddTask">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="495dp"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="73dp"
-        tools:layout_editor_absoluteY="0dp">
-
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <ImageView
-                android:id="@+id/taskTitleTextIcon"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+            android:layout_height="495dp"
+            android:orientation="vertical"
+            tools:layout_editor_absoluteX="73dp"
+            tools:layout_editor_absoluteY="0dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/taskTitleTextIcon"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_calendar_today_24px"/>
+                <EditText
+                    android:id="@+id/taskTitleText"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:hint="Enter title"
+                    tools:layout_editor_absoluteX="20dp"
+                    tools:layout_editor_absoluteY="60dp"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_calendar_today_24px"/>
-            <EditText
-                android:id="@+id/taskTitleText"
-                android:layout_width="250dp"
+                android:layout_marginStart="8dp"
+                android:text="Enter level of importance"
+                tools:layout_editor_absoluteX="14dp"
+                tools:layout_editor_absoluteY="98dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/importanceIcon"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_icons8_high_importance_480"/>
+                <Spinner
+                    android:id="@+id/importanceSpinner"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="160dp"
+                    android:background="@android:drawable/btn_dropdown"
+                    android:spinnerMode="dropdown"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:layout_editor_absoluteY="135dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:hint="Enter title"
-                tools:layout_editor_absoluteX="20dp"
-                tools:layout_editor_absoluteY="60dp"/>
+                android:text="Select from frequent locations"
+                tools:layout_editor_absoluteX="14dp"
+                tools:layout_editor_absoluteY="98dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/freqLocationIcon"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_place_24px"/>
+                <Spinner
+                    android:id="@+id/freqLocationSpinner"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="360dp"
+                    android:background="@android:drawable/btn_dropdown"
+                    android:spinnerMode="dropdown"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:layout_editor_absoluteY="135dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/scheduleIcon"
+                    android:layout_marginStart="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_schedule_24px"/>
+                <Switch
+                    android:id="@+id/allDaySwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="32dp"
+                    android:layout_weight="1"
+                    android:text="All day" />
+            </LinearLayout>
+
+            <DatePicker
+                android:id="@+id/datePicker1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:datePickerMode="spinner"
+                android:calendarViewShown="false"/>
+
+            <TimePicker
+                android:id="@+id/timePicker1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:timePickerMode="spinner"/>
+
+            <Button
+                android:id="@+id/buttonBasic"
+                android:layout_width="150sp"
+                android:layout_height="60sp"
+                android:background="@color/colorPrimary"
+                android:clickable="true"
+                android:onClick="goToMap"
+                android:text="Select from map"
+                android:textColor="@color/colorPrimaryDark" />
+
+            <Button
+                android:id="@+id/addTask"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ADD TASK" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Enter level of importance"
-            tools:layout_editor_absoluteX="14dp"
-            tools:layout_editor_absoluteY="98dp" />
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <ImageView
-                android:id="@+id/importanceIcon"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_icons8_high_importance_480"/>
-            <Spinner
-                android:id="@+id/importanceSpinner"
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="160dp"
-                android:background="@android:drawable/btn_dropdown"
-                android:spinnerMode="dropdown"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteY="135dp" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Select from frequent locations"
-            tools:layout_editor_absoluteX="14dp"
-            tools:layout_editor_absoluteY="98dp" />
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <ImageView
-                android:id="@+id/freqLocationIcon"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_place_24px"/>
-            <Spinner
-                android:id="@+id/freqLocationSpinner"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="360dp"
-                android:background="@android:drawable/btn_dropdown"
-                android:spinnerMode="dropdown"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteY="135dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <ImageView
-                android:id="@+id/scheduleIcon"
-                android:layout_marginStart="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_schedule_24px"/>
-            <Switch
-                android:id="@+id/allDaySwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="32dp"
-                android:layout_weight="1"
-                android:text="All day" />
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/buttonBasic"
-            android:layout_width="150sp"
-            android:layout_height="60sp"
-            android:background="@color/colorPrimary"
-            android:clickable="true"
-            android:onClick="goToMap"
-            android:text="Select from map"
-            android:textColor="@color/colorPrimaryDark" />
-
-        <Button
-            android:id="@+id/addTask"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="ADD TASK" />
-
-    </LinearLayout>
-
+    </ScrollView>
 </android.support.constraint.ConstraintLayout>
