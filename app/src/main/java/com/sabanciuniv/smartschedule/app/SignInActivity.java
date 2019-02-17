@@ -1,6 +1,8 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -46,10 +48,15 @@ public class SignInActivity  extends AppCompatActivity {
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
                                     Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
+                                    SharedPreferences sharedPref = SignInActivity.this.getPreferences(Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.putString("lastUid",user.getUid());
+                                    editor.commit();
                                     Bundle extras = new Bundle();
                                     extras.putString("uid",user.getUid());
                                     intent.putExtras(extras);
                                     startActivity(intent);
+
                                 } else {
                                     Toast.makeText(SignInActivity.this, "Login failed!",
                                             Toast.LENGTH_LONG).show();
