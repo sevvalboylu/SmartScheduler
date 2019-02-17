@@ -66,7 +66,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
-        SharedPreferences sharedPref = BaseActivity.this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = BaseActivity.this.getSharedPreferences("smartSchedule",Context.MODE_PRIVATE);
         String lastUid = sharedPref.getString("lastUid","");
 
         // Get a reference for the week view in the layout.

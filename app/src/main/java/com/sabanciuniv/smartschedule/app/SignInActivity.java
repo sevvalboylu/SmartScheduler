@@ -48,7 +48,7 @@ public class SignInActivity  extends AppCompatActivity {
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
                                     Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
-                                    SharedPreferences sharedPref = SignInActivity.this.getPreferences(Context.MODE_PRIVATE);
+                                    SharedPreferences sharedPref = SignInActivity.this.getSharedPreferences("smartSchedule", Context.MODE_PRIVATE);
                                     SharedPreferences.Editor editor = sharedPref.edit();
                                     editor.putString("lastUid",user.getUid());
                                     editor.commit();
