@@ -21,6 +21,10 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".SignUpActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".GoogleSignInActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
