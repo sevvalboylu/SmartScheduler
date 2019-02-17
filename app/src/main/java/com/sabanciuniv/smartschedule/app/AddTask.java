@@ -87,8 +87,8 @@ public class AddTask extends AppCompatActivity {
 
     private void submitTask() {
         final String title = mTitleField.getText().toString();
-
-        // final Point location =
+        double latitude = 0, longitude = 0;
+        final Point location = new Point(latitude, longitude);
 
         // Title is required
         if (TextUtils.isEmpty(title)) {
