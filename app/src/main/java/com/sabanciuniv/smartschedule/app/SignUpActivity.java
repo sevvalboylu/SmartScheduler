@@ -1,7 +1,9 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -22,6 +24,7 @@ public class SignUpActivity extends AppCompatActivity {
     private String password_text;
     private final String TAG ="";
     private FirebaseAuth mAuth;
+    private FirebaseUser mUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +44,28 @@ public class SignUpActivity extends AppCompatActivity {
                                                   if (task.isSuccessful()) {
                                                       // Sign in success, update UI with the signed-in user's information
                                                       Log.d(TAG, "createUserWithEmail:success");
-                                                      FirebaseUser user = mAuth.getCurrentUser();
+                                                      mUser = mAuth.getCurrentUser();
+                                                      mUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                          @Override
+                                                          public void onComplete(@NonNull Task<Void> task) {
+                                                              if (task.isSuccessful()) {
+                                                                  Log.d(TAG, "Email sent.");
+                                                                  AlertDialog.Builder builder = new AlertDialog.Builder(SignUpActivity.this);
+                                                                  builder.setTitle("hmm");
+                                                                  builder.setMessage("Thank you for signing up, a verification mail will be sent soon.");
+
+                                                                  builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                                                                      public void onClick(DialogInterface dialog, int id) {
+
+                                                                      }
+                                                                  });
+
+
+                                                                  builder.show();
+                                                              }
+                                                          }
+                                                      });
+
                                                   } else {
                                                       // If sign in fails, display a message to the user.
                                                       Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -49,22 +73,10 @@ public class SignUpActivity extends AppCompatActivity {
                                                   }
                                               }
                                           });
+
                                       }
-                                  });
-
-                FirebaseAuth auth = FirebaseAuth.getInstance();
-                FirebaseUser user = auth.getCurrentUser();
-
-                user.sendEmailVerification()
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Log.d(TAG, "Email sent.");
-                                }
-                            }
-                        });
+                                      });
+                 }
 
             }
-    }
 
