@@ -35,9 +35,8 @@
             android:title="Settings" />
 
         <item
-            android:id="@+id/nav_help"
-            android:icon="@android:drawable/ic_menu_help"
-            android:title="Help" />
+            android:id="@+id/nav_logout"
+            android:title="Sign Out" />
         <item
             android:id="@+id/nav_feedback"
             android:icon="@android:drawable/ic_menu_edit"

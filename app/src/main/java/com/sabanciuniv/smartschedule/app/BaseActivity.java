@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -22,6 +23,7 @@ import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
 import com.firebase.client.Firebase;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -38,32 +40,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
     private WeekView mWeekView;
     private String uid;
 
-    public class SharePref {
-
-        public static final String PREF_NAME = "smartschedule.shared.pref";
-        public static final String PREF_KEY = "smartschedule.shared.username";
-
-        public SharePref() {
-        }
-
-        public void save(Context context, String text) {
-            SharedPreferences sharePref;
-            SharedPreferences.Editor editor;
-            sharePref = context.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE);
-            editor = sharePref.edit();
-            editor.putString(PREF_KEY,text);
-            editor.apply();
-        }
-
-        public String getData(Context context) {
-            SharedPreferences sharePref;
-            String text;
-            sharePref = getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE);
-            text = sharePref.getString(PREF_KEY,null);
-            return text;
-        }
-    }
-
 
     public void addTask(View view)
     {
@@ -79,14 +55,19 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         Bundle extras = intent.getExtras();
         if(extras!=null)
           uid = extras.getString("uid");
+
         Firebase.setAndroidContext(this);
         Firebase rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
-        SharePref sharePref = new SharePref();
-        String username = sharePref.getData(this);
+        SharedPreferences sharedPref = BaseActivity.this.getSharedPreferences("smartSchedule",Context.MODE_PRIVATE);
+        String lastUid = sharedPref.getString("lastUid","");
 
         // Get a reference for the week view in the layout.
         mWeekView = (WeekView) findViewById(R.id.weekView);
@@ -107,7 +88,8 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         // Set up a date time interpreter to interpret how the date and time will be formatted in
         // the week view. This is optional.
         setupDateTimeInterpreter(false);
-        if(username == null) {
+        //lastUid= ""; //put in order to debug googlesignin, change this later
+        if(lastUid == "" && uid == null) {
             //go to SignIn view
             Intent intent1 = new Intent(BaseActivity.this, SignInActivity.class);
             startActivity(intent1);
@@ -277,7 +259,12 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
 
         } else if (id == R.id.nav_appointments) {
 
-        } else if (id == R.id.nav_feedback) {
+        } else if (id == R.id.nav_logout) {
+
+            FirebaseAuth.getInstance().signOut();
+            Intent intent = new Intent(BaseActivity.this, SignInActivity.class);
+            intent.putExtra("signedOut", true);
+            startActivity(intent);
 
         } else if (id == R.id.nav_share) {
 
@@ -287,7 +274,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 
 }
 
