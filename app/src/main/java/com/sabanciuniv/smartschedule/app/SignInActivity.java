@@ -43,6 +43,9 @@ public class SignInActivity  extends AppCompatActivity {
         setContentView(R.layout.activity_signin);
         email = findViewById(R.id.editText_email);
         password = findViewById(R.id.editText_password);
+        Intent intent = getIntent();
+        boolean signedOut = intent.getBooleanExtra("signedOut",false);
+
         //google sign in
         SignInButton signInButton = findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
@@ -67,15 +70,10 @@ public class SignInActivity  extends AppCompatActivity {
 
                 mGoogleSignInClient = GoogleSignIn.getClient(SignInActivity.this, gso);
                 GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-                if (account != null) {
-                    Intent intent = new Intent(SignInActivity.this, BaseActivity.class);
-                    startActivityForResult(intent,RC_SIGN_IN);
+                if (account != null && signedOut == false ) {
+                    Intent intent1 = new Intent(SignInActivity.this, BasicActivity.class);
+                    startActivityForResult(intent1,RC_SIGN_IN);
                 }
-                else {
-
-
-                }
-
                 Button button = findViewById(R.id.button_signIn);
                 button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -160,8 +158,6 @@ public class SignInActivity  extends AppCompatActivity {
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Snackbar.make(findViewById(R.id.main_layout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
                         }
-
-                        // ...
                     }
                 });
     }

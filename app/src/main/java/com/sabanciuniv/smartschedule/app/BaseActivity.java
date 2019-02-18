@@ -88,7 +88,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         // Set up a date time interpreter to interpret how the date and time will be formatted in
         // the week view. This is optional.
         setupDateTimeInterpreter(false);
-        lastUid= ""; //put in order to debug googlesignin, change this later
+        //lastUid= ""; //put in order to debug googlesignin, change this later
         if(lastUid == "" && uid == null) {
             //go to SignIn view
             Intent intent1 = new Intent(BaseActivity.this, SignInActivity.class);
@@ -263,6 +263,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
 
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(BaseActivity.this, SignInActivity.class);
+            intent.putExtra("signedOut", true);
             startActivity(intent);
 
         } else if (id == R.id.nav_share) {
