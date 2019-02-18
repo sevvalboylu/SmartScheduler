@@ -1,5 +1,6 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +18,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.yandex.mapkit.geometry.Point;
 
+
 import java.util.Random;
 
 public class AddTask extends AppCompatActivity {
@@ -25,7 +27,7 @@ public class AddTask extends AppCompatActivity {
     private static final String REQUIRED = "Required";
     private DatabaseReference mDatabase;
     private EditText mTitleField;
-    private Spinner spinner1, spinner2;
+    private Spinner spinner1, freqLocationSpinner;
     private Button mSubmitButton;
     private int lvl;
     private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
@@ -37,11 +39,13 @@ public class AddTask extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mTitleField = findViewById(R.id.mytaskTitle);
+
+        mTitleField = findViewById(R.id.taskTitleText);
+
         mSubmitButton = findViewById(R.id.addTask);
 
         //get the spinner from the xml.
-        Spinner dropdown = findViewById(R.id.impspin);
+        Spinner dropdown = findViewById(R.id.importanceSpinner);
         addListenerOnSpinnerItemSelection();
         //create a list of items for the spinner.
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
@@ -52,9 +56,9 @@ public class AddTask extends AppCompatActivity {
         });
         String[] items = new String[]{"1", "2", "3"};
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
-       //There are multiple variations of this, but this is the basic variant.
+        //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
-       //set the spinners adapter to the previously created one.
+        //set the spinners adapter to the previously created one.
         dropdown.setAdapter(adapter);
 
         //go to map or dropdown list of most frequent places
@@ -62,8 +66,13 @@ public class AddTask extends AppCompatActivity {
 
     private void submitTask() {
         final String title = mTitleField.getText().toString();
-
-       // final Point location =
+        Intent intent = getIntent();
+      
+        double latitude = 0, longitude = 0;
+        intent.getDoubleExtra("PointLatitude", latitude);
+        intent.getDoubleExtra( "PointLongitude", longitude);
+      
+        final Point location = new Point(latitude, longitude);
 
         // Title is required
         if (TextUtils.isEmpty(title)) {
@@ -81,14 +90,16 @@ public class AddTask extends AppCompatActivity {
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
+
     }
+
     public void addListenerOnSpinnerItemSelection() {
-        spinner1 = (Spinner) findViewById(R.id.impspin);
+        spinner1 = (Spinner) findViewById(R.id.importanceSpinner);
         spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
-                 lvl =(int) Integer.parseInt(parent.getItemAtPosition(pos).toString());
+                lvl =(int) Integer.parseInt(parent.getItemAtPosition(pos).toString());
             }
         });
     }
@@ -98,6 +109,7 @@ public class AddTask extends AppCompatActivity {
         Intent intent = new Intent(AddTask.this, MapViewActivity.class);
         startActivity(intent);
     }
+
 
     public String getUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
