@@ -1,5 +1,6 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -87,7 +88,12 @@ public class AddTask extends AppCompatActivity {
 
     private void submitTask() {
         final String title = mTitleField.getText().toString();
+        Intent intent = getIntent();
+      
         double latitude = 0, longitude = 0;
+        intent.getDoubleExtra("PointLatitude", latitude);
+        intent.getDoubleExtra( "PointLongitude", longitude);
+      
         final Point location = new Point(latitude, longitude);
 
         // Title is required
@@ -102,7 +108,7 @@ public class AddTask extends AppCompatActivity {
 
         // [START single_value_read]
         final String userId = getUid();
-        com.sabanciuniv.smartschedule.app.Task task = new com.sabanciuniv.smartschedule.app.Task(userId,lvl, title, location);
+        com.sabanciuniv.smartschedule.app.Task task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location);
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
@@ -167,6 +173,7 @@ public class AddTask extends AppCompatActivity {
         Intent intent = new Intent(AddTask.this, MapViewActivity.class);
         startActivity(intent);
     }
+
 
     public String getUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
