@@ -116,7 +116,7 @@ public class AddTask extends AppCompatActivity {
 
 
     public String getUid() {
-        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+        return mAuth.getUid();
     }
 
 

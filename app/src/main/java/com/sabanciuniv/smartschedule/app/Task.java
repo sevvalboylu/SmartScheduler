@@ -1,11 +1,7 @@
 package com.sabanciuniv.smartschedule.app;
 
-import com.yandex.mapkit.geometry.Point;
-import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.yandex.mapkit.geometry.Point;
 
 // [START post_class]
 @IgnoreExtraProperties
@@ -41,16 +37,5 @@ public class Task {
     }
 
 
-    // [START post_to_map]
-    @Exclude
-    public Map<String, Object> toMap() {
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("uid", uid);
-        result.put("title", title);
-        result.put("location", location);
-
-        return result;
-    }
 
 }
-
