@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -66,13 +67,16 @@ public class AddTask extends AppCompatActivity {
 
     private void submitTask() {
         final String title = mTitleField.getText().toString();
+
+        //double latitude = 0, longitude = 0;
+        //intent.getDoubleExtra("PointLatitude", latitude);
+        //intent.getDoubleExtra( "PointLongitude", longitude);
+        //final Point location = new Point(latitude, longitude);
+
         Intent intent = getIntent();
-      
-        double latitude = 0, longitude = 0;
-        intent.getDoubleExtra("PointLatitude", latitude);
-        intent.getDoubleExtra( "PointLongitude", longitude);
-      
-        final Point location = new Point(latitude, longitude);
+        String address = intent.getStringExtra("Address");
+        TextView addressTxt = findViewById(R.id.address);
+        addressTxt.setText(address);
 
         // Title is required
         if (TextUtils.isEmpty(title)) {
@@ -115,4 +119,19 @@ public class AddTask extends AppCompatActivity {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
+        intent.getStringExtra("Address");
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String address = intent.getStringExtra("Address");
+        TextView addressTxt = findViewById(R.id.address);
+        addressTxt.setText(address);
+    }
 }
