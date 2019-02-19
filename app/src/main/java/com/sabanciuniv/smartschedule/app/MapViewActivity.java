@@ -45,6 +45,14 @@
            final Geocoder geocoder = new Geocoder(MapViewActivity.this, Locale.getDefault());
 
            selectedPoint[0] = TARGET_LOCATION;
+           List<Address> address = null;
+           try {
+               address = geocoder.getFromLocation(selectedPoint[0].getLatitude(), selectedPoint[0].getLongitude(), 1);
+               addressLine = address.get(0).getAddressLine(0);
+           } catch (IOException e) {
+               e.printStackTrace();
+           }
+
            MapKitFactory.setApiKey(MAPKIT_API_KEY);
            MapKitFactory.initialize(this);
            // Now MapView can be created.
