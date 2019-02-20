@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private ArrayList<Task> tasks = new ArrayList<Task>();
 
-    private String userId= "fVujOYBPfIgR1YzpkNwZM3xwhjQ2";
+    private String userId= "cuIaY3S7gHai4v3KANZUuBS4iTm1";
 
     public interface DataStatus{
     void DataIsLoaded(List<Task> tasks, List<String> keys);
@@ -54,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
                     List<String> keys = new ArrayList<>();
                     for (DataSnapshot keyNode : dataSnapshot.getChildren()) {
                         keys.add(keyNode.getKey());
-                        tasks.add(keyNode.getValue(Task.class));
+                        Task temp = keyNode.getValue(Task.class);
+                        tasks.add(temp);
                     }
                     dataStatus.DataIsLoaded(tasks,keys);
                 }

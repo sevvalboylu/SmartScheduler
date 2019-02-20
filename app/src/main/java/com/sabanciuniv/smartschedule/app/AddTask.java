@@ -31,7 +31,7 @@ public class AddTask extends AppCompatActivity {
     private TextView mLocationField;
     private Spinner spinner1, freqLocationSpinner;
     private Button mSubmitButton;
-    private int lvl;
+    private String lvl;
     //private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
     private final String location = new String();
     private FirebaseAuth mAuth;
@@ -99,7 +99,7 @@ public class AddTask extends AppCompatActivity {
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
-                lvl =(int) Integer.parseInt(parent.getItemAtPosition(pos).toString());
+                lvl = parent.getItemAtPosition(pos).toString();
             }
         });
     }

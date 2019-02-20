@@ -10,14 +10,15 @@ public class Task {
     public String uid;
     public String title;
     public String location;
-    public int lvl;
+    public String lvl;
 
     public String getTitle() {
         return title;
     }
 
     public String getLvl() {
-        return Integer.toString(lvl);
+        //return Integer.toString(lvl);
+        return lvl;
     }
 
     public String getLocation() {
@@ -29,7 +30,7 @@ public class Task {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
 
-    public Task(String uid, int lvl, String title, String location) {
+    public Task(String uid, String lvl, String title, String location) {
         this.uid = uid;
         this.lvl=lvl;
         this.title = title;
