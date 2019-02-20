@@ -2,6 +2,8 @@ package com.sabanciuniv.smartschedule.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.KeyEvent;
@@ -36,7 +38,9 @@ import com.yandex.runtime.image.ImageProvider;
 import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 
 public class SearchActivity extends Activity implements Session.SearchListener, CameraListener {
@@ -54,6 +58,7 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
     PlacemarkMapObject mark; // initialized later on
 
     final Point[] selectedPoint = new Point[1];
+    String addressLine;
 
     public SearchActivity() {
         mark = null;
@@ -119,6 +124,8 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
     @Override
     public void onSearchResponse(Response response) {
 
+        final Geocoder geocoder = new Geocoder(SearchActivity.this, Locale.getDefault());
+
         MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
         mapObjects.clear();
 
@@ -136,6 +143,13 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
         firstPoint = firstResult.get(0).getObj().getGeometry().get(0).getPoint();
 
         selectedPoint[0] = firstPoint; //by default selected point is the first query result
+        try {
+            List<Address> address = geocoder.getFromLocation(selectedPoint[0].getLatitude(), selectedPoint[0].getLongitude(), 1);
+            addressLine = address.get(0).getAddressLine(0);
+        } catch (IOException e) {
+            Toast.makeText(SearchActivity.this,"Sorry, can you select again?", Toast.LENGTH_SHORT);
+            e.printStackTrace();
+        }
 
         mark = mapObjects.addPlacemark( firstPoint,
                 ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
@@ -154,6 +168,13 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
             @Override
             public void onMapObjectDragEnd(@NonNull MapObject mapObject) {
                 selectedPoint[0] = mark.getGeometry();
+                try {
+                    List<Address> address = geocoder.getFromLocation(selectedPoint[0].getLatitude(), selectedPoint[0].getLongitude(), 1);
+                    addressLine = address.get(0).getAddressLine(0);
+                } catch (IOException e) {
+                    Toast.makeText(SearchActivity.this,"Sorry, can you select again?", Toast.LENGTH_SHORT);
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -184,11 +205,8 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
     public void selectPoint(View view)
     {
         Intent intent = new Intent( SearchActivity.this, AddTask.class);
-        Bundle b = new Bundle();
-        b.putDouble("PointLatitude", selectedPoint[0].getLatitude());
-        b.putDouble("PointLongitude", selectedPoint[0].getLongitude());
-        intent.putExtras(b);
+        intent.putExtra("Address",addressLine);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivityForResult(intent, 10);
+        startActivityForResult(intent, 1);
     }
 }

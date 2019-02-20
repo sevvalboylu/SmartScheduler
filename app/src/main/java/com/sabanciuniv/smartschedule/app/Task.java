@@ -1,11 +1,7 @@
 package com.sabanciuniv.smartschedule.app;
 
-import com.yandex.mapkit.geometry.Point;
-import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.yandex.mapkit.geometry.Point;
 
 // [START post_class]
 @IgnoreExtraProperties
@@ -13,18 +9,19 @@ public class Task {
 
     public String uid;
     public String title;
-    public Point location;
-    public int lvl;
+    public String location;
+    public String lvl;
 
     public String getTitle() {
         return title;
     }
 
     public String getLvl() {
-        return Integer.toString(lvl);
+        //return Integer.toString(lvl);
+        return lvl;
     }
 
-    public Point getLocation() {
+    public String getLocation() {
 
         return location;
     }
@@ -33,7 +30,7 @@ public class Task {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
 
-    public Task(String uid, int lvl, String title, Point location) {
+    public Task(String uid, String lvl, String title, String location) {
         this.uid = uid;
         this.lvl=lvl;
         this.title = title;
@@ -41,16 +38,5 @@ public class Task {
     }
 
 
-    // [START post_to_map]
-    @Exclude
-    public Map<String, Object> toMap() {
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("uid", uid);
-        result.put("title", title);
-        result.put("location", location);
-
-        return result;
-    }
 
 }
-

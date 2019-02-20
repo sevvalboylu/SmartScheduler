@@ -46,9 +46,11 @@ public class RecyclerView_Config {
 
         public void bind(Task task, String key) {
             mTitle.setText(task.getTitle());
-            mLocation.setText(Double.toString(task.getLocation().getLatitude()) + " " + Double.toString(task.getLocation().getLongitude()));
 
             mImp.setText(task.getLvl());
+
+            mLocation.setText(task.getLocation());
+
             if("3".equals(task.getLvl()))
             {
                 mImp.setTextColor(Color.rgb(182,1,59));

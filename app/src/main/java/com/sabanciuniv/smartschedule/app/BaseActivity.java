@@ -23,6 +23,10 @@ import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
 import com.firebase.client.Firebase;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
@@ -35,10 +39,11 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
     private static final int TYPE_THREE_DAY_VIEW = 2;
     private static final int TYPE_WEEK_VIEW = 3;
     private int mWeekViewType = TYPE_THREE_DAY_VIEW;
-    //private Context mContext;
     private DrawerLayout mDrawerLayout;
     private WeekView mWeekView;
-    private String uid;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private GoogleSignInClient mGoogleSignInClient;
+    private Boolean signedIn;
 
 
     public void addTask(View view)
@@ -46,15 +51,31 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         Intent intent = new Intent(BaseActivity.this, AddTask.class);
         startActivity(intent);
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        signedIn = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
+        /*
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(BaseActivity.this, gso);
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+
+        if(account == null)
+        {
+            Intent sIntent = new Intent(BaseActivity.this, SignInActivity.class);
+            startActivity(sIntent);
+        }
+        */
+
         if(extras!=null)
-          uid = extras.getString("uid");
+        {
+            signedIn = extras.getBoolean("signedIn");
+        }
 
         Firebase.setAndroidContext(this);
         Firebase rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
@@ -67,7 +88,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
         SharedPreferences sharedPref = BaseActivity.this.getSharedPreferences("smartSchedule",Context.MODE_PRIVATE);
-        String lastUid = sharedPref.getString("lastUid","");
+        String lastToken = sharedPref.getString("lastToken","");
 
         // Get a reference for the week view in the layout.
         mWeekView = (WeekView) findViewById(R.id.weekView);
@@ -88,16 +109,20 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         // Set up a date time interpreter to interpret how the date and time will be formatted in
         // the week view. This is optional.
         setupDateTimeInterpreter(false);
+
         //lastUid= ""; //put in order to debug googlesignin, change this later
-        if(lastUid == "" && uid == null) {
+        if(lastToken == "" && signedIn == false) {
             //go to SignIn view
             Intent intent1 = new Intent(BaseActivity.this, SignInActivity.class);
             startActivity(intent1);
         }
         else {
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
+            if(lastToken!="")
+            mAuth.signInWithCustomToken(lastToken);
+
+            NavigationView navigationView = findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(
+                    new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
                         // set item as selected to persist highlight
@@ -107,18 +132,18 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
                         mDrawerLayout.closeDrawers();
 
                         return true;
-                    }
-                });
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar,
-                R.string.navigation_drawer_open,
-                R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-        navigationView.setNavigationItemSelectedListener(this);
+                    }});
 
+            DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, drawer, toolbar,
+                    R.string.navigation_drawer_open,
+                    R.string.navigation_drawer_close);
+            drawer.addDrawerListener(toggle);
+            toggle.syncState();
+            navigationView.setNavigationItemSelectedListener(this);
         }
     }
 

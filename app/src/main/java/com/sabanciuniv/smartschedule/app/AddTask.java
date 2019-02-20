@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,10 +28,12 @@ public class AddTask extends AppCompatActivity {
     private static final String REQUIRED = "Required";
     private DatabaseReference mDatabase;
     private EditText mTitleField;
+    private TextView mLocationField;
     private Spinner spinner1, freqLocationSpinner;
     private Button mSubmitButton;
-    private int lvl;
-    private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
+    private String lvl;
+    //private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
+    private final String location = new String();
     private FirebaseAuth mAuth;
 
     @Override
@@ -41,6 +44,8 @@ public class AddTask extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         mTitleField = findViewById(R.id.taskTitleText);
+
+        mLocationField = findViewById(R.id.address);
 
         mSubmitButton = findViewById(R.id.addTask);
 
@@ -66,13 +71,6 @@ public class AddTask extends AppCompatActivity {
 
     private void submitTask() {
         final String title = mTitleField.getText().toString();
-        Intent intent = getIntent();
-      
-        double latitude = 0, longitude = 0;
-        intent.getDoubleExtra("PointLatitude", latitude);
-        intent.getDoubleExtra( "PointLongitude", longitude);
-      
-        final Point location = new Point(latitude, longitude);
 
         // Title is required
         if (TextUtils.isEmpty(title)) {
@@ -86,7 +84,9 @@ public class AddTask extends AppCompatActivity {
 
         // [START single_value_read]
         final String userId = getUid();
-        com.sabanciuniv.smartschedule.app.Task task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location);
+        final String location = mLocationField.getText().toString();
+
+        Task task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location);
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
@@ -99,7 +99,7 @@ public class AddTask extends AppCompatActivity {
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
-                lvl =(int) Integer.parseInt(parent.getItemAtPosition(pos).toString());
+                lvl = parent.getItemAtPosition(pos).toString();
             }
         });
     }
@@ -112,7 +112,22 @@ public class AddTask extends AppCompatActivity {
 
 
     public String getUid() {
-        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+        return mAuth.getUid();
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
+        intent.getStringExtra("Address");
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String address = intent.getStringExtra("Address");
+        TextView addressTxt = findViewById(R.id.address);
+        addressTxt.setText(address);
+    }
 }

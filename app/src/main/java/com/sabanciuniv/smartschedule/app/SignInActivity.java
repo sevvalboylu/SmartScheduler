@@ -52,69 +52,61 @@ public class SignInActivity  extends AppCompatActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                //todo: signin view to be implemented
             }
         });
 
         signInButton.setOnClickListener(new View.OnClickListener() {
-                                      public void onClick(View v) {
-                                              switch (v.getId()) {
-                                                  case R.id.sign_in_button:
-                                                      signIn();
-                                                      break;
-                                              }
-                                      }
-                                  });
-
-                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-
-                mGoogleSignInClient = GoogleSignIn.getClient(SignInActivity.this, gso);
-                GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-                if (account != null && signedOut == false ) {
-                    Intent intent1 = new Intent(SignInActivity.this, BasicActivity.class);
-                    startActivityForResult(intent1,RC_SIGN_IN);
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.sign_in_button:
+                        signIn();
+                        break;
                 }
-                Button button = findViewById(R.id.button_signIn);
-                button.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        mAuth = FirebaseAuth.getInstance();
-                        email_text = email.getText().toString();
-                        password_text = password.getText().toString();
-                        mAuth.signInWithEmailAndPassword(email_text, password_text).addOnCompleteListener(SignInActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    // Sign in success, update UI with the signed-in user's information
-                                    Log.d(TAG, "signInWithEmail:success");
-                                    FirebaseUser user = mAuth.getCurrentUser();
-                                    Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
-                                    SharedPreferences sharedPref = SignInActivity.this.getSharedPreferences("smartSchedule", Context.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = sharedPref.edit();
-                                    editor.putString("lastUid", user.getUid());
-                                    editor.commit();
-                                    Bundle extras = new Bundle();
-                                    extras.putString("uid", user.getUid());
-                                    intent.putExtras(extras);
-                                    startActivity(intent);
+            }
 
-                                } else {
-                                    Toast.makeText(SignInActivity.this, "Login failed!", Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
+        });
+
+        Button button = findViewById(R.id.button_signIn);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mAuth = FirebaseAuth.getInstance();
+                email_text = email.getText().toString();
+                password_text = password.getText().toString();
+                mAuth.signInWithEmailAndPassword(email_text, password_text).addOnCompleteListener(SignInActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
+                            SharedPreferences sharedPref = SignInActivity.this.getSharedPreferences("smartSchedule", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString("lastToken", String.valueOf(user.getIdToken(true)));
+                            editor.commit();
+                            Bundle extras = new Bundle();
+                            extras.putBoolean("signedIn", true);
+                            intent.putExtras(extras);
+                            startActivity(intent);
+
+                        } else {
+                            Toast.makeText(SignInActivity.this, "Login failed!", Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
             }
+        });
+    }
 
-            public void goToSignup(View view) {
-                Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
-                startActivity(intent);
-            }
+    public void goToSignup(View view) {
+        Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
+        startActivity(intent);
+    }
 
-            public void signIn(){
-
-                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, RC_SIGN_IN);
+    public void signIn(){
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
     
     @Override
