@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -21,16 +22,18 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "";
     private RecyclerView mRecyclerView;
     private ArrayList<Task> tasks = new ArrayList<Task>();
-
-    private String userId= "cuIaY3S7gHai4v3KANZUuBS4iTm1";
+    private String userId;
 
     public interface DataStatus{
-    void DataIsLoaded(List<Task> tasks, List<String> keys);
+        void DataIsLoaded(List<Task> tasks, List<String> keys);
+    }
 
-}
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -45,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     public void readTasks(final DataStatus dataStatus)
     {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        userId = mAuth.getUid();
         DatabaseReference ref = database.child("tasks").child(userId);
         ref.addValueEventListener(new ValueEventListener() {
             @Override
