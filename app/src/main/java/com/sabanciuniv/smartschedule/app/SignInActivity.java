@@ -52,62 +52,62 @@ public class SignInActivity  extends AppCompatActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                //todo: signin view to be implemented
             }
         });
 
         signInButton.setOnClickListener(new View.OnClickListener() {
-                                      public void onClick(View v) {
-                                              switch (v.getId()) {
-                                                  case R.id.sign_in_button:
-                                                      signIn();
-                                                      break;
-                                              }
-                                      }
-                                  });
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.sign_in_button:
+                        signIn();
+                        break;
+                }
+            }
 
+        });
 
-                Button button = findViewById(R.id.button_signIn);
-                button.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        mAuth = FirebaseAuth.getInstance();
-                        email_text = email.getText().toString();
-                        password_text = password.getText().toString();
-                        mAuth.signInWithEmailAndPassword(email_text, password_text).addOnCompleteListener(SignInActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    // Sign in success, update UI with the signed-in user's information
-                                    Log.d(TAG, "signInWithEmail:success");
-                                    FirebaseUser user = mAuth.getCurrentUser();
-                                    Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
-                                    SharedPreferences sharedPref = SignInActivity.this.getSharedPreferences("smartSchedule", Context.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = sharedPref.edit();
-                                    editor.putString("lastToken", String.valueOf(user.getIdToken(true)));
-                                    editor.commit();
-                                    Bundle extras = new Bundle();
-                                    extras.putBoolean("signedIn", true);
-                                    intent.putExtras(extras);
-                                    startActivity(intent);
+        Button button = findViewById(R.id.button_signIn);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mAuth = FirebaseAuth.getInstance();
+                email_text = email.getText().toString();
+                password_text = password.getText().toString();
+                mAuth.signInWithEmailAndPassword(email_text, password_text).addOnCompleteListener(SignInActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
+                            SharedPreferences sharedPref = SignInActivity.this.getSharedPreferences("smartSchedule", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString("lastToken", String.valueOf(user.getIdToken(true)));
+                            editor.commit();
+                            Bundle extras = new Bundle();
+                            extras.putBoolean("signedIn", true);
+                            intent.putExtras(extras);
+                            startActivity(intent);
 
-                                } else {
-                                    Toast.makeText(SignInActivity.this, "Login failed!", Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
+                        } else {
+                            Toast.makeText(SignInActivity.this, "Login failed!", Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
             }
+        });
+    }
 
-            public void goToSignup(View view) {
-                Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
-                startActivity(intent);
-            }
+    public void goToSignup(View view) {
+        Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
+        startActivity(intent);
+    }
 
-            public void signIn(){
+    public void signIn(){
 
-                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, RC_SIGN_IN);
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
     
     @Override

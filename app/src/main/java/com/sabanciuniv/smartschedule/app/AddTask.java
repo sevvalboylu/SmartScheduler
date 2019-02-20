@@ -28,10 +28,12 @@ public class AddTask extends AppCompatActivity {
     private static final String REQUIRED = "Required";
     private DatabaseReference mDatabase;
     private EditText mTitleField;
+    private TextView mLocationField;
     private Spinner spinner1, freqLocationSpinner;
     private Button mSubmitButton;
     private int lvl;
-    private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
+    //private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
+    private final String location = new String();
     private FirebaseAuth mAuth;
 
     @Override
@@ -42,6 +44,8 @@ public class AddTask extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         mTitleField = findViewById(R.id.taskTitleText);
+
+        mLocationField = findViewById(R.id.address);
 
         mSubmitButton = findViewById(R.id.addTask);
 
@@ -68,16 +72,6 @@ public class AddTask extends AppCompatActivity {
     private void submitTask() {
         final String title = mTitleField.getText().toString();
 
-        //double latitude = 0, longitude = 0;
-        //intent.getDoubleExtra("PointLatitude", latitude);
-        //intent.getDoubleExtra( "PointLongitude", longitude);
-        //final Point location = new Point(latitude, longitude);
-
-        Intent intent = getIntent();
-        String address = intent.getStringExtra("Address");
-        TextView addressTxt = findViewById(R.id.address);
-        addressTxt.setText(address);
-
         // Title is required
         if (TextUtils.isEmpty(title)) {
             mTitleField.setError(REQUIRED);
@@ -90,7 +84,9 @@ public class AddTask extends AppCompatActivity {
 
         // [START single_value_read]
         final String userId = getUid();
-        com.sabanciuniv.smartschedule.app.Task task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location);
+        final String location = mLocationField.getText().toString();
+
+        Task task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location);
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);

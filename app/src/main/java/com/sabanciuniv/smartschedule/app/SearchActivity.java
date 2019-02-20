@@ -143,6 +143,13 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
         firstPoint = firstResult.get(0).getObj().getGeometry().get(0).getPoint();
 
         selectedPoint[0] = firstPoint; //by default selected point is the first query result
+        try {
+            List<Address> address = geocoder.getFromLocation(selectedPoint[0].getLatitude(), selectedPoint[0].getLongitude(), 1);
+            addressLine = address.get(0).getAddressLine(0);
+        } catch (IOException e) {
+            Toast.makeText(SearchActivity.this,"Sorry, can you select again?", Toast.LENGTH_SHORT);
+            e.printStackTrace();
+        }
 
         mark = mapObjects.addPlacemark( firstPoint,
                 ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));

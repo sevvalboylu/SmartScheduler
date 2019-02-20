@@ -54,7 +54,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        signedIn = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
         Intent intent = getIntent();

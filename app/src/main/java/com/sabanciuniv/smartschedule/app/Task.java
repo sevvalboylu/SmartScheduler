@@ -9,7 +9,7 @@ public class Task {
 
     public String uid;
     public String title;
-    public Point location;
+    public String location;
     public int lvl;
 
     public String getTitle() {
@@ -20,7 +20,7 @@ public class Task {
         return Integer.toString(lvl);
     }
 
-    public Point getLocation() {
+    public String getLocation() {
 
         return location;
     }
@@ -29,7 +29,7 @@ public class Task {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
 
-    public Task(String uid, int lvl, String title, Point location) {
+    public Task(String uid, int lvl, String title, String location) {
         this.uid = uid;
         this.lvl=lvl;
         this.title = title;
