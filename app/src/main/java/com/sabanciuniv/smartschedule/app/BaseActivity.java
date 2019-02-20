@@ -59,6 +59,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         setContentView(R.layout.activity_base);
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
+        /*
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(BaseActivity.this, gso);
@@ -69,6 +70,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
             Intent sIntent = new Intent(BaseActivity.this, SignInActivity.class);
             startActivity(sIntent);
         }
+        */
 
         if(extras!=null)
         {
@@ -107,6 +109,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         // Set up a date time interpreter to interpret how the date and time will be formatted in
         // the week view. This is optional.
         setupDateTimeInterpreter(false);
+
         //lastUid= ""; //put in order to debug googlesignin, change this later
         if(lastToken == "" && signedIn == false) {
             //go to SignIn view
@@ -114,13 +117,12 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
             startActivity(intent1);
         }
         else {
-
             if(lastToken!="")
             mAuth.signInWithCustomToken(lastToken);
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
+            NavigationView navigationView = findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(
+                    new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
                         // set item as selected to persist highlight
@@ -130,18 +132,18 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
                         mDrawerLayout.closeDrawers();
 
                         return true;
-                    }
-                });
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar,
-                R.string.navigation_drawer_open,
-                R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-        navigationView.setNavigationItemSelectedListener(this);
+                    }});
 
+            DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, drawer, toolbar,
+                    R.string.navigation_drawer_open,
+                    R.string.navigation_drawer_close);
+            drawer.addDrawerListener(toggle);
+            toggle.syncState();
+            navigationView.setNavigationItemSelectedListener(this);
         }
     }
 
