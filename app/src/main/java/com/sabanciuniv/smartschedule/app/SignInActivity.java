@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -16,7 +15,6 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,8 +26,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 public class SignInActivity  extends AppCompatActivity {
-    private static final int RC_SIGN_IN = 123 ;
-    private EditText  email;
+    private static final int RC_SIGN_IN = 123;
+    private EditText email;
     private EditText password;
     private String email_text;
     private String password_text;
@@ -44,7 +42,7 @@ public class SignInActivity  extends AppCompatActivity {
         email = findViewById(R.id.editText_email);
         password = findViewById(R.id.editText_password);
         Intent intent = getIntent();
-        boolean signedOut = intent.getBooleanExtra("signedOut",false);
+        boolean signedOut = intent.getBooleanExtra("signedOut", false);
 
         //google sign in
         SignInButton signInButton = findViewById(R.id.sign_in_button);
@@ -83,7 +81,8 @@ public class SignInActivity  extends AppCompatActivity {
                             Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
                             SharedPreferences sharedPref = SignInActivity.this.getSharedPreferences("smartSchedule", Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString("lastToken", String.valueOf(user.getIdToken(true)));
+                            editor.putString("lastEmail", String.valueOf(user.getEmail()));
+                            editor.putString("lastPassword", String.valueOf(password_text));
                             editor.commit();
                             Bundle extras = new Bundle();
                             extras.putBoolean("signedIn", true);
@@ -104,11 +103,11 @@ public class SignInActivity  extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void signIn(){
+    public void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-    
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -121,7 +120,8 @@ public class SignInActivity  extends AppCompatActivity {
             handleSignInResult(task);
         }
     }
-       private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             firebaseAuthWithGoogle(account);
@@ -133,25 +133,25 @@ public class SignInActivity  extends AppCompatActivity {
 
         }
     }
+
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Snackbar.make(findViewById(R.id.main_layout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "signInWithCredential:success");
+                    FirebaseUser user = mAuth.getCurrentUser();
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "signInWithCredential:failure", task.getException());
+                   // Snackbar.make(findViewById(R.id.main_layout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
+}
 
-        }

@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     public void readTasks(final DataStatus dataStatus)
     {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();

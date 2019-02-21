@@ -36,7 +36,7 @@
     app:columnGap="8dp"
     app:dayBackgroundColor="#05000000"
     app:eventTextColor="@android:color/white"
-    app:headerColumnBackground="#ffffffff"
+    app:headerColumnBackground="@color/toolbar"
     app:headerColumnPadding="8dp"
     app:headerColumnTextColor="@color/toolbar_text"
     app:headerRowBackgroundColor="@color/toolbar"

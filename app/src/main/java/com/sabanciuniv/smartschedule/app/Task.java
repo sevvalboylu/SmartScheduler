@@ -1,7 +1,6 @@
 package com.sabanciuniv.smartschedule.app;
 
 import com.google.firebase.database.IgnoreExtraProperties;
-import com.yandex.mapkit.geometry.Point;
 
 // [START post_class]
 @IgnoreExtraProperties
@@ -36,7 +35,5 @@ public class Task {
         this.title = title;
         this.location = location;
     }
-
-
 
 }
