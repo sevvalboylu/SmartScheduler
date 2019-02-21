@@ -123,12 +123,12 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
 
                 <ImageView
                     android:id="@+id/calendarIcon"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_baseline_calendar_today_24px"/>
@@ -139,24 +139,14 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="32dp"
                     android:layout_weight="1"
-                    android:text="Pick Date"
-                    android:visibility="invisible"/>
+                    android:text="Pick Date"/>
             </LinearLayout>
-
-            <Switch
-                android:id="@+id/allDaySwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="32dp"
-                android:layout_weight="1"
-                android:text="All day"
-                android:visibility="invisible"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
 
                 <ImageView
                     android:id="@+id/timeIcon"
@@ -181,6 +171,14 @@
                 android:datePickerMode="spinner"
                 android:calendarViewShown="false"/>
 
+            <Switch
+                android:id="@+id/allDaySwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="32dp"
+                android:layout_weight="1"
+                android:text="All day"/>
             <TimePicker
                 android:id="@+id/timePicker1"
                 android:layout_width="wrap_content"
