@@ -14,6 +14,7 @@ import android.util.Log;
 
 import com.alamkanak.weekview.WeekViewEvent;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,12 +45,8 @@ public class BasicActivity extends BaseActivity {
     private static final int PROJECTION_ACCOUNT_NAME_INDEX = 1;
     private static final int PROJECTION_DISPLAY_NAME_INDEX = 2;
     private static final int PROJECTION_OWNER_ACCOUNT_INDEX = 3;
-    private static final String TAG = "";
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    private RecyclerView_Config.TaskAdapter mTaskAdapter;
-
-
-    private ArrayList<Task> tasks = new ArrayList<>();
+    private FirebaseAuth mAuth ;
+    private List<Task> mTasks = new ArrayList<>();
     @Override
     public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
         // Populate the week view with some events.
@@ -97,30 +94,13 @@ public class BasicActivity extends BaseActivity {
 */
 
         //populate tasks from firebase
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference ref = database.child("tasks").child("cuIaY3S7gHai4v3KANZUuBS4iTm1");
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                tasks.clear();
-                if (dataSnapshot.exists()) {
-                    List<String> keys = new ArrayList<>();
-                    for (DataSnapshot keyNode : dataSnapshot.getChildren()) {
-                        keys.add(keyNode.getKey());
-                        Task temp = keyNode.getValue(Task.class);
-                        tasks.add(temp);
-                    }
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.d(TAG,databaseError.toString());
-            }
-        });
+        //DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        //DatabaseReference ref = database.child("tasks").child("fVujOYBPfIgR1YzpkNwZM3xwhjQ2");
 
 
-    for (Task task:tasks){
+
+     for (Task task:mTasks){
 
         Calendar startTime = Calendar.getInstance();
         startTime.set(Calendar.HOUR_OF_DAY, 3);
@@ -147,4 +127,16 @@ public class BasicActivity extends BaseActivity {
         if (!permissions)
             ActivityCompat.requestPermissions(this, permissionsId, callbackId);
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        TaskLoader tl = new TaskLoader(new DataStatus() {
+            @Override
+            public void DataIsLoaded(List<Task> tasks, List<String> keys) {
+                mTasks = tasks;
+            }
+        }, mAuth.getUid());
+    }
+
 }
