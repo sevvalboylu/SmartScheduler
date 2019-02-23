@@ -74,6 +74,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
 
+
         //AuthCredential authCredential = GoogleAuthProvider.getCredential(acc.getIdToken(), null);
 /*
         mAuth.signInWithCredential(authCredential)
@@ -155,37 +156,31 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
 
     }
  @Override
- public void onStart(){
-        super.onStart();
-     mAuth=FirebaseAuth.getInstance();
+ public void onStart() {
+     super.onStart();
+     mAuth = FirebaseAuth.getInstance();
      Intent intent = getIntent();
      Bundle extras = intent.getExtras();
-     SharedPreferences sharedPref = BaseActivity.this.getSharedPreferences("smartSchedule",Context.MODE_PRIVATE);
-     String lastEmail = sharedPref.getString("lastEmail","");
-     String lastpwd = sharedPref.getString("lastPassword","");
+     SharedPreferences sharedPref = BaseActivity.this.getSharedPreferences("smartSchedule", Context.MODE_PRIVATE);
+     String lastEmail = sharedPref.getString("lastEmail", "");
+     String lastpwd = sharedPref.getString("lastPassword", "");
 
-     GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-             .requestEmail()
-             .build();
-    // mGoogleSignInClient = GoogleSignIn.getClient(BaseActivity.this, gso);
+     GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+     // mGoogleSignInClient = GoogleSignIn.getClient(BaseActivity.this, gso);
      GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
 
-     if(extras!=null)
-         signedIn = extras.getBoolean("signedIn");
-     if(lastEmail == "" && signedIn == false && acc==null) {
+     if (extras != null) signedIn = extras.getBoolean("signedIn");
+     if (lastEmail == "" && signedIn == false && acc == null) {
          //go to SignIn view
          Intent intent1 = new Intent(BaseActivity.this, SignInActivity.class);
          startActivity(intent1);
-     }
-     else {
-         if(lastEmail!="")
-             mAuth.signInWithEmailAndPassword(lastEmail,lastpwd);
-     }
+     } else {
+         if (lastEmail != "") mAuth.signInWithEmailAndPassword(lastEmail, lastpwd);
 
-     AuthCredential credential = GoogleAuthProvider.getCredential(acc.getEmail(),acc.getServerAuthCode());
+         else {
+             AuthCredential credential = GoogleAuthProvider.getCredential(acc.getEmail(), acc.getServerAuthCode());
 
-     mAuth.signInWithCredential(credential)
-             .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+             mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                  @Override
                  public void onComplete(@NonNull Task<AuthResult> task) {
                      if (task.isSuccessful()) {
@@ -198,7 +193,8 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
                      }
                  }
              });
-
+         }
+     }
  }
 
     @Override
