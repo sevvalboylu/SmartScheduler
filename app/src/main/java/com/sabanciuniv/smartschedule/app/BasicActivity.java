@@ -3,10 +3,13 @@ package com.sabanciuniv.smartschedule.app;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import com.alamkanak.weekview.WeekViewEvent;
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -85,6 +88,14 @@ public class BasicActivity extends BaseActivity{
                         System.out.println("Upcoming events");
                         for (Event event : items) {
                             DateTime start = event.getStart().getDateTime();
+                            java.util.Calendar startTime = java.util.Calendar.getInstance();
+                            startTime.set(java.util.Calendar.HOUR_OF_DAY, 3);
+                            startTime.set(java.util.Calendar.MINUTE, 0);
+                            //startTime.set(java.util.Calendar.MONTH, newMonth - 1);
+                            //startTime.set(java.util.Calendar.YEAR, newYear);
+                            java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
+                            endTime.add(java.util.Calendar.HOUR, 1);
+                            //endTime.set(java.util.Calendar.MONTH, newMonth - 1);
                             if (start == null) {
                                 start = event.getStart().getDate();
                             }
@@ -115,6 +126,7 @@ public class BasicActivity extends BaseActivity{
 
 
         }
+
  //convert to java.util.list before returning
         return mEvents;
     }
@@ -134,8 +146,15 @@ public class BasicActivity extends BaseActivity{
                 .setDataStoreFactory(dataStoreFactory)
                 .setAccessType("offline")
                 .build();
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8642).build();
-        return new AuthorizationCodeInstalledApp(flow, receiver).authorize(mAuth.getUid());
+        //LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8642).build();
+        AuthorizationCodeInstalledApp ab = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()){
+            protected void onAuthorization(AuthorizationCodeRequestUrl authorizationUrl) throws IOException {
+                String url = (authorizationUrl.build());
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(browserIntent);
+            }
+        };
+        return ab.authorize(mAuth.getUid());
     }
 
     private void checkPermissions(int callbackId, String... permissionsId) {
