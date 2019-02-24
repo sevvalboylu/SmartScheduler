@@ -25,6 +25,11 @@ public class RecyclerView_Config {
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(mTaskAdapter);
     }
+    public void setConfig(Context context, List<Task> tasks, List<String> keys)
+    {
+        mContext=context;
+        mTaskAdapter = new TaskAdapter(tasks,keys);
+    }
     class TaskItemView extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView mTitle;
         private TextView mLocation;

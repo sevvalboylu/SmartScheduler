@@ -31,7 +31,7 @@
 
     <com.alamkanak.weekview.WeekView
     android:id="@+id/weekView"
-    android:layout_width="match_parent"
+    android:layout_width="match_parent" android:layout_marginTop="50dp"
     android:layout_height="match_parent"
     app:columnGap="8dp"
     app:dayBackgroundColor="#05000000"
@@ -47,7 +47,6 @@
     app:todayBackgroundColor="#1848adff"
     app:todayHeaderTextColor="@color/accent"
     />
-
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/floatingActionButton"

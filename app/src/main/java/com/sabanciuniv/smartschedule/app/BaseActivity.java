@@ -29,6 +29,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -50,10 +51,9 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
     private int mWeekViewType = TYPE_THREE_DAY_VIEW;
     private DrawerLayout mDrawerLayout;
     private WeekView mWeekView;
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private FirebaseAuth mAuth ;
     private GoogleSignInClient mGoogleSignInClient;
     private Boolean signedIn=false;
-
 
     public void addTask(View view)
     {
@@ -73,61 +73,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-        SharedPreferences sharedPref = BaseActivity.this.getSharedPreferences("smartSchedule",Context.MODE_PRIVATE);
-        String lastEmail = sharedPref.getString("lastEmail","");
-        String lastpwd = sharedPref.getString("lastPassword","");
-
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("545871567838-9bnlmgh0nofbpevbuvl583d7g4l9fv4a.apps.googleusercontent.com")
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(BaseActivity.this, gso);
-        GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
-
-        //AuthCredential authCredential = GoogleAuthProvider.getCredential(acc.getIdToken(), null);
-/*
-        mAuth.signInWithCredential(authCredential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-
-                    @Override
-                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-
-                            // Sign in success, update UI with the signed-in user's information
-
-                            Log.d(TAG, "signInWithCredential:success");
-
-                            //currentUser = mAuth.getCurrentUser();
-
-
-                        } else {
-
-                            // If sign in fails, display a message to the user.
-
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-
-                            //Snackbar.make(findViewById(R.id.main_layout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-
-
-                        }
-                    }
-
-                });
-*/
-        if(extras!=null)
-            signedIn = extras.getBoolean("signedIn");
-        if(lastEmail == "" && signedIn == false && acc==null) {
-            //go to SignIn view
-            Intent intent1 = new Intent(BaseActivity.this, SignInActivity.class);
-            startActivity(intent1);
-        }
-        else {
-            if(lastEmail!="")
-                mAuth.signInWithEmailAndPassword(lastEmail,lastpwd);
-        }
-        //mAuth.signInWithCredential(GoogleAuthProvider.getCredential(acc.getIdToken(), null));
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -176,7 +121,47 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         setupDateTimeInterpreter(false);
 
     }
+ @Override
+ public void onStart() {
+     super.onStart();
+     mAuth = FirebaseAuth.getInstance();
+     Intent intent = getIntent();
+     Bundle extras = intent.getExtras();
+     SharedPreferences sharedPref = BaseActivity.this.getSharedPreferences("smartSchedule", Context.MODE_PRIVATE);
+     String lastEmail = sharedPref.getString("lastEmail", "");
+     String lastpwd = sharedPref.getString("lastPassword", "");
 
+     GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+     // mGoogleSignInClient = GoogleSignIn.getClient(BaseActivity.this, gso);
+     GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
+
+     if (extras != null) signedIn = extras.getBoolean("signedIn");
+     if (lastEmail == "" && signedIn == false && acc == null) {
+         //go to SignIn view
+         Intent intent1 = new Intent(BaseActivity.this, SignInActivity.class);
+         startActivity(intent1);
+     } else {
+         if (lastEmail != "") mAuth.signInWithEmailAndPassword(lastEmail, lastpwd);
+
+         else {
+             AuthCredential credential = GoogleAuthProvider.getCredential(acc.getEmail(), acc.getServerAuthCode());
+
+             mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                 @Override
+                 public void onComplete(@NonNull Task<AuthResult> task) {
+                     if (task.isSuccessful()) {
+                         // Sign in success, update UI with the signed-in user's information
+                         Log.d(TAG, "signInWithCredential:success");
+                         FirebaseUser u = mAuth.getCurrentUser();
+                     } else {
+                         // If sign in fails, display a message to the user.
+                         Log.w(TAG, "signInWithCredential:failure", task.getException());
+                     }
+                 }
+             });
+         }
+     }
+ }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
