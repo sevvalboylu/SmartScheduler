@@ -1,10 +1,13 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -21,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "";
     private RecyclerView mRecyclerView;
+    private Button newScheduleBtn;
     private ArrayList<Task> tasks = new ArrayList<Task>();
     private String userId;
 
@@ -44,7 +48,17 @@ public class MainActivity extends AppCompatActivity {
                 new RecyclerView_Config().setConfig(mRecyclerView,MainActivity.this,tasks,keys);
             }
         });
+
+        newScheduleBtn = findViewById(R.id.buttonBasic);
+        newScheduleBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MapKitRouteActivity.class);
+                startActivity(intent);
+            }
+        });
     }
+
     public void readTasks(final DataStatus dataStatus)
     {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();

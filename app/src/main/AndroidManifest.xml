@@ -48,6 +48,11 @@
             android:name=".MapViewActivity"
             android:label="@string/title_activity_map_view"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".MapKitRouteActivity"
+            android:label="MapKitRouteActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
     </application>
 
 </manifest>

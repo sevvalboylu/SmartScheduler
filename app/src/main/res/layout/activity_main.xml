@@ -41,7 +41,8 @@
         android:background="@color/event_color_04"
         android:text="Create New Schedule"
         android:textAllCaps="true"
-        android:textColor="@color/colorPrimaryDark" />
+        android:textColor="@color/colorPrimaryDark"
+        app:layout_anchorGravity="bottom" />
 
 
 </android.support.design.widget.CoordinatorLayout>
