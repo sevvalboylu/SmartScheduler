@@ -73,7 +73,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
-
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -88,7 +87,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
                         return true;
 
                     }});
-
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
 

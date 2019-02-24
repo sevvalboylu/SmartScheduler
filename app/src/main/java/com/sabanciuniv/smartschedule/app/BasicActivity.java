@@ -69,37 +69,38 @@ public class BasicActivity extends BaseActivity{
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        List<Event> items = events.getItems();
-                        if (items.isEmpty()) {
-                            System.out.println("No upcoming events found.");
-                        } else {
-                            System.out.println("Upcoming events");
+                        if(events!=null) {
+                            List<Event> items = events.getItems();
+                            if (items.isEmpty()) {
+                                System.out.println("No upcoming events found.");
+                            } else {
+                                System.out.println("Upcoming events");
 
-                            for (Event e : items) {
-                                DateTime start = e.getStart().getDateTime();
-                                java.util.Calendar startTime = java.util.Calendar.getInstance();
-                                int[] s = DateTimeParser(start.toString());
-                                startTime.set(java.util.Calendar.HOUR_OF_DAY, s[0]);
-                                startTime.set(java.util.Calendar.MINUTE, s[1]);
-                                startTime.set(java.util.Calendar.DAY_OF_MONTH, s[2]);
-                                startTime.set(java.util.Calendar.MONTH, s[3]);
-                                startTime.set(java.util.Calendar.YEAR, s[4]);
+                                for (Event e : items) {
+                                    DateTime start = e.getStart().getDateTime();
+                                    java.util.Calendar startTime = java.util.Calendar.getInstance();
+                                    int[] s = DateTimeParser(start.toString());
+                                    startTime.set(java.util.Calendar.HOUR_OF_DAY, s[0]);
+                                    startTime.set(java.util.Calendar.MINUTE, s[1]);
+                                    startTime.set(java.util.Calendar.DAY_OF_MONTH, s[2]);
+                                    startTime.set(java.util.Calendar.MONTH, s[3]);
+                                    startTime.set(java.util.Calendar.YEAR, s[4]);
 
-                                DateTime end = e.getEnd().getDateTime();
-                                int[] en = DateTimeParser(end.toString());
-                                java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
-                                endTime.set(java.util.Calendar.HOUR_OF_DAY, s[0]);
-                                endTime.set(java.util.Calendar.MINUTE, s[1]);
-                                endTime.set(java.util.Calendar.DAY_OF_MONTH, s[2]);
-                                endTime.set(java.util.Calendar.MONTH, s[3]);
-                                endTime.set(java.util.Calendar.YEAR, s[4]);
-                                WeekViewEvent event = new WeekViewEvent(++eventId, getEventTitle(startTime), startTime, endTime);
-                                event.setColor(getResources().getColor(R.color.event_color_01));
-                                mEvents.add(event);
+                                    DateTime end = e.getEnd().getDateTime();
+                                    int[] en = DateTimeParser(end.toString());
+                                    java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
+                                    endTime.set(java.util.Calendar.HOUR_OF_DAY, en[0]);
+                                    endTime.set(java.util.Calendar.MINUTE, en[1]);
+                                    endTime.set(java.util.Calendar.DAY_OF_MONTH, en[2]);
+                                    endTime.set(java.util.Calendar.MONTH, en[3]);
+                                    endTime.set(java.util.Calendar.YEAR, en[4]);
+                                    WeekViewEvent event = new WeekViewEvent(++eventId, getEventTitle(startTime), startTime, endTime);
+                                    event.setColor(getResources().getColor(R.color.event_color_01));
+                                    mEvents.add(event);
+                                }
                             }
+
                         }
-
-
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
