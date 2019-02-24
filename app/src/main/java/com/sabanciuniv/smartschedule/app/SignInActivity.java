@@ -54,12 +54,6 @@ public class SignInActivity  extends AppCompatActivity {
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        signInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //todo: signin view to be implemented
-            }
-        });
 
         signInButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {

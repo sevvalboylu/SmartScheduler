@@ -74,38 +74,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
 
-
-        //AuthCredential authCredential = GoogleAuthProvider.getCredential(acc.getIdToken(), null);
-/*
-        mAuth.signInWithCredential(authCredential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-
-                    @Override
-                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-
-                            // Sign in success, update UI with the signed-in user's information
-
-                            Log.d(TAG, "signInWithCredential:success");
-
-                            //currentUser = mAuth.getCurrentUser();
-
-
-                        } else {
-
-                            // If sign in fails, display a message to the user.
-
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-
-                            //Snackbar.make(findViewById(R.id.main_layout), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-
-
-                        }
-                    }
-
-                });
-*/
-
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
