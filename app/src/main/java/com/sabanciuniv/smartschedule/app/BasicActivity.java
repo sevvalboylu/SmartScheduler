@@ -31,9 +31,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 
@@ -45,6 +42,7 @@ public class BasicActivity extends BaseActivity{
     private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String CREDENTIALS_DIRECTORY = ".oauth-credentials";
     private FirebaseAuth mAuth;
+    private int eventId = 0;
     private List<Task> mTasks = new ArrayList<>();
 
     @Override
@@ -56,6 +54,7 @@ public class BasicActivity extends BaseActivity{
 
             // Build a new authorized API client service.
             final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+
             Thread thread = new Thread() { //change to async task later
                 @Override
                 public void run() {
@@ -79,7 +78,7 @@ public class BasicActivity extends BaseActivity{
                             for (Event e : items) {
                                 DateTime start = e.getStart().getDateTime();
                                 java.util.Calendar startTime = java.util.Calendar.getInstance();
-                                int[] s = DateTimeParser(start);
+                                int[] s = DateTimeParser(start.toString());
                                 startTime.set(java.util.Calendar.HOUR_OF_DAY, s[0]);
                                 startTime.set(java.util.Calendar.MINUTE, s[1]);
                                 startTime.set(java.util.Calendar.DAY_OF_MONTH, s[2]);
@@ -87,14 +86,14 @@ public class BasicActivity extends BaseActivity{
                                 startTime.set(java.util.Calendar.YEAR, s[4]);
 
                                 DateTime end = e.getEnd().getDateTime();
-                                int[] en = endTimeParser(end);
+                                int[] en = DateTimeParser(end.toString());
                                 java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
                                 endTime.set(java.util.Calendar.HOUR_OF_DAY, s[0]);
                                 endTime.set(java.util.Calendar.MINUTE, s[1]);
                                 endTime.set(java.util.Calendar.DAY_OF_MONTH, s[2]);
                                 endTime.set(java.util.Calendar.MONTH, s[3]);
                                 endTime.set(java.util.Calendar.YEAR, s[4]);
-                                WeekViewEvent event = new WeekViewEvent(1, getEventTitle(startTime), startTime, endTime);
+                                WeekViewEvent event = new WeekViewEvent(++eventId, getEventTitle(startTime), startTime, endTime);
                                 event.setColor(getResources().getColor(R.color.event_color_01));
                                 mEvents.add(event);
                             }
@@ -112,13 +111,25 @@ public class BasicActivity extends BaseActivity{
         for (Task task : mTasks) { //fill for tasks that are retrieved from firebase
 
             java.util.Calendar startTime = java.util.Calendar.getInstance();
-            startTime.set(java.util.Calendar.HOUR_OF_DAY, 3);
-            startTime.set(java.util.Calendar.MINUTE, 0);
-            startTime.set(java.util.Calendar.MONTH, newMonth - 1);
-            startTime.set(java.util.Calendar.YEAR, newYear);
+            if(task.getStartTime()!=null)
+            { int[] s = DateTimeParser(task.getStartTime());
+            startTime.set(java.util.Calendar.HOUR_OF_DAY, s[0]);
+            startTime.set(java.util.Calendar.MINUTE, s[1]);
+            startTime.set(java.util.Calendar.DAY_OF_MONTH, s[2]);
+            startTime.set(java.util.Calendar.MONTH, s[3]);
+            startTime.set(java.util.Calendar.YEAR, s[4]);}
+
             java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
-            endTime.add(java.util.Calendar.HOUR, 1);
-            endTime.set(java.util.Calendar.MONTH, newMonth - 1);
+            if(task.getStartTime()!=null){
+            int[] en = DateTimeParser(task.getEndTime());
+            endTime.set(java.util.Calendar.HOUR_OF_DAY, en[0]);
+            endTime.set(java.util.Calendar.MINUTE, en[1]);
+            endTime.set(java.util.Calendar.DAY_OF_MONTH, en[2]);
+            endTime.set(java.util.Calendar.MONTH, en[3]);
+            endTime.set(java.util.Calendar.YEAR, en[4]);}
+            WeekViewEvent event = new WeekViewEvent(++eventId, task.getTitle(), startTime, endTime);
+            event.setColor(getResources().getColor(R.color.event_color_01));
+            mEvents.add(event);
 
         }
 
@@ -160,19 +171,9 @@ public class BasicActivity extends BaseActivity{
         if (!permissions) ActivityCompat.requestPermissions(this, permissionsId, callbackId);
     }
 
-    private int[] DateTimeParser(DateTime d){
+    private int[] DateTimeParser(String d){
         int[] s=new int[5];
-        String[] parsed  =  d.toString().split("T");
-        s[0]=Integer.parseInt(parsed[1].split(":")[0]);
-        s[1]=Integer.parseInt(parsed[1].split(":")[1]);
-        s[2]=Integer.parseInt(parsed[0].split("-")[2]);
-        s[3]=Integer.parseInt(parsed[0].split("-")[1]);
-        s[4]=Integer.parseInt(parsed[0].split("-")[0]);
-        return s;
-    }
-    private int[] endTimeParser(DateTime d){
-        int[] s=new int[5];
-        String[] parsed  =  d.toString().split("T");
+        String[] parsed  =  d.split("T");
         s[0]=Integer.parseInt(parsed[1].split(":")[0]);
         s[1]=Integer.parseInt(parsed[1].split(":")[1]);
         s[2]=Integer.parseInt(parsed[0].split("-")[2]);
