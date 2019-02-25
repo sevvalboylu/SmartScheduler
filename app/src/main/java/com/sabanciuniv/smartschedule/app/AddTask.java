@@ -122,6 +122,13 @@ public class AddTask extends AppCompatActivity  {
         //go to map or dropdown list of most frequent places
     }
 
+    public void onStart(){
+        super.onStart();
+    }
+
+    public void onStop(){
+        super.onStop();
+    }
     private void submitTask() {
         final String title = mTitleField.getText().toString();
 
