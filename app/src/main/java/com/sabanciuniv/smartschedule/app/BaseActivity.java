@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.RectF;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -13,7 +12,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,25 +21,16 @@ import android.widget.Toast;
 import com.alamkanak.weekview.DateTimeInterpreter;
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
-import com.alamkanak.weekview.WeekViewEvent;
 import com.firebase.client.Firebase;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-
 
 public abstract class BaseActivity extends AppCompatActivity implements WeekView.EventClickListener, MonthLoader.MonthChangeListener, WeekView.EventLongPressListener, WeekView.EmptyViewLongPressListener,  NavigationView.OnNavigationItemSelectedListener {
     private static final int TYPE_DAY_VIEW = 1;
@@ -120,48 +109,50 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         // the week view. This is optional.
         setupDateTimeInterpreter(false);
 
-    }
- @Override
- public void onStart() {
-     super.onStart();
-     mAuth = FirebaseAuth.getInstance();
-     Intent intent = getIntent();
-     Bundle extras = intent.getExtras();
-     SharedPreferences sharedPref = BaseActivity.this.getSharedPreferences("smartSchedule", Context.MODE_PRIVATE);
-     String lastEmail = sharedPref.getString("lastEmail", "");
-     String lastpwd = sharedPref.getString("lastPassword", "");
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        SharedPreferences sharedPref = BaseActivity.this.getSharedPreferences("smartSchedule", Context.MODE_PRIVATE);
+        String lastEmail = sharedPref.getString("lastEmail", "");
+        String lastpwd = sharedPref.getString("lastPassword", "");
 
-     GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-     // mGoogleSignInClient = GoogleSignIn.getClient(BaseActivity.this, gso);
-     GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
+        //GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        // mGoogleSignInClient = GoogleSignIn.getClient(BaseActivity.this, gso);
+        GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
 
-     if (extras != null) signedIn = extras.getBoolean("signedIn");
-     if (lastEmail == "" && signedIn == false && acc == null) {
-         //go to SignIn view
-         Intent intent1 = new Intent(BaseActivity.this, SignInActivity.class);
-         startActivity(intent1);
-     } else {
-         if (lastEmail != "") mAuth.signInWithEmailAndPassword(lastEmail, lastpwd);
+        if (extras != null) signedIn = extras.getBoolean("signedIn");
+        if (lastEmail == "" && signedIn == false && acc == null) {
+            //go to SignIn view
+            Intent intent1 = new Intent(BaseActivity.this, SignInActivity.class);
+            startActivity(intent1);
+        } else {
+            if (lastEmail != "") mAuth.signInWithEmailAndPassword(lastEmail, lastpwd);
 
-         else {
-             AuthCredential credential = GoogleAuthProvider.getCredential(acc.getEmail(), acc.getServerAuthCode());
+            else {
 
-             mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                 @Override
-                 public void onComplete(@NonNull Task<AuthResult> task) {
-                     if (task.isSuccessful()) {
-                         // Sign in success, update UI with the signed-in user's information
-                         Log.d(TAG, "signInWithCredential:success");
-                         FirebaseUser u = mAuth.getCurrentUser();
-                     } else {
-                         // If sign in fails, display a message to the user.
-                         Log.w(TAG, "signInWithCredential:failure", task.getException());
-                     }
-                 }
-             });
-         }
-     }
- }
+              intent.putExtra("googleSignInID", acc.getId());
+
+                // ...
+                            }
+                /*
+                mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithCredential:success");
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                        }
+                    }
+                });
+            }*/
+            }
+
+        }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -249,15 +240,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         return String.format("Event of %02d:%02d %s/%d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.MONTH)+1, time.get(Calendar.DAY_OF_MONTH));
     }
 
-    @Override
-    public void onEventClick(WeekViewEvent event, RectF eventRect) {
-        Toast.makeText(this, "Clicked " + event.getName(), Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
-        Toast.makeText(this, "Long pressed event: " + event.getName(), Toast.LENGTH_SHORT).show();
-    }
 
     @Override
     public void onEmptyViewLongPress(Calendar time) {

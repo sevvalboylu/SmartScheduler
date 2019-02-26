@@ -3,10 +3,14 @@ package com.sabanciuniv.smartschedule.app;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.view.MenuItem;
 
 import com.alamkanak.weekview.WeekViewEvent;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
@@ -24,6 +28,7 @@ import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,12 +52,19 @@ public class BasicActivity extends BaseActivity {
     private int eventId = 0;
     private final List<WeekViewEvent> mEvents= new ArrayList<>();
     private List<Task> mTasks = new ArrayList<>();
+    private boolean gLoaded = false;
     private List<Event> gEvents = new ArrayList<>();
 
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
-       // final String uid =  mAuth.getUid();
+        String uid;
+        if (getIntent().hasExtra("googleSignInID")) {
+            uid = getIntent().getExtras().getString("googleSignInID");
+        } else {
+            uid = mAuth.getCurrentUser().getUid();
+        }
+
         TaskLoader tl = new TaskLoader(new DataStatus() {
             @Override
             public void DataIsLoaded(List<Task> tasks, List<String> keys) {
@@ -103,6 +115,7 @@ public class BasicActivity extends BaseActivity {
     public List<? extends WeekViewEvent> onMonthChange(final int newYear, final int newMonth) {
 
         loadFireBaseTasks(newYear,newMonth);
+        if(gLoaded!=true)
         loadGoogleEvents(newYear,newMonth);
         List<WeekViewEvent> matchedEvents = new ArrayList<>();
         for (WeekViewEvent event : mEvents) {
@@ -111,8 +124,6 @@ public class BasicActivity extends BaseActivity {
             }
         }
         return matchedEvents;
-
-
     }
 
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws
@@ -138,7 +149,7 @@ public class BasicActivity extends BaseActivity {
                 startActivity(browserIntent);
             }
         };
-        return ab.authorize("fVujOYBPfIgR1YzpkNwZM3xwhjQ2");//change later
+        return ab.authorize("fVujOYBPfIgR1YzpkNwZM3xwhjQ2");
     }
 
     private void checkPermissions(int callbackId, String... permissionsId) {
@@ -151,60 +162,96 @@ public class BasicActivity extends BaseActivity {
     }
 
     private void loadGoogleEvents(int newYear,int newMonth){
+        SharedPreferences prefs = getSharedPreferences("gEvents", MODE_PRIVATE);
+        int readId=1;int writeId = 1;
+      if(prefs.contains("event1") && prefs.getString("event1","")!=""){
+          while(prefs.contains("event"+ readId))
+          {
+              Gson gson = new Gson();
+              String json = prefs.getString("event"+ readId++, "");
+              mEvents.add(gson.fromJson(json, WeekViewEvent.class));
+          }
+          gLoaded=true;
+      } //already loaded
+      else // load google events
+      {
+          SharedPreferences.Editor editor = getSharedPreferences("gEvents", MODE_PRIVATE).edit();
+          for (Event e : gEvents) {
+              DateTime start = e.getStart().getDateTime();
+              java.util.Calendar startTime = java.util.Calendar.getInstance();
+              int[] s = DateTimeParser(start.toString());
+              startTime.set(java.util.Calendar.HOUR_OF_DAY, 2);
+              startTime.set(java.util.Calendar.MINUTE, 30);
+              startTime.set(java.util.Calendar.DAY_OF_MONTH, 27);
+              startTime.set(java.util.Calendar.MONTH, newMonth - 1);
+              startTime.set(java.util.Calendar.YEAR, newYear);
 
-        for (Event e : gEvents) {
-            DateTime start = e.getStart().getDateTime();
-            java.util.Calendar startTime = java.util.Calendar.getInstance();
-            int[] s = DateTimeParser(start.toString());
-            startTime.set(java.util.Calendar.HOUR_OF_DAY, 2);
-            startTime.set(java.util.Calendar.MINUTE, 30);
-            startTime.set(java.util.Calendar.DAY_OF_MONTH, 27);
-            startTime.set(java.util.Calendar.MONTH, newMonth-1);
-            startTime.set(java.util.Calendar.YEAR, newYear);
+              DateTime end = e.getEnd().getDateTime();
+              int[] en = DateTimeParser(end.toString());
+              java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
+              endTime.set(java.util.Calendar.HOUR_OF_DAY, 4);
+              endTime.set(java.util.Calendar.MINUTE, 0);
+              endTime.set(java.util.Calendar.DAY_OF_MONTH, 27);
+              endTime.set(java.util.Calendar.MONTH, newMonth - 1);
+              endTime.set(java.util.Calendar.YEAR, newYear);
+              WeekViewEvent event = new WeekViewEvent(++eventId, "Google Event", startTime, endTime);
+              event.setColor(randColor());
+              mEvents.add(event);
+              Gson gson = new Gson();
+              String json = gson.toJson(event);
+              editor.putString("event"+ writeId++,json);
+          }
+          gLoaded=true;
+          editor.apply();
+      }
 
-            DateTime end = e.getEnd().getDateTime();
-            int[] en = DateTimeParser(end.toString());
-            java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
-            endTime.set(java.util.Calendar.HOUR_OF_DAY, 4);
-            endTime.set(java.util.Calendar.MINUTE, 0);
-            endTime.set(java.util.Calendar.DAY_OF_MONTH, 27);
-            endTime.set(java.util.Calendar.MONTH, newMonth-1);
-            endTime.set(java.util.Calendar.YEAR, newYear);
-            WeekViewEvent event = new WeekViewEvent(++eventId,"Google Event", startTime, endTime);
-            event.setColor(randColor());
-            mEvents.add(event);
-        }
-        getWeekView().notifyDatasetChanged();
+        //getWeekView().notifyDatasetChanged();
     }
 
 
   private void loadFireBaseTasks(int newYear,int newMonth)
 {
-
-    //mEvents.clear();
-    for (Task task : mTasks) { //fill for tasks that are retrieved from firebase
-        java.util.Calendar startTime = java.util.Calendar.getInstance();
-        if (task.getStartTime() != null) {
-            int[] s = DateTimeParser(task.getStartTime());
-            startTime.set(java.util.Calendar.HOUR_OF_DAY, s[0]);
-            startTime.set(java.util.Calendar.MINUTE, s[1]);
-            startTime.set(java.util.Calendar.DAY_OF_MONTH, s[2]);
-            startTime.set(java.util.Calendar.MONTH, newMonth-1);
-            startTime.set(java.util.Calendar.YEAR, newYear);
+    SharedPreferences prefs = getSharedPreferences("fbEvents", MODE_PRIVATE);
+    int readId=1;int writeId = 1;
+    if(prefs.contains("event1") && prefs.getString("event1","")!=""){
+        while(prefs.contains("event"+ readId))
+        {
+            Gson gson = new Gson();
+            String json = prefs.getString("event"+ readId++, "");
+            mEvents.add(gson.fromJson(json, WeekViewEvent.class));
         }
-        java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
-        if (task.getEndTime() != null) {
-            int[] en = DateTimeParser(task.getEndTime());
-            endTime.set(java.util.Calendar.HOUR_OF_DAY, en[0]);
-            endTime.set(java.util.Calendar.MINUTE, en[1]);
-            endTime.set(java.util.Calendar.DAY_OF_MONTH, en[2]);
-            endTime.set(java.util.Calendar.MONTH, newMonth-1);
-            endTime.set(java.util.Calendar.YEAR, newYear);
-        }
-        WeekViewEvent event = new WeekViewEvent(++eventId, task.getTitle(), startTime, endTime);
-        event.setColor(randColor());
-        mEvents.add(event);
     }
+    else {
+        SharedPreferences.Editor editor = getSharedPreferences("fbEvents", MODE_PRIVATE).edit();
+        for (Task task : mTasks) { //fill for tasks that are retrieved from firebase
+            java.util.Calendar startTime = java.util.Calendar.getInstance();
+            if (task.getStartTime() != null) {
+                int[] s = DateTimeParser(task.getStartTime());
+                startTime.set(java.util.Calendar.HOUR_OF_DAY, s[0]);
+                startTime.set(java.util.Calendar.MINUTE, s[1]);
+                startTime.set(java.util.Calendar.DAY_OF_MONTH, s[2]);
+                startTime.set(java.util.Calendar.MONTH, newMonth - 1);
+                startTime.set(java.util.Calendar.YEAR, newYear);
+            }
+            java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
+            if (task.getEndTime() != null) {
+                int[] en = DateTimeParser(task.getEndTime());
+                endTime.set(java.util.Calendar.HOUR_OF_DAY, en[0]);
+                endTime.set(java.util.Calendar.MINUTE, en[1]);
+                endTime.set(java.util.Calendar.DAY_OF_MONTH, en[2]);
+                endTime.set(java.util.Calendar.MONTH, newMonth - 1);
+                endTime.set(java.util.Calendar.YEAR, newYear);
+            }
+            WeekViewEvent event = new WeekViewEvent(++eventId, task.getTitle(), startTime, endTime);
+            event.setColor(randColor());
+            mEvents.add(event);
+            Gson gson = new Gson();
+            String json = gson.toJson(event);
+            editor.putString("event"+ writeId++,json);
+        }
+       // getWeekView().notifyDatasetChanged();
+    }
+
 
 }
     private int[] DateTimeParser(String d){
@@ -226,5 +273,23 @@ private int randColor(){
     }
 
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        return false;
+    }
 
+    @Override
+    public void onEmptyViewLongPress(java.util.Calendar time) {
+
+    }
+
+    @Override
+    public void onEventClick(WeekViewEvent event, RectF eventRect) {
+
+    }
+
+    @Override
+    public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
+
+    }
 }
