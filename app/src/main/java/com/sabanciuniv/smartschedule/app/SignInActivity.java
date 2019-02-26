@@ -49,6 +49,7 @@ public class SignInActivity  extends AppCompatActivity {
         SignInButton signInButton = findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken("545871567838-9bnlmgh0nofbpevbuvl583d7g4l9fv4a.apps.googleusercontent.com")
                 .requestEmail()
                 .build();
 

@@ -101,7 +101,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
         // Get a reference for the week view in the layout.
-        mWeekView = (WeekView) findViewById(R.id.weekView);
+        mWeekView = findViewById(R.id.weekView);
 
         // Show a toast message about the touched event.
         mWeekView.setOnEventClickListener(this);
