@@ -250,6 +250,7 @@ public class BasicActivity extends BaseActivity {
             editor.putString("event"+ writeId++,json);
         }
        // getWeekView().notifyDatasetChanged();
+        editor.apply();
     }
 
 
