@@ -15,10 +15,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "";
-    private RecyclerView mRecyclerView;
-    private String userId;
 
+    private RecyclerView mRecyclerView;
     private FirebaseAuth mAuth=FirebaseAuth.getInstance();
 
     @Override
