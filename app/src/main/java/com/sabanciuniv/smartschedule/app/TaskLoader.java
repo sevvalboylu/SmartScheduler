@@ -2,7 +2,6 @@ package com.sabanciuniv.smartschedule.app;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -15,8 +14,6 @@ import java.util.Objects;
 
 public class TaskLoader {
     private ArrayList<com.sabanciuniv.smartschedule.app.Task> tasks = new ArrayList<>();
-
-    final TaskCompletionSource<List<Objects>> tcs = new TaskCompletionSource<>();
 
 
     public TaskLoader(final DataStatus dataStatus, String uid) {
@@ -34,15 +31,15 @@ public class TaskLoader {
                         tasks.add(temp);
                     }
                     List<Objects> s = new ArrayList<Objects>();
-                    tcs.setResult(s);
                     dataStatus.DataIsLoaded(tasks, keys);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                tcs.setException(databaseError.toException());
+
             }
+
         });
 
     }

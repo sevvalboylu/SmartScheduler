@@ -40,7 +40,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
     private int mWeekViewType = TYPE_THREE_DAY_VIEW;
     private DrawerLayout mDrawerLayout;
     private WeekView mWeekView;
-    private FirebaseAuth mAuth ;
+    private FirebaseAuth mAuth=FirebaseAuth.getInstance();
     private GoogleSignInClient mGoogleSignInClient;
     private Boolean signedIn=false;
 
@@ -55,6 +55,8 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         super.onCreate(savedInstanceState);
         Firebase.setAndroidContext(this);
         setContentView(R.layout.activity_base);
+
+
         Firebase rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -62,32 +64,58 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
+        //DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, mDrawerLayout, toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
+        mDrawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
         NavigationView navigationView = findViewById(R.id.nav_view);
+        //navigationView.setNavigationItemSelectedListener(this);
+
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                    public boolean onNavigationItemSelected(MenuItem item) {
                         // set item as selected to persist highlight
 
-                        menuItem.setChecked(true);
-                        // close drawer when item is tapped
+                        int id = item.getItemId();
+
+                        if (id == R.id.nav_sched) {
+                            // view schedules
+
+                        } else if (id == R.id.nav_tasks) {
+                            Intent intent = new Intent(BaseActivity.this, MainActivity.class);
+                            startActivity(intent);
+
+                        } else if (id == R.id.nav_reminders) {
+
+                        } else if (id == R.id.nav_settings) {
+
+                        } else if (id == R.id.nav_appointments) {
+
+                        } else if (id == R.id.nav_logout) {
+
+                            FirebaseAuth.getInstance().signOut();
+                            Intent intent = new Intent(BaseActivity.this, SignInActivity.class);
+                            SharedPreferences settings = getSharedPreferences("loginData", Context.MODE_PRIVATE);
+                            settings.edit().clear().commit();
+                            startActivity(intent);
+
+                        } else if (id == R.id.nav_share) {
+
+                        }
                         mDrawerLayout.closeDrawers();
-
+                        //DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                        //drawer.closeDrawer(GravityCompat.START);
                         return true;
+                    }
 
-                    }});
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar,
-                R.string.navigation_drawer_open,
-                R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-        navigationView.setNavigationItemSelectedListener(this);
-
-        mDrawerLayout = findViewById(R.id.drawer_layout);
+                    });
 
         // Get a reference for the week view in the layout.
         mWeekView = findViewById(R.id.weekView);
@@ -108,49 +136,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
         // Set up a date time interpreter to interpret how the date and time will be formatted in
         // the week view. This is optional.
         setupDateTimeInterpreter(false);
-
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-        SharedPreferences sharedPref = BaseActivity.this.getSharedPreferences("smartSchedule", Context.MODE_PRIVATE);
-        String lastEmail = sharedPref.getString("lastEmail", "");
-        String lastpwd = sharedPref.getString("lastPassword", "");
-
-        //GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-        // mGoogleSignInClient = GoogleSignIn.getClient(BaseActivity.this, gso);
-        GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
-
-        if (extras != null) signedIn = extras.getBoolean("signedIn");
-        if (lastEmail == "" && signedIn == false && acc == null) {
-            //go to SignIn view
-            Intent intent1 = new Intent(BaseActivity.this, SignInActivity.class);
-            startActivity(intent1);
-        } else {
-            if (lastEmail != "") mAuth.signInWithEmailAndPassword(lastEmail, lastpwd);
-
-            else {
-
-              intent.putExtra("googleSignInID", acc.getId());
-
-                // ...
-                            }
-                /*
-                mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                        }
-                    }
-                });
-            }*/
-            }
-
         }
 
 
@@ -259,45 +244,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
             super.onBackPressed();
         }
     }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_sched) {
-            // view schedules
-
-        }
-        else if (id == R.id.nav_tasks){
-            Intent intent = new Intent(BaseActivity.this, MainActivity.class);
-            startActivity(intent);
-
-        }
-        else if (id == R.id.nav_reminders) {
-
-        } else if (id == R.id.nav_settings) {
-
-        } else if (id == R.id.nav_appointments) {
-
-        } else if (id == R.id.nav_logout) {
-
-            FirebaseAuth.getInstance().signOut();
-            Intent intent = new Intent(BaseActivity.this, SignInActivity.class);
-            intent.putExtra("signedOut", true);
-            startActivity(intent);
-
-        } else if (id == R.id.nav_share) {
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-
 }
 
 

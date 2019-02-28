@@ -2,6 +2,7 @@
 package com.sabanciuniv.smartschedule.app;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.RectF;
@@ -53,11 +54,14 @@ public class BasicActivity extends BaseActivity {
     private final List<WeekViewEvent> mEvents= new ArrayList<>();
     private List<Task> mTasks = new ArrayList<>();
     private boolean gLoaded = false;
+    private boolean tLoaded = false;
     private List<Event> gEvents = new ArrayList<>();
 
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+
+
         String uid;
         if (getIntent().hasExtra("googleSignInID")) {
             uid = getIntent().getExtras().getString("googleSignInID");
@@ -65,14 +69,37 @@ public class BasicActivity extends BaseActivity {
             uid = mAuth.getCurrentUser().getUid();
         }
 
-        TaskLoader tl = new TaskLoader(new DataStatus() {
-            @Override
-            public void DataIsLoaded(List<Task> tasks, List<String> keys) {
-                mTasks = tasks;
-                getWeekView().notifyDatasetChanged();
+        SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
+        int readId=1;
+        if(prefs.contains("task1") && prefs.getString("task1","")!=""){
+            while(prefs.contains("task"+ readId))
+            {
+                Gson gson = new Gson();
+                String json = prefs.getString("task"+ readId++, "");
+                mTasks.add(gson.fromJson(json, Task.class));
             }
         }
-                , "fVujOYBPfIgR1YzpkNwZM3xwhjQ2");
+        else {
+            final SharedPreferences.Editor editor = getSharedPreferences("tasks", MODE_PRIVATE).edit();
+            TaskLoader tl = new TaskLoader(new DataStatus() {
+                @Override
+                public void DataIsLoaded(List<Task> tasks, List<String> keys) {
+                    mTasks = tasks;
+                    int writeId = 1;
+                    for(Task t:mTasks){
+                        Gson gson = new Gson();
+                        String json = gson.toJson(t);
+                        editor.putString("task"+ writeId++,json);
+                    }
+                    writeId = 1;
+                    for(String k:keys){
+                        editor.putString("key"+ writeId++,k);
+                    }
+                    getWeekView().notifyDatasetChanged();
+                    editor.apply();
+                }
+            }, mAuth.getUid());
+        }
 
         final int callbackId = 42;
         checkPermissions(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR);
@@ -113,7 +140,7 @@ public class BasicActivity extends BaseActivity {
 
     @Override
     public List<? extends WeekViewEvent> onMonthChange(final int newYear, final int newMonth) {
-
+        if(tLoaded!=true)
         loadFireBaseTasks(newYear,newMonth);
         if(gLoaded!=true)
         loadGoogleEvents(newYear,newMonth);
@@ -149,7 +176,7 @@ public class BasicActivity extends BaseActivity {
                 startActivity(browserIntent);
             }
         };
-        return ab.authorize("fVujOYBPfIgR1YzpkNwZM3xwhjQ2");
+        return ab.authorize(mAuth.getUid());
     }
 
     private void checkPermissions(int callbackId, String... permissionsId) {
@@ -164,11 +191,11 @@ public class BasicActivity extends BaseActivity {
     private void loadGoogleEvents(int newYear,int newMonth){
         SharedPreferences prefs = getSharedPreferences("gEvents", MODE_PRIVATE);
         int readId=1;int writeId = 1;
-      if(prefs.contains("event1") && prefs.getString("event1","")!=""){
-          while(prefs.contains("event"+ readId))
+      if(prefs.contains("gEvent1") && prefs.getString("gEvent1","")!=""){
+          while(prefs.contains("gEvent"+ readId))
           {
               Gson gson = new Gson();
-              String json = prefs.getString("event"+ readId++, "");
+              String json = prefs.getString("gEvent"+ readId++, "");
               mEvents.add(gson.fromJson(json, WeekViewEvent.class));
           }
           gLoaded=true;
@@ -199,7 +226,7 @@ public class BasicActivity extends BaseActivity {
               mEvents.add(event);
               Gson gson = new Gson();
               String json = gson.toJson(event);
-              editor.putString("event"+ writeId++,json);
+              editor.putString("gEvent"+ writeId++,json);
           }
           gLoaded=true;
           editor.apply();
@@ -220,6 +247,7 @@ public class BasicActivity extends BaseActivity {
             String json = prefs.getString("event"+ readId++, "");
             mEvents.add(gson.fromJson(json, WeekViewEvent.class));
         }
+        tLoaded=true;
     }
     else {
         SharedPreferences.Editor editor = getSharedPreferences("fbEvents", MODE_PRIVATE).edit();
@@ -251,6 +279,7 @@ public class BasicActivity extends BaseActivity {
         }
        // getWeekView().notifyDatasetChanged();
         editor.apply();
+        tLoaded=true;
     }
 
 
