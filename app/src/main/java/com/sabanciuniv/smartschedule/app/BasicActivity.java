@@ -2,173 +2,181 @@
 package com.sabanciuniv.smartschedule.app;
 
 import android.Manifest;
-import android.content.ContentResolver;
-import android.database.Cursor;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.RectF;
 import android.net.Uri;
-import android.provider.CalendarContract;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.view.MenuItem;
 
 import com.alamkanak.weekview.WeekViewEvent;
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 
 public class BasicActivity extends BaseActivity {
 
-    // Projection array. Creating indices for this array instead of doing
-// dynamic lookups improves performance.
-    public static final String[] EVENT_PROJECTION = new String[] {
-            CalendarContract.Calendars._ID,                           // 0
-            CalendarContract.Calendars.ACCOUNT_NAME,                  // 1
-            CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,         // 2
-            CalendarContract.Calendars.OWNER_ACCOUNT                  // 3
-    };
+    private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR_READONLY);
+    private static final String APPLICATION_NAME = "SmartScheduler";
+    private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String CREDENTIALS_DIRECTORY = ".oauth-credentials";
+    private FirebaseAuth mAuth;
+    private int eventId = 0;
+    private final List<WeekViewEvent> mEvents= new ArrayList<>();
+    private List<Task> mTasks = new ArrayList<>();
+    private boolean gLoaded = false;
+    private boolean tLoaded = false;
+    private List<Event> gEvents = new ArrayList<>();
 
-    // The indices for the projection array above.
-    private static final int PROJECTION_ID_INDEX = 0;
-    private static final int PROJECTION_ACCOUNT_NAME_INDEX = 1;
-    private static final int PROJECTION_DISPLAY_NAME_INDEX = 2;
-    private static final int PROJECTION_OWNER_ACCOUNT_INDEX = 3;
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
 
-    @Override
-    public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
-        // Populate the week view with some events.
-        // The indices for the projection array above.
-        Cursor cur = null;
-        ContentResolver cr = getContentResolver();
-        Uri uri = CalendarContract.Calendars.CONTENT_URI;
-        String selection = "((" + CalendarContract.Calendars.ACCOUNT_NAME + " = ?) AND ("
-                + CalendarContract.Calendars.ACCOUNT_TYPE + " = ?) AND ("
-                + CalendarContract.Calendars.OWNER_ACCOUNT + " = ?))";
-        String[] selectionArgs = new String[] {"hera@example.com", "com.example",
-                "hera@example.com"};
-        // Submit the query and get a Cursor object back.
+
+        String uid;
+        if (getIntent().hasExtra("googleSignInID")) {
+            uid = getIntent().getExtras().getString("googleSignInID");
+        } else {
+            uid = mAuth.getCurrentUser().getUid();
+        }
+
+        SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
+        int readId=1;
+        if(prefs.contains("task1") && prefs.getString("task1","")!=""){
+            while(prefs.contains("task"+ readId))
+            {
+                Gson gson = new Gson();
+                String json = prefs.getString("task"+ readId++, "");
+                mTasks.add(gson.fromJson(json, Task.class));
+            }
+        }
+        else {
+            final SharedPreferences.Editor editor = getSharedPreferences("tasks", MODE_PRIVATE).edit();
+            TaskLoader tl = new TaskLoader(new DataStatus() {
+                @Override
+                public void DataIsLoaded(List<Task> tasks, List<String> keys) {
+                    mTasks = tasks;
+                    int writeId = 1;
+                    for(Task t:mTasks){
+                        Gson gson = new Gson();
+                        String json = gson.toJson(t);
+                        editor.putString("task"+ writeId++,json);
+                    }
+                    writeId = 1;
+                    for(String k:keys){
+                        editor.putString("key"+ writeId++,k);
+                    }
+                    getWeekView().notifyDatasetChanged();
+                    editor.apply();
+                }
+            }, mAuth.getUid());
+        }
+
         final int callbackId = 42;
         checkPermissions(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR);
 
-        cur = cr.query(uri, EVENT_PROJECTION, selection, selectionArgs, null);
+        // Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 
-        while (cur.moveToNext()) {
-            long calID = 0;
-            String displayName = null;
-            String accountName = null;
-            String ownerName = null;
+        Thread thread = new Thread() { //change to async task later
+            @Override
+            public void run() {
+                try {
+                    final Credential c = getCredentials(HTTP_TRANSPORT);
+                    final Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, c).setApplicationName(APPLICATION_NAME).build();
+                    // List the next 10 events from the primary calendar.
+                    DateTime now = new DateTime(System.currentTimeMillis());
+                    Events events = null;
+                    try {
+                        events = service.events().list("primary").setMaxResults(10).setTimeMin(now).setOrderBy("startTime").setSingleEvents(true).execute();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if(events!=null) {
+                        List<Event> items = events.getItems();
+                        if (items.isEmpty()) {
+                            System.out.println("No upcoming events found.");
+                        } else {
+                            gEvents=items;
+                        }
 
-            // Get the field values
-            calID = cur.getLong(PROJECTION_ID_INDEX);
-            displayName = cur.getString(PROJECTION_DISPLAY_NAME_INDEX);
-            accountName = cur.getString(PROJECTION_ACCOUNT_NAME_INDEX);
-            ownerName = cur.getString(PROJECTION_OWNER_ACCOUNT_INDEX);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        thread.start();
+    }
 
-            // Do something with the values...
-
+    @Override
+    public List<? extends WeekViewEvent> onMonthChange(final int newYear, final int newMonth) {
+        if(tLoaded!=true)
+        loadFireBaseTasks(newYear,newMonth);
+        if(gLoaded!=true)
+        loadGoogleEvents(newYear,newMonth);
+        List<WeekViewEvent> matchedEvents = new ArrayList<>();
+        for (WeekViewEvent event : mEvents) {
+            if (eventMatches(event, newYear, newMonth)) {
+                matchedEvents.add(event);
+            }
         }
+        return matchedEvents;
+    }
 
-        List<WeekViewEvent> events = new ArrayList<WeekViewEvent>();
-        Calendar startTime = Calendar.getInstance();
-        startTime.set(Calendar.HOUR_OF_DAY, 3);
-        startTime.set(Calendar.MINUTE, 0);
-        startTime.set(Calendar.MONTH, newMonth-1);
-        startTime.set(Calendar.YEAR, newYear);
-        Calendar endTime = (Calendar) startTime.clone();
-        endTime.add(Calendar.HOUR, 1);
-        endTime.set(Calendar.MONTH, newMonth-1);
-        WeekViewEvent event = new WeekViewEvent(1, getEventTitle(startTime), startTime, endTime);
-        event.setColor(getResources().getColor(R.color.event_color_01));
-        events.add(event);
+    private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws
+            IOException {
+        // Load client secrets.
+        InputStream in = this.getResources().openRawResource(R.raw.credentials);
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
-        startTime = Calendar.getInstance();
-        startTime.set(Calendar.HOUR_OF_DAY, 3);
-        startTime.set(Calendar.MINUTE, 30);
-        startTime.set(Calendar.MONTH, newMonth-1);
-        startTime.set(Calendar.YEAR, newYear);
-        endTime = (Calendar) startTime.clone();
-        endTime.set(Calendar.HOUR_OF_DAY, 4);
-        endTime.set(Calendar.MINUTE, 30);
-        endTime.set(Calendar.MONTH, newMonth-1);
-        event = new WeekViewEvent(10, getEventTitle(startTime), startTime, endTime);
-        event.setColor(getResources().getColor(R.color.event_color_02));
-        events.add(event);
+        // Build flow and trigger user authorization request.
+        File DATA_STORE_DIR = new File(getFilesDir(), CREDENTIALS_DIRECTORY);
+        FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
 
-        startTime = Calendar.getInstance();
-        startTime.set(Calendar.HOUR_OF_DAY, 4);
-        startTime.set(Calendar.MINUTE, 20);
-        startTime.set(Calendar.MONTH, newMonth-1);
-        startTime.set(Calendar.YEAR, newYear);
-        endTime = (Calendar) startTime.clone();
-        endTime.set(Calendar.HOUR_OF_DAY, 5);
-        endTime.set(Calendar.MINUTE, 0);
-        event = new WeekViewEvent(10, getEventTitle(startTime), startTime, endTime);
-        event.setColor(getResources().getColor(R.color.event_color_03));
-        events.add(event);
-
-        startTime = Calendar.getInstance();
-        startTime.set(Calendar.HOUR_OF_DAY, 5);
-        startTime.set(Calendar.MINUTE, 30);
-        startTime.set(Calendar.MONTH, newMonth-1);
-        startTime.set(Calendar.YEAR, newYear);
-        endTime = (Calendar) startTime.clone();
-        endTime.add(Calendar.HOUR_OF_DAY, 2);
-        endTime.set(Calendar.MONTH, newMonth-1);
-        event = new WeekViewEvent(2, getEventTitle(startTime), startTime, endTime);
-        event.setColor(getResources().getColor(R.color.event_color_02));
-        events.add(event);
-
-        startTime = Calendar.getInstance();
-        startTime.set(Calendar.HOUR_OF_DAY, 5);
-        startTime.set(Calendar.MINUTE, 0);
-        startTime.set(Calendar.MONTH, newMonth-1);
-        startTime.set(Calendar.YEAR, newYear);
-        startTime.add(Calendar.DATE, 1);
-        endTime = (Calendar) startTime.clone();
-        endTime.add(Calendar.HOUR_OF_DAY, 3);
-        endTime.set(Calendar.MONTH, newMonth - 1);
-        event = new WeekViewEvent(3, getEventTitle(startTime), startTime, endTime);
-        event.setColor(getResources().getColor(R.color.event_color_03));
-        events.add(event);
-
-        startTime = Calendar.getInstance();
-        startTime.set(Calendar.DAY_OF_MONTH, 15);
-        startTime.set(Calendar.HOUR_OF_DAY, 3);
-        startTime.set(Calendar.MINUTE, 0);
-        startTime.set(Calendar.MONTH, newMonth-1);
-        startTime.set(Calendar.YEAR, newYear);
-        endTime = (Calendar) startTime.clone();
-        endTime.add(Calendar.HOUR_OF_DAY, 3);
-        event = new WeekViewEvent(4, getEventTitle(startTime), startTime, endTime);
-        event.setColor(getResources().getColor(R.color.event_color_04));
-        events.add(event);
-
-        startTime = Calendar.getInstance();
-        startTime.set(Calendar.DAY_OF_MONTH, 1);
-        startTime.set(Calendar.HOUR_OF_DAY, 3);
-        startTime.set(Calendar.MINUTE, 0);
-        startTime.set(Calendar.MONTH, newMonth-1);
-        startTime.set(Calendar.YEAR, newYear);
-        endTime = (Calendar) startTime.clone();
-        endTime.add(Calendar.HOUR_OF_DAY, 3);
-        event = new WeekViewEvent(5, getEventTitle(startTime), startTime, endTime);
-        event.setColor(getResources().getColor(R.color.event_color_01));
-        events.add(event);
-
-        startTime = Calendar.getInstance();
-        startTime.set(Calendar.DAY_OF_MONTH, startTime.getActualMaximum(Calendar.DAY_OF_MONTH));
-        startTime.set(Calendar.HOUR_OF_DAY, 15);
-        startTime.set(Calendar.MINUTE, 0);
-        startTime.set(Calendar.MONTH, newMonth-1);
-        startTime.set(Calendar.YEAR, newYear);
-        endTime = (Calendar) startTime.clone();
-        endTime.add(Calendar.HOUR_OF_DAY, 3);
-        event = new WeekViewEvent(5, getEventTitle(startTime), startTime, endTime);
-        event.setColor(getResources().getColor(R.color.event_color_02));
-        events.add(event);
-
-        return events;
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(dataStoreFactory)
+                .setAccessType("offline")
+                .build();
+        //LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8642).build();
+        AuthorizationCodeInstalledApp ab = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()){
+            protected void onAuthorization(AuthorizationCodeRequestUrl authorizationUrl) throws IOException {
+                String url = (authorizationUrl.build());
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(browserIntent);
+            }
+        };
+        return ab.authorize(mAuth.getUid());
     }
 
     private void checkPermissions(int callbackId, String... permissionsId) {
@@ -177,7 +185,141 @@ public class BasicActivity extends BaseActivity {
             permissions = permissions && ContextCompat.checkSelfPermission(this, p) == PERMISSION_GRANTED;
         }
 
-        if (!permissions)
-            ActivityCompat.requestPermissions(this, permissionsId, callbackId);
+        if (!permissions) ActivityCompat.requestPermissions(this, permissionsId, callbackId);
+    }
+
+    private void loadGoogleEvents(int newYear,int newMonth){
+        SharedPreferences prefs = getSharedPreferences("gEvents", MODE_PRIVATE);
+        int readId=1;int writeId = 1;
+      if(prefs.contains("gEvent1") && prefs.getString("gEvent1","")!=""){
+          while(prefs.contains("gEvent"+ readId))
+          {
+              Gson gson = new Gson();
+              String json = prefs.getString("gEvent"+ readId++, "");
+              mEvents.add(gson.fromJson(json, WeekViewEvent.class));
+          }
+          gLoaded=true;
+      } //already loaded
+      else // load google events
+      {
+          SharedPreferences.Editor editor = getSharedPreferences("gEvents", MODE_PRIVATE).edit();
+          for (Event e : gEvents) {
+              DateTime start = e.getStart().getDateTime();
+              java.util.Calendar startTime = java.util.Calendar.getInstance();
+              int[] s = DateTimeParser(start.toString());
+              startTime.set(java.util.Calendar.HOUR_OF_DAY, 2);
+              startTime.set(java.util.Calendar.MINUTE, 30);
+              startTime.set(java.util.Calendar.DAY_OF_MONTH, 27);
+              startTime.set(java.util.Calendar.MONTH, newMonth - 1);
+              startTime.set(java.util.Calendar.YEAR, newYear);
+
+              DateTime end = e.getEnd().getDateTime();
+              int[] en = DateTimeParser(end.toString());
+              java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
+              endTime.set(java.util.Calendar.HOUR_OF_DAY, 4);
+              endTime.set(java.util.Calendar.MINUTE, 0);
+              endTime.set(java.util.Calendar.DAY_OF_MONTH, 27);
+              endTime.set(java.util.Calendar.MONTH, newMonth - 1);
+              endTime.set(java.util.Calendar.YEAR, newYear);
+              WeekViewEvent event = new WeekViewEvent(++eventId, "Google Event", startTime, endTime);
+              event.setColor(randColor());
+              mEvents.add(event);
+              Gson gson = new Gson();
+              String json = gson.toJson(event);
+              editor.putString("gEvent"+ writeId++,json);
+          }
+          gLoaded=true;
+          editor.apply();
+      }
+
+        //getWeekView().notifyDatasetChanged();
+    }
+
+
+  private void loadFireBaseTasks(int newYear,int newMonth)
+{
+    SharedPreferences prefs = getSharedPreferences("fbEvents", MODE_PRIVATE);
+    int readId=1;int writeId = 1;
+    if(prefs.contains("event1") && prefs.getString("event1","")!=""){
+        while(prefs.contains("event"+ readId))
+        {
+            Gson gson = new Gson();
+            String json = prefs.getString("event"+ readId++, "");
+            mEvents.add(gson.fromJson(json, WeekViewEvent.class));
+        }
+        tLoaded=true;
+    }
+    else {
+        SharedPreferences.Editor editor = getSharedPreferences("fbEvents", MODE_PRIVATE).edit();
+        for (Task task : mTasks) { //fill for tasks that are retrieved from firebase
+            java.util.Calendar startTime = java.util.Calendar.getInstance();
+            if (task.getStartTime() != null) {
+                int[] s = DateTimeParser(task.getStartTime());
+                startTime.set(java.util.Calendar.HOUR_OF_DAY, s[0]);
+                startTime.set(java.util.Calendar.MINUTE, s[1]);
+                startTime.set(java.util.Calendar.DAY_OF_MONTH, s[2]);
+                startTime.set(java.util.Calendar.MONTH, newMonth - 1);
+                startTime.set(java.util.Calendar.YEAR, newYear);
+            }
+            java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
+            if (task.getEndTime() != null) {
+                int[] en = DateTimeParser(task.getEndTime());
+                endTime.set(java.util.Calendar.HOUR_OF_DAY, en[0]);
+                endTime.set(java.util.Calendar.MINUTE, en[1]);
+                endTime.set(java.util.Calendar.DAY_OF_MONTH, en[2]);
+                endTime.set(java.util.Calendar.MONTH, newMonth - 1);
+                endTime.set(java.util.Calendar.YEAR, newYear);
+            }
+            WeekViewEvent event = new WeekViewEvent(++eventId, task.getTitle(), startTime, endTime);
+            event.setColor(randColor());
+            mEvents.add(event);
+            Gson gson = new Gson();
+            String json = gson.toJson(event);
+            editor.putString("event"+ writeId++,json);
+        }
+       // getWeekView().notifyDatasetChanged();
+        editor.apply();
+        tLoaded=true;
+    }
+
+
+}
+    private int[] DateTimeParser(String d){
+        int[] s=new int[3];
+        String[] parsed  =  d.split("T");
+        s[0]=Integer.parseInt(parsed[1].split(":")[0]);
+        s[1]=Integer.parseInt(parsed[1].split(":")[1]);
+        s[2]=Integer.parseInt(parsed[0].split("-")[2]);
+        return s;
+    }
+private int randColor(){
+
+    int[] androidColors = getResources().getIntArray(R.array.androidcolors);
+    return androidColors[new Random().nextInt(androidColors.length)];
+}
+
+    private boolean eventMatches(WeekViewEvent event, int year, int month) {
+        return (event.getStartTime().get(java.util.Calendar.YEAR) == year && event.getStartTime().get(java.util.Calendar.MONTH) == month - 1) || (event.getEndTime().get(java.util.Calendar.YEAR) == year && event.getEndTime().get(java.util.Calendar.MONTH) == month - 1);
+    }
+
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        return false;
+    }
+
+    @Override
+    public void onEmptyViewLongPress(java.util.Calendar time) {
+
+    }
+
+    @Override
+    public void onEventClick(WeekViewEvent event, RectF eventRect) {
+
+    }
+
+    @Override
+    public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
+
     }
 }

@@ -64,7 +64,7 @@ public class RecyclerView_Config {
             this.key = key;
         }
 
-        public void  setItemClickListener(ItemClickListener ic){
+        public void setItemClickListener(ItemClickListener ic){
           this.itemClickListener = ic;
         }
         @Override
