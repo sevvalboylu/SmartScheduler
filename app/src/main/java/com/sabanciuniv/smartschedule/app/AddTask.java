@@ -1,5 +1,6 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,16 +17,16 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.api.client.util.DateTime;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.yandex.mapkit.geometry.Point;
+
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Random;
 
@@ -121,6 +122,13 @@ public class AddTask extends AppCompatActivity  {
         //go to map or dropdown list of most frequent places
     }
 
+    public void onStart(){
+        super.onStart();
+    }
+
+    public void onStop(){
+        super.onStop();
+    }
     private void submitTask() {
         final String title = mTitleField.getText().toString();
 
@@ -138,21 +146,7 @@ public class AddTask extends AppCompatActivity  {
         final String userId = getUid();
         final String location = mLocationField.getText().toString();
 
-        Task task=null;
-        if(mStartTimePicker.getHour() != 0 && mEndTimePicker.getHour() != 0){ //both start and end, time and day - this is the format we can use for calendar
-            Date sd = new GregorianCalendar(mStartDatePicker.getYear(),mStartDatePicker.getMonth(),mStartDatePicker.getDayOfMonth(),mStartTimePicker.getHour(),mStartTimePicker.getMinute(),0).getTime();
-            DateTime start = new DateTime(sd);
-            Date ed = new GregorianCalendar(mEndDatePicker.getYear(),mEndDatePicker.getMonth(),mEndDatePicker.getDayOfMonth(),mEndTimePicker.getHour(),mEndTimePicker.getMinute(),0).getTime();
-            DateTime end = new DateTime(ed);
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location, start, end);
-        }
-        else if(mStartDatePicker.getDayOfMonth() != 0 && mEndDatePicker.getDayOfMonth() == 0){
-            DateTime start = new DateTime("");
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location, start);
-        }
-        else
-        task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location);
-
+        Task task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location);
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);

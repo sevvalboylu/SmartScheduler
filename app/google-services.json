@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "545871567838-so5i5scueeoojnka8cad0b59o056q5n4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sabanciuniv.smartschedule.app",
+            "certificate_hash": "3827c6267430e3af1bd6d947fecde40a0d750601"
+          }
+        },
+        {
           "client_id": "545871567838-9bnlmgh0nofbpevbuvl583d7g4l9fv4a.apps.googleusercontent.com",
           "client_type": 3
         }
