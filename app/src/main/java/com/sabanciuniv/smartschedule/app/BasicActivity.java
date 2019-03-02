@@ -2,9 +2,11 @@
 package com.sabanciuniv.smartschedule.app;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.RectF;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -56,42 +58,43 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
     private boolean gLoaded = false;
     private boolean tLoaded = false;
     private List<Event> gEvents = new ArrayList<>();
-
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
+    }
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
-        String s= mAuth.getCurrentUser().getUid();
-        SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
-        int readId=1;
-        if(prefs.contains("task1") && prefs.getString("task1","")!=""){
-            while(prefs.contains("task"+ readId))
-            {
-                Gson gson = new Gson();
-                String json = prefs.getString("task"+ readId++, "");
-                mTasks.add(gson.fromJson(json, Task.class));
-            }
-        }
-        else {
-            final SharedPreferences.Editor editor = getSharedPreferences("tasks", MODE_PRIVATE).edit();
-            TaskLoader tl = new TaskLoader(new DataStatus() {
-                @Override
-                public void DataIsLoaded(List<Task> tasks, List<String> keys) {
-                    mTasks = tasks;
-                    int writeId = 1;
-                    for(Task t:mTasks){
-                        Gson gson = new Gson();
-                        String json = gson.toJson(t);
-                        editor.putString("task"+ writeId++,json);
-                    }
-                    writeId = 1;
-                    for(String k:keys){
-                        editor.putString("key"+ writeId++,k);
-                    }
-                    getWeekView().notifyDatasetChanged();
-                    editor.apply();
+
+        if(isNetworkConnected()) {
+            SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
+            int readId = 1;
+                while (prefs.contains("task" + readId)) {
+                    Gson gson = new Gson();
+                    String json = prefs.getString("task" + readId++, "");
+                    mTasks.add(gson.fromJson(json, Task.class));
                 }
-            }, mAuth.getUid());
-        }
+            } else {
+                final SharedPreferences.Editor editor = getSharedPreferences("tasks", MODE_PRIVATE).edit();
+                TaskLoader tl = new TaskLoader(new DataStatus() {
+                    @Override
+                    public void DataIsLoaded(List<Task> tasks, List<String> keys) {
+                        mTasks = tasks;
+                        int writeId = 1;
+                        for (Task t : mTasks) {
+                            Gson gson = new Gson();
+                            String json = gson.toJson(t);
+                            editor.putString("task" + writeId++, json);
+                        }
+                        writeId = 1;
+                        for (String k : keys) {
+                            editor.putString("key" + writeId++, k);
+                        }
+                        getWeekView().notifyDatasetChanged();
+                        editor.apply();
+                    }
+                }, mAuth.getUid());
+            }
 
         final int callbackId = 42;
         checkPermissions(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR);
@@ -284,6 +287,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
         s[2]=Integer.parseInt(parsed[0].split("-")[2]);
         return s;
     }
+
 private int randColor(){
 
     int[] androidColors = getResources().getIntArray(R.array.androidcolors);
@@ -321,4 +325,5 @@ private int randColor(){
         in.putExtras(extras);
         startActivity(in);
     }
+
 }

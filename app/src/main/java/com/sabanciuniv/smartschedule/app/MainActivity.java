@@ -44,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
         });
         mRecyclerView = findViewById(R.id.recyclerview_tasks);
 
-        if(isNetworkConnected()) {
             final SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
             int readId = 1;
             List<String> keys = new ArrayList<>();
@@ -65,25 +64,17 @@ public class MainActivity extends AppCompatActivity {
                 new RecyclerView_Config().setConfig(mRecyclerView, MainActivity.this, tasks, keys);
             }
         }
-        else {
             TaskLoader tl = new TaskLoader(new DataStatus() {
                 @Override
                 public void DataIsLoaded(List<Task> tasks, List<String> keys) {
                     new RecyclerView_Config().setConfig(mRecyclerView, MainActivity.this, tasks, keys);
                 }
             }, mAuth.getUid());
-        }
 
     }
 
-    private boolean isNetworkConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        return cm.getActiveNetworkInfo() != null;
-    }
 
 
-}
 
 
 
