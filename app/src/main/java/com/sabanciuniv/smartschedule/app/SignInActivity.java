@@ -134,7 +134,7 @@ public class SignInActivity  extends AppCompatActivity {
             handleSignInResult(task);
         }
 
-        Intent intent = new Intent(SignInActivity.this, BaseActivity.class);
+        Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
         startActivity(intent);
     }
 
