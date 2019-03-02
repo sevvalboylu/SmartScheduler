@@ -18,10 +18,10 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
-
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -170,11 +170,6 @@ public class EditTask extends AppCompatActivity {
                 deleteTask(finalEdit.getTid()); //change task
             }
         });
-
-        //TODO: make importance levels user-friendly: change from integer to string ("High", "Moderate", "Low")
-
-
-        //go to map or dropdown list of most frequent places
     }
 
     public void onStart(){
@@ -194,7 +189,7 @@ public class EditTask extends AppCompatActivity {
         }
 
         // Disable button so there are no multi-posts
-        //setEditingEnabled(false);
+        //setEditingEnabled(false);9
         Toast.makeText(this, "Editing the task...", Toast.LENGTH_SHORT).show();
 
         // [START single_value_read]
@@ -202,12 +197,12 @@ public class EditTask extends AppCompatActivity {
         final String location = mLocationField.getText().toString();
 
         Task task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, lvl, title, location);
-        mDatabase.child("tasks").child(userId).child(tid).setValue(task);
+        mDatabase.child("tasks").child(mAuth.getCurrentUser().getUid()).child(tid).setValue(task);
 
     }
     private void deleteTask(String tid) {
         Toast.makeText(this, "Deleting the task...", Toast.LENGTH_SHORT).show();
-        mDatabase.child("tasks").child(mAuth.getUid()).child(tid).removeValue();
+        mDatabase.child("tasks").child(mAuth.getCurrentUser().getUid()).child(tid).removeValue();
 
     }
     public void addListenerOnSpinnerItemSelection() {

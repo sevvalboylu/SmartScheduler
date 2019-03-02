@@ -102,6 +102,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
 
                             FirebaseAuth.getInstance().signOut();
                             Intent intent = new Intent(BaseActivity.this, SignInActivity.class);
+                            intent.putExtra("signedOut",true);
                             SharedPreferences settings = getSharedPreferences("loginData", Context.MODE_PRIVATE);
                             settings.edit().clear().commit();
                             startActivity(intent);

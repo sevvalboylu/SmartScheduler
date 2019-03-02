@@ -41,9 +41,26 @@ public class SignInActivity  extends AppCompatActivity {
     protected void onCreate(Bundle savedInstance){
         super.onCreate(savedInstance);
         mAuth = FirebaseAuth.getInstance();
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken("545871567838-9bnlmgh0nofbpevbuvl583d7g4l9fv4a.apps.googleusercontent.com")
+                .requestEmail()
+                .build();
+
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         SharedPreferences sharedPref = SignInActivity.this.getSharedPreferences("loginData", Context.MODE_PRIVATE);
         String lastEmail = sharedPref.getString("lastEmail", "");
         String lastpwd = sharedPref.getString("lastPassword", "");
+        Boolean signedOut= getIntent().getBooleanExtra("signedOut",false);
+        if(signedOut) {
+            mGoogleSignInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    // ...
+                }
+            });
+        }
         GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
         if(acc!=null)
         firebaseAuthWithGoogle(acc);
@@ -64,13 +81,6 @@ public class SignInActivity  extends AppCompatActivity {
 
         //google sign in
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("545871567838-9bnlmgh0nofbpevbuvl583d7g4l9fv4a.apps.googleusercontent.com")
-                .requestEmail()
-                .build();
-
-
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         setContentView(R.layout.activity_signin);
         SignInButton signInButton = findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);

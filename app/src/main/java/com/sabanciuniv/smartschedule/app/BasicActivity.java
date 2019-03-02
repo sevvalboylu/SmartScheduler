@@ -60,6 +60,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+        String s= mAuth.getCurrentUser().getUid();
         SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
         int readId=1;
         if(prefs.contains("task1") && prefs.getString("task1","")!=""){
