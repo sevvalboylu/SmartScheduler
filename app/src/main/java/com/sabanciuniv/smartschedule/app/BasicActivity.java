@@ -49,7 +49,7 @@ public class BasicActivity extends BaseActivity {
                 "hera@example.com"};
         // Submit the query and get a Cursor object back.
         final int callbackId = 42;
-        checkPermissions(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR);
+        checkPermissions(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR, Manifest.permission.ACCESS_FINE_LOCATION);
 
         cur = cr.query(uri, EVENT_PROJECTION, selection, selectionArgs, null);
 
@@ -66,6 +66,7 @@ public class BasicActivity extends BaseActivity {
             ownerName = cur.getString(PROJECTION_OWNER_ACCOUNT_INDEX);
 
             // Do something with the values...
+            //todo: if we're not using these @Selin can you remove these?
 
         }
 

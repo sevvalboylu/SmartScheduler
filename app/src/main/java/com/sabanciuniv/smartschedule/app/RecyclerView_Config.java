@@ -1,5 +1,6 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import java.util.List;
 public class RecyclerView_Config {
     private Context mContext;
     private TaskAdapter mTaskAdapter;
+    public ArrayList<Task> checkedTasks = new ArrayList<Task>();
 
     public void setConfig(RecyclerView recyclerView,Context context, List<Task> tasks, List<String> keys)
     {
@@ -25,6 +27,7 @@ public class RecyclerView_Config {
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(mTaskAdapter);
     }
+
     class TaskItemView extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView mTitle;
         private TextView mLocation;
@@ -49,7 +52,7 @@ public class RecyclerView_Config {
 
             mImp.setText(task.getLvl());
 
-            mLocation.setText(task.getLocation());
+            mLocation.setText(task.getLocation().getAddress());
 
             if("3".equals(task.getLvl()))
             {
@@ -70,13 +73,15 @@ public class RecyclerView_Config {
         @Override
         public void onClick(View v) {
             this.itemClickListener.onItemClick(v,getLayoutPosition());
-
+            //todo: Itemclick'te de checkbox iqsaretlenmesi & listeye eklenmesi gerekiyor.
         }
+
     }
+
     class TaskAdapter extends RecyclerView.Adapter<TaskItemView>{
     private List<Task> mTasklist;
     private List<String> mKeys;
-    private ArrayList<Task> checkedTasks = new ArrayList<Task>();
+
 
         public TaskAdapter(List<Task> mTasklist, List<String> mKeys) {
             this.mTasklist = mTasklist;
@@ -112,4 +117,4 @@ public class RecyclerView_Config {
         }
     }
 
-    }
+}

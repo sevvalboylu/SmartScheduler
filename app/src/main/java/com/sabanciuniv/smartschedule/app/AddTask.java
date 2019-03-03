@@ -36,6 +36,8 @@ public class AddTask extends AppCompatActivity {
     private final String location = new String();
     private FirebaseAuth mAuth;
 
+    double longitude , latitude;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mAuth = FirebaseAuth.getInstance();
@@ -71,7 +73,7 @@ public class AddTask extends AppCompatActivity {
 
     private void submitTask() {
         final String title = mTitleField.getText().toString();
-
+        Intent intent = this.getIntent();
         // Title is required
         if (TextUtils.isEmpty(title)) {
             mTitleField.setError(REQUIRED);
@@ -84,13 +86,15 @@ public class AddTask extends AppCompatActivity {
 
         // [START single_value_read]
         final String userId = getUid();
-        final String location = mLocationField.getText().toString();
+        final String address = mLocationField.getText().toString();
+        Point pnt = new Point(latitude,longitude);
+
+        final Task.Location location = new Task.Location(address, pnt);
 
         Task task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location);
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
-
     }
 
     public void addListenerOnSpinnerItemSelection() {
@@ -127,6 +131,8 @@ public class AddTask extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         String address = intent.getStringExtra("Address");
+        longitude = intent.getDoubleExtra("Longitude", 0);
+        latitude = intent.getDoubleExtra("Latitude", 0);
         TextView addressTxt = findViewById(R.id.address);
         addressTxt.setText(address);
     }

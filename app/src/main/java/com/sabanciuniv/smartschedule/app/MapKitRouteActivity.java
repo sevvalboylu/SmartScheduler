@@ -1,14 +1,25 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.VoiceInteractor;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.sabanciuniv.smartschedule.app.MapViewActivity;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.directions.DirectionsFactory;
+import com.yandex.mapkit.directions.driving.DrivingArrivalPoint;
 import com.yandex.mapkit.directions.driving.DrivingOptions;
 import com.yandex.mapkit.directions.driving.DrivingRoute;
 import com.yandex.mapkit.directions.driving.DrivingRouter;
@@ -25,23 +36,37 @@ import com.yandex.runtime.network.RemoteError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import static android.support.constraint.Constraints.TAG;
+
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 
 public class MapKitRouteActivity extends Activity implements DrivingSession.DrivingRouteListener {
     private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
     private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
 
-    // todo: remove these two & read from an array
-    private final Point ROUTE_START_LOCATION = new Point(41.25687, 28.407094);
-    private final Point ROUTE_END_LOCATION = new Point(40.733330, 28.587649);
-
+    private String provider;
+    private LocationManager locationManager;
     private MapView mapView;
     private MapObjectCollection mapObjects;
     private DrivingRouter drivingRouter;
     private DrivingSession drivingSession;
+    protected Location location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        provider = locationManager.getBestProvider(criteria, false);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider requesting the permissions again
+        }
+
+        location = locationManager.getLastKnownLocation(provider);
         MapKitFactory.setApiKey(MAPKIT_API_KEY);
         MapKitFactory.initialize(this);
         // Now MapView can be created.
@@ -97,17 +122,20 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
     private void submitRequest() {
         DrivingOptions options = new DrivingOptions();
         ArrayList<RequestPoint> requestPoints = new ArrayList<>();
-        /*
-        requestPoints.add(new RequestPoint(
-                ROUTE_START_LOCATION,
-                RequestPointType.WAYPOINT,
-                null));
-        requestPoints.add(new RequestPoint(
-                ROUTE_END_LOCATION,
-                RequestPointType.WAYPOINT,
-                null));
-        */
+        Point currentLocation = new Point(location.getLatitude(),location.getLongitude());
+        RecyclerView_Config config= MainActivity.getConfig();
 
+        ArrayList<Point> arrivalPts = new ArrayList<>();
+        ArrayList<DrivingArrivalPoint> drivingArrivalPts = new ArrayList<>();
+        int count = 0;
+        for (Task temp: config.checkedTasks) {
+
+            Point tmp = temp.getLocation().getCoordinate();
+            arrivalPts.add(tmp);
+            drivingArrivalPts.add(new DrivingArrivalPoint(tmp,"Point "+count));
+            count ++;
+        }
+        requestPoints.add(new RequestPoint(currentLocation, arrivalPts,drivingArrivalPts,RequestPointType.WAYPOINT));
         drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
     }
 }
