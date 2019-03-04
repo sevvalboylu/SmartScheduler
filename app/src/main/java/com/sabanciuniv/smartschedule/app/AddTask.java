@@ -20,6 +20,7 @@ import com.google.api.client.util.DateTime;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.yandex.mapkit.geometry.Point;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

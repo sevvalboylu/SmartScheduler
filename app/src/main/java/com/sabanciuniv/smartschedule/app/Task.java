@@ -2,6 +2,7 @@ package com.sabanciuniv.smartschedule.app;
 
 import com.google.api.client.util.DateTime;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.yandex.mapkit.geometry.Point;
 
 // [START post_class]
 @IgnoreExtraProperties
