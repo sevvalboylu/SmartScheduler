@@ -4,10 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddTask">
+    tools:context=".EditTask">
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:title="Edit Task" />
+    </android.support.design.widget.AppBarLayout>
+
+
     <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+      >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,6 +41,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:layout_marginTop="50dp"
                     android:hint="Enter title"
                     tools:layout_editor_absoluteX="20dp"
                     tools:layout_editor_absoluteY="60dp"
@@ -239,13 +257,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:timePickerMode="spinner"/>
-
             <Button
-                android:id="@+id/addTask"
+                android:id="@+id/deleteTask"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:text="ADD TASK"/>
+                android:background="#FC5734"
+                android:text="DELETE TASK"/>
+
+            <Button
+                android:id="@+id/editTask"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="SUBMIT CHANGES"/>
 
         </LinearLayout>
     </ScrollView>

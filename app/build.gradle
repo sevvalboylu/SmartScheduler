@@ -1,6 +1,9 @@
 apply plugin: 'com.android.application'
 
 android {
+    configurations {
+        all*.exclude module: 'guava-jdk5'
+    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.sabanciuniv.smartschedule.app"
@@ -8,6 +11,16 @@ android {
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
+    }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
     }
     lintOptions {
         checkReleaseBuilds false
@@ -58,11 +71,12 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
-    implementation 'com.google.firebase:firebase-auth:16.0.4'
+    implementation 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
     implementation 'com.google.firebase:firebase-firestore:17.1.1'
     implementation 'com.google.firebase:firebase-functions:16.1.1'
     implementation 'com.google.firebase:firebase-messaging:17.3.3'
     implementation 'com.google.firebase:firebase-storage:16.0.3'
+    implementation 'com.google.apis:google-api-services-calendar:v3-rev305-1.23.0'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support:recyclerview-v7:27.1.1'

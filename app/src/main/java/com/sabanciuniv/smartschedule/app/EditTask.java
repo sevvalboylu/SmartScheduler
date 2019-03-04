@@ -1,9 +1,9 @@
 package com.sabanciuniv.smartschedule.app;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,19 +18,21 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.yandex.mapkit.geometry.Point;
-
+import com.google.gson.Gson;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
-import java.util.Random;
 
-public class AddTask extends AppCompatActivity  {
+
+public class EditTask extends AppCompatActivity {
 
     private static final String TAG = "AddTask";
     private static final String REQUIRED = "Required";
@@ -39,44 +41,85 @@ public class AddTask extends AppCompatActivity  {
     private TextView mLocationField;
     private Spinner spinner1, freqLocationSpinner;
     private Button mSubmitButton;
+    private Button mDeleteButton;
     private Switch mAllDaySwitch;
     private DatePicker mStartDatePicker, mEndDatePicker;
     private TimePicker mStartTimePicker, mEndTimePicker;
-    private String lvl, date_n;
+    private String lvl, date_s,date_e;
     private TextView mStartDateText, mEndDateText, mStartTimeText, mEndTimeText;
     //private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
     private final String location = new String();
     private FirebaseAuth mAuth;
     private int startDateTextClickCount = 0, endDateTextClickCount = 0, startTimeTextClickCount = 0, endTimeTextClickCount = 0;
 
-    double longitude , latitude;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mAuth = FirebaseAuth.getInstance();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_task);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        date_n = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
-        mStartDateText = findViewById(R.id.startDateText);
-        mStartDateText.setText(date_n);
-        mEndDateText = findViewById(R.id.endDateText);
-        mEndDateText.setText(date_n);
-
-        mStartTimeText = findViewById(R.id.startTimeText);
-        mEndTimeText = findViewById(R.id.endTimeText);
-        Calendar cal = Calendar.getInstance();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        Bundle extras = getIntent().getExtras();
+        String json; Task edit=null;
+        if (extras != null) {
+            json = extras.getString("clickedEvent");
+            Gson gson = new Gson();
+            edit = (gson.fromJson(json, Task.class));
+        }
         DateFormat df = new SimpleDateFormat("hh:mm");
-        String date_str = df.format(cal.getTime());
+        setContentView(R.layout.activity_edittask);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        if(edit.getEndTime()!=null){
+        Date e = new GregorianCalendar(
+                Integer.parseInt(edit.getEndTime().split("T")[0].split("-")[0]),
+                Integer.parseInt(edit.getEndTime().split("T")[0].split("-")[1]),
+                Integer.parseInt(edit.getEndTime().split("T")[0].split("-")[2])).getTime();
+        date_e = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(e);
+            mEndDateText = findViewById(R.id.endDateText);
+            mEndDateText.setText(date_e);
+
+            mEndTimeText = findViewById(R.id.endTimeText);
+            String et = edit.getEndTime().split("T")[1].split(":")[0] +":" + edit.getEndTime().split("T")[1].split(":")[1];
+            Date etd= null;
+            try {
+                etd = df.parse(et);
+            } catch (ParseException e1) {
+                e1.printStackTrace();
+            }
+            String date_str2 = df.format(etd);
+            mEndTimeText.setText(date_str2);
+
+        }
+
+        if(edit.getStartTime()!=null){
+        Date s = new GregorianCalendar(
+                Integer.parseInt(edit.getStartTime().split("T")[0].split("-")[0]),
+                Integer.parseInt(edit.getStartTime().split("T")[0].split("-")[1]),
+               Integer.parseInt(edit.getStartTime().split("T")[0].split("-")[2])).getTime();
+        date_s = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(s);
+            mStartDateText = findViewById(R.id.startDateText);
+            mStartDateText.setText(date_s);
+        mStartTimeText = findViewById(R.id.startTimeText);
+        Calendar cal = Calendar.getInstance();
+        String st = edit.getStartTime().split("T")[1].split(":")[0] +":" + edit.getStartTime().split("T")[1].split(":")[1];
+
+        Date std= null;
+        try {
+            std = df.parse(st);
+        } catch (ParseException e1) {
+            e1.printStackTrace();
+        }
+
+        String date_str = df.format(std);
         mStartTimeText.setText(date_str);
         cal.add(Calendar.HOUR_OF_DAY, 1);
-        String date_str2 = df.format(cal.getTime());
-        mEndTimeText.setText(date_str2);
+        }
 
         mTitleField = findViewById(R.id.taskTitleText);
+        mTitleField.setText(edit.getTitle());
         mLocationField = findViewById(R.id.address);
-        mSubmitButton = findViewById(R.id.addTask);
+        mLocationField.setText(edit.getLocation());
+        mSubmitButton = findViewById(R.id.editTask);
+        mDeleteButton = findViewById(R.id.deleteTask);
         mAllDaySwitch = findViewById(R.id.allDaySwitch);
 
         mStartDatePicker = findViewById(R.id.datePicker1);
@@ -103,25 +146,30 @@ public class AddTask extends AppCompatActivity  {
         });
 
         //get the spinner from the xml.
+        final Task finalEdit = edit;
         Spinner dropdown = findViewById(R.id.importanceSpinner);
-        addListenerOnSpinnerItemSelection();
-        //create a list of items for the spinner.
-        mSubmitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                submitTask();
-            }
-        });
-
-        //TODO: make importance levels user-friendly: change from integer to string ("High", "Moderate", "Low")
         String[] items = new String[]{"1", "2", "3"};
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
         //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         //set the spinners adapter to the previously created one.
         dropdown.setAdapter(adapter);
+        dropdown.setSelection(Integer.valueOf(Integer.parseInt(finalEdit.getLvl())-1));
+        addListenerOnSpinnerItemSelection();
+        //create a list of items for the spinner.
+        mSubmitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editTask(finalEdit.getTid()); //change task
+            }
+        });
 
-        //go to map or dropdown list of most frequent places
+        mDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteTask(finalEdit.getTid()); //change task
+            }
+        });
     }
 
     public void onStart(){
@@ -131,9 +179,9 @@ public class AddTask extends AppCompatActivity  {
     public void onStop(){
         super.onStop();
     }
-    private void submitTask() {
+    private void editTask(String tid) {
         final String title = mTitleField.getText().toString();
-        Intent intent = this.getIntent();
+
         // Title is required
         if (TextUtils.isEmpty(title)) {
             mTitleField.setError(REQUIRED);
@@ -141,28 +189,28 @@ public class AddTask extends AppCompatActivity  {
         }
 
         // Disable button so there are no multi-posts
-        //setEditingEnabled(false);
-        Toast.makeText(this, "Submitting the task...", Toast.LENGTH_SHORT).show();
+        //setEditingEnabled(false);9
+        Toast.makeText(this, "Editing the task...", Toast.LENGTH_SHORT).show();
 
         // [START single_value_read]
         final String userId = getUid();
-        final String address = mLocationField.getText().toString();
-        Point pnt = new Point(latitude,longitude);
+        final String location = mLocationField.getText().toString();
 
-        final Task.Location location = new Task.Location(address, pnt);
+        Task task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, lvl, title, location);
+        mDatabase.child("tasks").child(mAuth.getCurrentUser().getUid()).child(tid).setValue(task);
 
-        Random rand = new Random();
-        String taskId = String.valueOf(rand.nextInt(100));
-        Task task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location);
-        mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
     }
+    private void deleteTask(String tid) {
+        Toast.makeText(this, "Deleting the task...", Toast.LENGTH_SHORT).show();
+        mDatabase.child("tasks").child(mAuth.getCurrentUser().getUid()).child(tid).removeValue();
 
+    }
     public void addListenerOnSpinnerItemSelection() {
         spinner1 = (Spinner) findViewById(R.id.importanceSpinner);
         spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
 
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 lvl = parent.getItemAtPosition(pos).toString();
             }
         });
@@ -170,7 +218,7 @@ public class AddTask extends AppCompatActivity  {
 
     public void goToMap(View view)
     {
-        Intent intent = new Intent(AddTask.this, MapViewActivity.class);
+        Intent intent = new Intent(EditTask.this, MapViewActivity.class);
         startActivity(intent);
     }
 
@@ -191,8 +239,6 @@ public class AddTask extends AppCompatActivity  {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         String address = intent.getStringExtra("Address");
-        longitude = intent.getDoubleExtra("Longitude", 0);
-        latitude = intent.getDoubleExtra("Latitude", 0);
         TextView addressTxt = findViewById(R.id.address);
         addressTxt.setText(address);
     }
