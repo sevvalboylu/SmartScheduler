@@ -68,6 +68,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation files('../firebase-client-android-2.5.2.jar')
     implementation 'com.google.firebase:firebase-database:16.0.1'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     implementation 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'

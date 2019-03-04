@@ -206,6 +206,8 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
     {
         Intent intent = new Intent( SearchActivity.this, AddTask.class);
         intent.putExtra("Address",addressLine);
+        intent.putExtra("Longitude", selectedPoint[0].getLongitude());
+        intent.putExtra("Latitude", selectedPoint[0].getLatitude());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivityForResult(intent, 1);
     }
