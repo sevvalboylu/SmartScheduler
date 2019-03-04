@@ -97,7 +97,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
             }
 
         final int callbackId = 42;
-        checkPermissions(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR);
+        checkPermissions(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR, Manifest.permission.ACCESS_FINE_LOCATION);
 
         // Build a new authorized API client service.
         final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
@@ -123,7 +123,6 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
                         } else {
                             gEvents=items;
                         }
-
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
