@@ -1,7 +1,9 @@
 package com.sabanciuniv.smartschedule.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +30,7 @@ public class RecyclerView_Config {
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(mTaskAdapter);
     }
-    class TaskItemView extends RecyclerView.ViewHolder implements View.OnClickListener{
+    class TaskItemView extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener{
         private TextView mTitle;
         private TextView mLocation;
         private TextView mImp;
@@ -34,7 +38,7 @@ public class RecyclerView_Config {
         private String key;
 
         ItemClickListener itemClickListener;
-
+        ItemLongClickListener itemLongClickListener;
 
         public TaskItemView(ViewGroup parent) {
             super(LayoutInflater.from(mContext).inflate(R.layout.task_list_view, parent, false));
@@ -43,6 +47,7 @@ public class RecyclerView_Config {
             mImp = itemView.findViewById(R.id.imp_text);
             ck = itemView.findViewById(R.id.checkBox);
             ck.setOnClickListener(this);
+            mTitle.setOnLongClickListener(this);
         }
 
         public void bind(Task task, String key) {
@@ -64,14 +69,20 @@ public class RecyclerView_Config {
                 mImp.setTextColor(Color.rgb(58,148,1));
             this.key = key;
         }
-
-        public void setItemClickListener(ItemClickListener ic){
-          this.itemClickListener = ic;
+        public void setItemClickListener(ItemClickListener ic) {
+            this.itemClickListener = ic;
+        }
+        public void setItemLongClickListener(ItemLongClickListener ic) {
+            this.itemLongClickListener = ic;
         }
         @Override
         public void onClick(View v) {
-            this.itemClickListener.onItemClick(v,getLayoutPosition());
-
+            this.itemClickListener.onItemClick(v, getLayoutPosition());
+        }
+        @Override
+        public boolean onLongClick(View v) {
+            this.itemLongClickListener.onItemLongClick(v, getLayoutPosition());
+            return true;
         }
     }
     class TaskAdapter extends RecyclerView.Adapter<TaskItemView>{
@@ -104,6 +115,20 @@ public class RecyclerView_Config {
                    }
                }
            });
+            holder.setItemLongClickListener(new ItemLongClickListener() {
+                @Override
+                public void onItemLongClick(View v, int pos) {
+                    Bundle extras;
+                    extras = new Bundle();
+                    Gson gson = new Gson();
+                    String json = gson.toJson(mTasklist.get(pos));
+                    extras.putString("clickedEvent", json);
+
+                    Intent in = new Intent(mContext, EditTask.class);
+                    in.putExtras(extras);
+                    mContext.startActivity(in);
+                }
+            });
         }
 
         @Override

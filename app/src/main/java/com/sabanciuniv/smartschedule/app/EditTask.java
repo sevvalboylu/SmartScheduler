@@ -1,6 +1,7 @@
 package com.sabanciuniv.smartschedule.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -203,6 +204,9 @@ public class EditTask extends AppCompatActivity {
     private void deleteTask(String tid) {
         Toast.makeText(this, "Deleting the task...", Toast.LENGTH_SHORT).show();
         mDatabase.child("tasks").child(mAuth.getCurrentUser().getUid()).child(tid).removeValue();
+        final SharedPreferences.Editor editor = getSharedPreferences("tasks", MODE_PRIVATE).edit();
+        editor.remove(tid);
+        editor.apply();
 
     }
     public void addListenerOnSpinnerItemSelection() {
