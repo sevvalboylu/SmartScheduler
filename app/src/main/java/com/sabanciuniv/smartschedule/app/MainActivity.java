@@ -24,10 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth=FirebaseAuth.getInstance();
     private static RecyclerView_Config config;
     public static RecyclerView_Config getConfig(){return config;}
-    private boolean isNetworkConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo() != null;
-    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
