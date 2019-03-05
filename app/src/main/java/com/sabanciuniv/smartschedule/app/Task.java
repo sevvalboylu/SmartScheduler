@@ -5,8 +5,15 @@ import com.google.firebase.database.IgnoreExtraProperties;
 
 // [START post_class]
 @IgnoreExtraProperties
-
 public class Task {
+
+    public String uid;
+    public String tid;
+    public String title;
+    public Location location;
+    public String lvl;
+    public String startTime;
+    public String endTime;
 
     protected static class Location {
 
@@ -32,14 +39,6 @@ public class Task {
         }
     }
 
-    public String uid;
-    public String tid;
-    public String title;
-    public String lvl;
-    public String startTime;
-    public String endTime;
-    public Location location;
-
     public String getTitle() {
         return title;
     }
@@ -58,18 +57,19 @@ public class Task {
         return endTime;
     }
     public String getStartTime() {
+
         return startTime;
     }
+    public String getLocation() {
 
-    public Location getLocation() {
         return location;
     }
 
     public Task() {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
-  
-    public Task(String uid, String tid, String lvl, String title, Location location) {
+
+    public Task(String uid, String tid, String lvl, String title, String location) {
         this.uid = uid;
         this.tid = tid;
         this.lvl=lvl;
@@ -95,4 +95,12 @@ public class Task {
         this.startTime = start.toString();
         this.endTime = "";
     }
+    public Task(String uid, String tid, String lvl, String title, Location location) {
+        this.uid = uid;
+        this.tid = tid;
+        this.lvl=lvl;
+        this.title = title;
+        this.location = location;
+    }
+
 }

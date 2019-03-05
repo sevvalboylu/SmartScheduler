@@ -27,6 +27,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import java.util.GregorianCalendar;
+
 import java.util.Locale;
 import java.util.Random;
 
@@ -124,13 +127,6 @@ public class AddTask extends AppCompatActivity  {
         //go to map or dropdown list of most frequent places
     }
 
-    public void onStart(){
-        super.onStart();
-    }
-
-    public void onStop(){
-        super.onStop();
-    }
     private void submitTask() {
         final String title = mTitleField.getText().toString();
         Intent intent = this.getIntent();
@@ -151,9 +147,9 @@ public class AddTask extends AppCompatActivity  {
 
         final Task.Location location = new Task.Location(address, pnt);
 
+        Task task = new com.sabanciuniv.smartschedule.app.Task(userId, lvl, title, location);
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
-        Task task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location);
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
     }
 
