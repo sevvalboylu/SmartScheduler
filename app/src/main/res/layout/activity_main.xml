@@ -37,7 +37,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview_tasks"
         android:layout_width="396dp"
-        android:layout_height="wrap_content"
+        android:layout_height="400dp"
         android:layout_marginLeft="10sp"
         android:layout_marginTop="80sp" />
 
@@ -46,15 +46,13 @@
         android:id="@+id/buttonBasic"
         android:layout_width="match_parent"
         android:layout_height="60sp"
+        android:layout_marginLeft="0sp"
         android:layout_marginTop="500sp"
         android:layout_marginRight="0sp"
-        android:layout_gravity="bottom"
         android:background="@color/event_color_04"
-        android:onClick="createSchedule"
         android:text="Create New Schedule"
         android:textAllCaps="true"
-        android:textColor="@color/colorPrimaryDark"
-        app:layout_anchorGravity="bottom" />
+        android:textColor="@color/colorPrimaryDark" />
 
 
 </android.support.design.widget.CoordinatorLayout>

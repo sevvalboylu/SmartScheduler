@@ -63,7 +63,7 @@ public class SignInActivity  extends AppCompatActivity {
         }
         GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
         if(acc!=null)
-        firebaseAuthWithGoogle(acc);
+            firebaseAuthWithGoogle(acc);
 
         else if (lastEmail != "" )
         {
@@ -163,24 +163,23 @@ public class SignInActivity  extends AppCompatActivity {
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
-            AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-            mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d(TAG, "signInWithCredential:success");
-                        Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
-                        startActivity(intent);
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        loadIntent();
-                        Toast.makeText(getApplicationContext(), "Couldn't sign in with last signed in account", Toast.LENGTH_LONG).show();
-                        Log.w(TAG, "signInWithCredential:failure", task.getException());
-                    }
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "signInWithCredential:success");
+                    Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
+                    startActivity(intent);
+                } else {
+                    // If sign in fails, display a message to the user.
+                    loadIntent();
+                    Toast.makeText(getApplicationContext(), "Couldn't sign in with last signed in account", Toast.LENGTH_LONG).show();
+                    Log.w(TAG, "signInWithCredential:failure", task.getException());
                 }
-            });
-        }
+            }
+        });
     }
-
+}
 
