@@ -1,7 +1,7 @@
 package com.sabanciuniv.smartschedule.app;
 
-import com.google.api.client.util.DateTime;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.yandex.mapkit.geometry.Point;
 
 // [START post_class]
 @IgnoreExtraProperties
@@ -14,6 +14,10 @@ public class Task {
     public String lvl;
     public String startTime;
     public String endTime;
+
+    public Location getLocation() {
+        return location;
+    }
 
     protected static class Location {
 
@@ -60,23 +64,13 @@ public class Task {
 
         return startTime;
     }
-    public String getLocation() {
 
-        return location;
-    }
 
-    public Task() {
-        // Default constructor required for calls to DataSnapshot.getValue(Post.class)
-    }
 
     public Task(String uid, String tid, String lvl, String title, String location) {
-        this.uid = uid;
-        this.tid = tid;
-        this.lvl=lvl;
-        this.title = title;
-        this.location = location;
-    }
 
+    }
+/*
     public Task(String uid, String tid, String lvl, String title, String location, DateTime start, DateTime end) {
         this.uid = uid;
         this.tid = tid;
@@ -94,7 +88,8 @@ public class Task {
         this.location = location;
         this.startTime = start.toString();
         this.endTime = "";
-    }
+    }*/
+
     public Task(String uid, String tid, String lvl, String title, Location location) {
         this.uid = uid;
         this.tid = tid;

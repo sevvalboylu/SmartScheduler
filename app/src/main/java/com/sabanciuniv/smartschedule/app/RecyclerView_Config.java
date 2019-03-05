@@ -17,8 +17,9 @@ import java.util.List;
 public class RecyclerView_Config {
     private Context mContext;
     private TaskAdapter mTaskAdapter;
+    public ArrayList<Task> checkedTasks = new ArrayList<Task>();
 
-    public void setConfig(RecyclerView recyclerView,Context context, List<Task> tasks, List<String> keys)
+    public void setConfig(RecyclerView recyclerView, Context context, List<Task> tasks, List<String> keys)
     {
         mContext=context;
         mTaskAdapter = new TaskAdapter(tasks,keys);
@@ -49,7 +50,7 @@ public class RecyclerView_Config {
 
             mImp.setText(task.getLvl());
 
-            mLocation.setText(task.getLocation());
+            mLocation.setText(task.getLocation().getAddress());
 
             if("3".equals(task.getLvl()))
             {
@@ -76,7 +77,6 @@ public class RecyclerView_Config {
     class TaskAdapter extends RecyclerView.Adapter<TaskItemView>{
     private List<Task> mTasklist;
     private List<String> mKeys;
-    private ArrayList<Task> checkedTasks = new ArrayList<Task>();
 
         public TaskAdapter(List<Task> mTasklist, List<String> mKeys) {
             this.mTasklist = mTasklist;

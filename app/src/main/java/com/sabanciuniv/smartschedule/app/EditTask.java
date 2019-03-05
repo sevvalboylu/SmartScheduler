@@ -117,7 +117,7 @@ public class EditTask extends AppCompatActivity {
         mTitleField = findViewById(R.id.taskTitleText);
         mTitleField.setText(edit.getTitle());
         mLocationField = findViewById(R.id.address);
-        mLocationField.setText(edit.getLocation());
+        mLocationField.setText(edit.getLocation().getAddress());
         mSubmitButton = findViewById(R.id.editTask);
         mDeleteButton = findViewById(R.id.deleteTask);
         mAllDaySwitch = findViewById(R.id.allDaySwitch);
