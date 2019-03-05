@@ -102,7 +102,7 @@ public class BasicActivity extends BaseActivity {
         }
 
         final int callbackId = 42;
-        checkPermissions(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR);
+        checkPermissions(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR, Manifest.permission.ACCESS_FINE_LOCATION);
 
         // Build a new authorized API client service.
         final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
@@ -128,6 +128,8 @@ public class BasicActivity extends BaseActivity {
                         } else {
                             gEvents=items;
                         }
+                    // Do something with the values...
+                    //todo: if we're not using these @Selin can you remove these?
 
                     }
                 } catch (IOException e) {
@@ -137,6 +139,7 @@ public class BasicActivity extends BaseActivity {
         };
         thread.start();
     }
+
 
     @Override
     public List<? extends WeekViewEvent> onMonthChange(final int newYear, final int newMonth) {
