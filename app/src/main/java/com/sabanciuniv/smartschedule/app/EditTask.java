@@ -206,7 +206,7 @@ public class EditTask extends AppCompatActivity {
                 mEndTimePicker.getHour(),mEndTimePicker.getMinute());
         final DateTime e = new DateTime(c.getTime());
         Task task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, lvl, title, location);
-
+        deleteTask(tid);
         mDatabase.child("tasks").child(userId).child(tid).setValue(task);
 
     }

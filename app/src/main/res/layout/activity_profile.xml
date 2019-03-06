@@ -66,7 +66,7 @@
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerview_loclist"
-            android:layout_width="368dp"
+            android:layout_width="119dp"
             android:layout_height="250dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="40dp"
@@ -74,13 +74,58 @@
             tools:layout_editor_absoluteX="8dp"
             tools:layout_editor_absoluteY="8dp" />
 
+        <TextView
+            android:id="@+id/addloc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="180dp"
+            android:layout_marginTop="20dp"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:typeface="monospace"
+            android:text="Add New Location" />
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/addLocationfab"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="100dp"
+            android:layout_height="77dp"
+            android:layout_marginLeft="150dp"
+
+            android:layout_marginTop="70dp"
             android:clickable="true"
+            android:onClick="goToMap"
             app:srcCompat="@android:drawable/btn_plus" />
+
+        <EditText
+            android:id="@+id/editTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="150dp"
+            android:layout_marginTop="120dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:selectAllOnFocus="true"
+            android:text="Enter Title" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="190dp"
+            android:layout_marginTop="180dp"
+            android:onClick="addLoc"
+            android:layout_height="wrap_content"
+            android:text="ADD" />
+
+        <TextView
+            android:id="@+id/address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="200dp"
+            android:layout_marginTop="90dp"
+
+            android:text="TextView" />
+
+
     </FrameLayout>
 
 

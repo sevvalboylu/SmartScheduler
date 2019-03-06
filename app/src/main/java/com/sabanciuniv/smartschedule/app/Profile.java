@@ -5,22 +5,23 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
-import com.yandex.mapkit.geometry.Point;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 
 class RecyclerView_Loc {
@@ -52,7 +53,7 @@ class RecyclerView_Loc {
         }
     }
     class LocAdapter extends RecyclerView.Adapter<LocView>{
-        private List<Location> mLoclist;
+        private List<Location> mLoclist ;
 
         public LocAdapter(List<Location> mLoclist) {
             this.mLoclist = mLoclist;
@@ -81,7 +82,7 @@ class Location extends Task.Location{
 
     private String title;
     public String getTitle(){return title;}
-    Location(String title, String address){
+    Location(String address, String title){
         this.title=title;
         this.address=address;
     }
@@ -90,27 +91,31 @@ class Location extends Task.Location{
 
 public class Profile extends AppCompatActivity {
 
-    private ArrayList<Location> mLocations;
+    private ArrayList<Location> mLocations=new ArrayList<Location>();
+    private SharedPreferences s ;
     private ArrayList<String> titles = new ArrayList<String>();
-    private RecyclerView mRecyclerView = findViewById(R.id.recyclerview_loclist);
+    private RecyclerView mRecyclerView ;
+    private String adr="";
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        s=this.getSharedPreferences("locations",MODE_PRIVATE);
         setContentView(R.layout.activity_profile);
+        mRecyclerView = findViewById(R.id.recyclerview_loclist);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        SharedPreferences s = getSharedPreferences("locations", MODE_PRIVATE);
-        int readId = 1;
-        while (s.contains("location" + readId)) {
+        Map<String,?> keys = s.getAll();
+
+        for(Map.Entry<String,?> entry : keys.entrySet()){
             Gson gson = new Gson();
-            String json = s.getString("location" + readId++, "");
+            String json = s.getString(entry.getKey() ,"");
             mLocations.add(gson.fromJson(json, Location.class));
         }
 
         if (user != null) {
             // Name, email address, and profile photo Url
             String name = user.getDisplayName();
-            TextView tv1 = (TextView)findViewById(R.id.nameText);
-            TextView tv2 = (TextView)findViewById(R.id.nameText);
+            TextView tv1 = findViewById(R.id.nameText);
+            TextView tv2 = findViewById(R.id.emailText);
             tv1.setText(name);
             String email = user.getEmail();
             tv2.setText(email);
@@ -131,6 +136,16 @@ public class Profile extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Intent intent = getIntent();
-        intent.getStringExtra("Address");
+        adr = intent.getStringExtra("Address");
+        TextView addressTxt = findViewById(R.id.address);
+        addressTxt.setText(adr);
+    }
+    public void addLoc(View view){
+
+        EditText ed = findViewById(R.id.editTitle);
+        Gson gson = new Gson();
+        String json = gson.toJson(new Location(adr,ed.getText().toString()));
+        Random rand=new Random();
+        s.edit().putString(String.valueOf(rand.nextInt(100)),json);
     }
 }
