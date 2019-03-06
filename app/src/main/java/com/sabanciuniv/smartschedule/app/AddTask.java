@@ -168,6 +168,7 @@ public class AddTask extends AppCompatActivity  {
     public void goToMap(View view)
     {
         Intent intent = new Intent(AddTask.this, MapViewActivity.class);
+        intent.putExtra("caller","AddTask.class"); //please don't delete
         startActivity(intent);
     }
 

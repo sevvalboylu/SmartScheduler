@@ -1,20 +1,17 @@
 
    package com.sabanciuniv.smartschedule.app;
 
+   import android.app.ActivityManager;
+   import android.content.ComponentName;
    import android.content.Intent;
    import android.location.Address;
    import android.location.Geocoder;
    import android.os.Bundle;
    import android.app.Activity;
    import android.support.annotation.NonNull;
-   import android.util.Log;
    import android.view.View;
-   import android.widget.TextView;
    import android.widget.Toast;
 
-
-   import com.google.common.collect.MapMaker;
-   import com.google.type.LatLng;
    import com.yandex.mapkit.Animation;
    import com.yandex.mapkit.MapKitFactory;
    import com.yandex.mapkit.geometry.Point;
@@ -32,6 +29,7 @@
 
    public class MapViewActivity extends Activity {
        private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
+       //TODO: GET THE CURRENT LOCATION AND MAKE THE TARGET THAT LOCATION (LATER) //keep the comment don't delete
        private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
        private MapView mapView;
 
@@ -103,13 +101,27 @@
        }
        public void goToSearch(View view)
        {
+           Intent current = getIntent();
            Intent intent = new Intent(MapViewActivity.this, SearchActivity.class);
+           intent.putExtra("caller", current.getStringExtra("caller"));
            startActivity(intent);
        }
 
        public void selectPoint(View view)
        {
-           Intent intent = new Intent( MapViewActivity.this, AddTask.class);
+           Intent current = getIntent();
+           Intent intent = null;
+           if (current.getStringExtra("caller").equals("Profile.java"))
+               intent = new Intent( MapViewActivity.this, Profile.class);
+           else if (current.getStringExtra("caller").equals("AddTask.class"))
+               intent = new Intent( MapViewActivity.this, AddTask.class);
+           else     //let's hope we never enter this else here but need to be safe xx
+           {
+               //todo: if you need any more callers you may add them in else-if's
+               Toast.makeText(this,"Cannot access the parent class, please restart app",Toast.LENGTH_SHORT);
+               finish();
+           }
+
            intent.putExtra("Address",addressLine);
            intent.putExtra("Longitude", selectedPoint[0].getLongitude());
            intent.putExtra("Latitude", selectedPoint[0].getLatitude());
@@ -119,7 +131,7 @@
 
        @Override
        protected void onStart() {
-         // Activity onStart call must be passed to both MapView and MapKit instance.
+            // Activity onStart call must be passed to both MapView and MapKit instance.
            super.onStart();
            MapKitFactory.getInstance().onStart();
            mapView.onStart();

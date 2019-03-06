@@ -115,6 +115,15 @@ public class Profile extends AppCompatActivity {
     public void goToMap(View view)
     {
         Intent intent = new Intent(Profile.this, MapViewActivity.class);
+        intent.putExtra("caller","Profile.class");
         startActivity(intent); //todo:sevval can you return the selected address?
+    }
+
+    // TODO: SELIN USE THIS METHOD TO TAKE THE ADDRESS & LATITUDE & LONGITUDE AS U WISH :*
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
+        intent.getStringExtra("Address");
     }
 }
