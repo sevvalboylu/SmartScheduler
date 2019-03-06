@@ -17,6 +17,8 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.grpc.internal.SharedResourceHolder;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
         setContentView(R.layout.activity_main);
+        SharedPreferences ps = getSharedPreferences("tasks",MODE_PRIVATE);
+        ps.edit().clear().commit();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pullToRefresh);

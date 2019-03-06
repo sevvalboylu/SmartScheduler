@@ -57,6 +57,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
     private List<Task> mTasks = new ArrayList<>();
     private boolean gLoaded = false;
     private boolean tLoaded = false;
+    private boolean teventloaded= false;
     private List<Event> gEvents = new ArrayList<>();
     private boolean isNetworkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -65,7 +66,6 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
-
         if(!isNetworkConnected()) {
             SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
             int readId = 1;
@@ -74,6 +74,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
                     String json = prefs.getString("task" + readId++, "");
                     mTasks.add(gson.fromJson(json, Task.class));
                 }
+            tLoaded=true;
             } else {
                 final SharedPreferences.Editor editor = getSharedPreferences("tasks", MODE_PRIVATE).edit();
                 TaskLoader tl = new TaskLoader(new DataStatus() {
@@ -91,6 +92,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
                             editor.putString("key" + writeId++, k);
                         }
                         getWeekView().notifyDatasetChanged();
+                        tLoaded=true;
                         editor.apply();
                     }
                 }, mAuth.getUid());
@@ -134,7 +136,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
 
     @Override
     public List<? extends WeekViewEvent> onMonthChange(final int newYear, final int newMonth) {
-        if(tLoaded!=true)
+        if(teventloaded!=true)
         loadFireBaseTasks(newYear,newMonth);
         if(gLoaded!=true)
         loadGoogleEvents(newYear,newMonth);
@@ -185,7 +187,8 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
     private void loadGoogleEvents(int newYear,int newMonth){
         SharedPreferences prefs = getSharedPreferences("gEvents", MODE_PRIVATE);
         int readId=1;int writeId = 1;
-      if(prefs.contains("gEvent1") && prefs.getString("gEvent1","")!=""){
+        if(!isNetworkConnected()){
+        if(prefs.contains("gEvent1") && prefs.getString("gEvent1","")!=""){
           while(prefs.contains("gEvent"+ readId))
           {
               Gson gson = new Gson();
@@ -193,7 +196,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
               mEvents.add(gson.fromJson(json, WeekViewEvent.class));
           }
 
-      } //already loaded
+      }}//already loaded
       else // load google events
       {
           SharedPreferences.Editor editor = getSharedPreferences("gEvents", MODE_PRIVATE).edit();
@@ -272,7 +275,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
         }
         editor.apply();
     }
-    tLoaded=true;
+    if(tLoaded=true)teventloaded=true;
     getWeekView().notifyDatasetChanged();
 }
 
