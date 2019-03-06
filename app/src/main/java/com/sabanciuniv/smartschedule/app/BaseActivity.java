@@ -3,8 +3,8 @@ package com.sabanciuniv.smartschedule.app;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.RectF;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -22,11 +22,9 @@ import com.alamkanak.weekview.DateTimeInterpreter;
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.firebase.client.Firebase;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -104,6 +102,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
                             Intent intent = new Intent(BaseActivity.this, SignInActivity.class);
                             SharedPreferences settings = getSharedPreferences("loginData", Context.MODE_PRIVATE);
                             settings.edit().clear().commit();
+                            intent.putExtra("signedOut",true);
                             startActivity(intent);
 
                         } else if (id == R.id.nav_share) {

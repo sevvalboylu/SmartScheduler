@@ -41,7 +41,6 @@ public class SignInActivity  extends AppCompatActivity {
     protected void onCreate(Bundle savedInstance){
         super.onCreate(savedInstance);
         mAuth = FirebaseAuth.getInstance();
-
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken("545871567838-9bnlmgh0nofbpevbuvl583d7g4l9fv4a.apps.googleusercontent.com")
                 .requestEmail()
@@ -49,19 +48,21 @@ public class SignInActivity  extends AppCompatActivity {
 
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        SharedPreferences sharedPref = SignInActivity.this.getSharedPreferences("loginData", Context.MODE_PRIVATE);
-        String lastEmail = sharedPref.getString("lastEmail", "");
-        String lastpwd = sharedPref.getString("lastPassword", "");
+        GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
         Boolean signedOut= getIntent().getBooleanExtra("signedOut",false);
         if(signedOut) {
             mGoogleSignInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
-                    // ...
+                    loadIntent();
                 }
             });
         }
-        GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
+
+        SharedPreferences sharedPref = SignInActivity.this.getSharedPreferences("loginData", Context.MODE_PRIVATE);
+        String lastEmail = sharedPref.getString("lastEmail", "");
+        String lastpwd = sharedPref.getString("lastPassword", "");
+
         if(acc!=null)
             firebaseAuthWithGoogle(acc);
 
@@ -76,12 +77,12 @@ public class SignInActivity  extends AppCompatActivity {
     }
     private void loadIntent(){
 
-        email = findViewById(R.id.editText_email);
-        password = findViewById(R.id.editText_password);
-
         //google sign in
 
         setContentView(R.layout.activity_signin);
+        email = findViewById(R.id.edit_email);
+        password = findViewById(R.id.editText_password);
+
         SignInButton signInButton = findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
         signInButton.setOnClickListener(new View.OnClickListener() {
@@ -99,8 +100,8 @@ public class SignInActivity  extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mAuth = FirebaseAuth.getInstance();
-                email_text = email.getText().toString();
                 password_text = password.getText().toString();
+                email_text = email.getText().toString();
                 mAuth.signInWithEmailAndPassword(email_text, password_text).addOnCompleteListener(SignInActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
