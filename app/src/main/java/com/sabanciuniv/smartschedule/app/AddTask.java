@@ -1,6 +1,5 @@
 package com.sabanciuniv.smartschedule.app;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,19 +16,16 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.api.client.util.DateTime;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.yandex.mapkit.geometry.Point;
 
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-import java.util.GregorianCalendar;
-
 import java.util.Locale;
 import java.util.Random;
 
@@ -150,7 +146,15 @@ public class AddTask extends AppCompatActivity  {
 
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
-        Task task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location);
+        Task task=null;
+        DateTime s = getDateFromDatePicker(mStartDatePicker,mStartTimePicker);
+        DateTime e = getDateFromDatePicker(mEndDatePicker,mEndTimePicker);
+        if(s!=null && e==null)
+        task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s);
+        else if(s!=null && e!=null){task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s,e); }
+        else if(s==null && e == null){
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s);
+        }
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
     }
 
@@ -233,5 +237,13 @@ public class AddTask extends AppCompatActivity  {
         else {
             mEndTimePicker.setVisibility(View.GONE);
         }
+    }
+    public static DateTime getDateFromDatePicker(DatePicker datePicker,TimePicker timePicker){
+        if(datePicker.getDayOfMonth()==0)
+            return null;
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), timePicker.getHour(),timePicker.getMinute());
+        DateTime dt = new DateTime(calendar.getTime());
+        return dt;
     }
 }
