@@ -1,6 +1,7 @@
 package com.sabanciuniv.smartschedule.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,8 +18,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.api.client.util.DateTime;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
@@ -65,6 +66,7 @@ public class EditTask extends AppCompatActivity {
             Gson gson = new Gson();
             edit = (gson.fromJson(json, Task.class));
         }
+
         DateFormat df = new SimpleDateFormat("hh:mm");
         setContentView(R.layout.activity_edittask);
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -194,15 +196,26 @@ public class EditTask extends AppCompatActivity {
 
         // [START single_value_read]
         final String userId = getUid();
-        final String location = mLocationField.getText().toString();
+        mDatabase.child("tasks").child(userId).child(tid).removeValue();
 
+        Calendar c = Calendar.getInstance();
+        c.set(mStartDatePicker.getYear(),mStartDatePicker.getMonth(),mStartDatePicker.getDayOfMonth(),
+                mStartTimePicker.getHour(),mStartTimePicker.getMinute());
+        final DateTime s = new DateTime(c.getTime());
+        c.set(mEndDatePicker.getYear(),mEndDatePicker.getMonth(),mEndDatePicker.getDayOfMonth(),
+                mEndTimePicker.getHour(),mEndTimePicker.getMinute());
+        final DateTime e = new DateTime(c.getTime());
         Task task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, lvl, title, location);
-        mDatabase.child("tasks").child(mAuth.getCurrentUser().getUid()).child(tid).setValue(task);
+        deleteTask(tid);
+        mDatabase.child("tasks").child(userId).child(tid).setValue(task);
 
     }
     private void deleteTask(String tid) {
         Toast.makeText(this, "Deleting the task...", Toast.LENGTH_SHORT).show();
         mDatabase.child("tasks").child(mAuth.getCurrentUser().getUid()).child(tid).removeValue();
+        final SharedPreferences.Editor editor = getSharedPreferences("tasks", MODE_PRIVATE).edit();
+        editor.remove(tid);
+        editor.apply();
 
     }
     public void addListenerOnSpinnerItemSelection() {
