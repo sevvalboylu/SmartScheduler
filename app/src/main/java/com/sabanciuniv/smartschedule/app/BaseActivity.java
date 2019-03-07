@@ -94,12 +94,15 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
 
                         } else if (id == R.id.nav_settings) {
 
-                        } else if (id == R.id.nav_appointments) {
+                        } else if (id == R.id.nav_profile) {
+                            Intent intent = new Intent(BaseActivity.this, Profile.class);
+                            startActivity(intent);
 
                         } else if (id == R.id.nav_logout) {
 
                             FirebaseAuth.getInstance().signOut();
                             Intent intent = new Intent(BaseActivity.this, SignInActivity.class);
+                            intent.putExtra("signedOut",true);
                             SharedPreferences settings = getSharedPreferences("loginData", Context.MODE_PRIVATE);
                             settings.edit().clear().commit();
                             intent.putExtra("signedOut",true);
