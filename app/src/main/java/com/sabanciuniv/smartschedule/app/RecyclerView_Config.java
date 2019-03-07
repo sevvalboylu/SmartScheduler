@@ -100,6 +100,7 @@ public class RecyclerView_Config {
             return new TaskItemView(parent);
         }
 
+
         @Override
         public void onBindViewHolder(@NonNull TaskItemView holder, int position) {
            holder.bind(mTasklist.get(position),mKeys.get(position));
