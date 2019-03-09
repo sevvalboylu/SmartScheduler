@@ -1,6 +1,9 @@
 package com.sabanciuniv.smartschedule.app;
+
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +25,10 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth=FirebaseAuth.getInstance();
     private static RecyclerView_Config config;
     public static RecyclerView_Config getConfig(){return config;}
-
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

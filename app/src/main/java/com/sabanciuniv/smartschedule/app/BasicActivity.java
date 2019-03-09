@@ -66,6 +66,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+
         if(!isNetworkConnected()) {
             SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
             int readId = 1;
@@ -195,8 +196,8 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
               String json = prefs.getString("gEvent"+ readId++, "");
               mEvents.add(gson.fromJson(json, WeekViewEvent.class));
           }
-
       }}//already loaded
+
       else // load google events
       {
           SharedPreferences.Editor editor = getSharedPreferences("gEvents", MODE_PRIVATE).edit();
@@ -276,6 +277,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
         editor.apply();
     }
     if(tLoaded=true)teventloaded=true;
+
     getWeekView().notifyDatasetChanged();
 }
 
