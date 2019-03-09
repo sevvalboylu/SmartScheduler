@@ -1,5 +1,6 @@
 package com.sabanciuniv.smartschedule.app;
 
+import com.google.api.client.util.DateTime;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.yandex.mapkit.geometry.Point;
 
@@ -65,13 +66,14 @@ public class Task {
         return startTime;
     }
 
+public Task(){}
 
 
     public Task(String uid, String tid, String lvl, String title, String location) {
 
     }
-/*
-    public Task(String uid, String tid, String lvl, String title, String location, DateTime start, DateTime end) {
+
+    public Task(String uid, String tid, String lvl, String title, Location location, DateTime start, DateTime end) {
         this.uid = uid;
         this.tid = tid;
         this.lvl=lvl;
@@ -80,7 +82,7 @@ public class Task {
         this.startTime = start.toString();
         this.endTime = end.toString();
     }
-    public Task(String uid, String tid, String lvl, String title, String location, DateTime start) {
+    public Task(String uid, String tid, String lvl, String title, Location location, DateTime start) {
         this.uid = uid;
         this.lvl=lvl;
         this.tid = tid;
@@ -88,7 +90,7 @@ public class Task {
         this.location = location;
         this.startTime = start.toString();
         this.endTime = "";
-    }*/
+    }
 
     public Task(String uid, String tid, String lvl, String title, Location location) {
         this.uid = uid;

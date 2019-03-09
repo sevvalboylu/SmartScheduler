@@ -66,7 +66,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
 
-        if(isNetworkConnected()) {
+        if(!isNetworkConnected()) {
             SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
             int readId = 1;
                 while (prefs.contains("task" + readId)) {
@@ -192,7 +192,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
               String json = prefs.getString("gEvent"+ readId++, "");
               mEvents.add(gson.fromJson(json, WeekViewEvent.class));
           }
-          gLoaded=true;
+
       } //already loaded
       else // load google events
       {
@@ -201,18 +201,18 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
               DateTime start = e.getStart().getDateTime();
               java.util.Calendar startTime = java.util.Calendar.getInstance();
               int[] s = DateTimeParser(start.toString());
-              startTime.set(java.util.Calendar.HOUR_OF_DAY, 2);
-              startTime.set(java.util.Calendar.MINUTE, 30);
-              startTime.set(java.util.Calendar.DAY_OF_MONTH, 27);
+              startTime.set(java.util.Calendar.HOUR_OF_DAY,s[0]);
+              startTime.set(java.util.Calendar.MINUTE, s[1]);
+              startTime.set(java.util.Calendar.DAY_OF_MONTH, s[2]);
               startTime.set(java.util.Calendar.MONTH, newMonth - 1);
               startTime.set(java.util.Calendar.YEAR, newYear);
 
               DateTime end = e.getEnd().getDateTime();
               int[] en = DateTimeParser(end.toString());
               java.util.Calendar endTime = (java.util.Calendar) startTime.clone();
-              endTime.set(java.util.Calendar.HOUR_OF_DAY, 4);
-              endTime.set(java.util.Calendar.MINUTE, 0);
-              endTime.set(java.util.Calendar.DAY_OF_MONTH, 27);
+              endTime.set(java.util.Calendar.HOUR_OF_DAY, en[0]);
+              endTime.set(java.util.Calendar.MINUTE, en[1]);
+              endTime.set(java.util.Calendar.DAY_OF_MONTH, en[2]);
               endTime.set(java.util.Calendar.MONTH, newMonth - 1);
               endTime.set(java.util.Calendar.YEAR, newYear);
               WeekViewEvent event = new WeekViewEvent(++eventId, "Google Event", startTime, endTime);
@@ -222,10 +222,10 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
               String json = gson.toJson(event);
               editor.putString("gEvent"+ writeId++,json);
           }
-          gLoaded=true;
+
           editor.apply();
       }
-
+        gLoaded=true;
         //getWeekView().notifyDatasetChanged();
     }
 
@@ -241,7 +241,6 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
             String json = prefs.getString("event"+ readId++, "");
             mEvents.add(gson.fromJson(json, WeekViewEvent.class));
         }
-        tLoaded=true;
     }
     else {
         SharedPreferences.Editor editor = getSharedPreferences("fbEvents", MODE_PRIVATE).edit();
@@ -271,13 +270,12 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
             String json = gson.toJson(event);
             editor.putString("event"+ writeId++,json);
         }
-       // getWeekView().notifyDatasetChanged();
         editor.apply();
-        tLoaded=true;
     }
-
-
+    tLoaded=true;
+    getWeekView().notifyDatasetChanged();
 }
+
     private int[] DateTimeParser(String d){
         int[] s=new int[3];
         String[] parsed  =  d.split("T");
