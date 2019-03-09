@@ -1,7 +1,7 @@
 package com.sabanciuniv.smartschedule.app;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -17,20 +17,20 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.api.client.util.DateTime;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
 import com.yandex.mapkit.geometry.Point;
-
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-
-import java.util.GregorianCalendar;
-
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 public class AddTask extends AppCompatActivity  {
@@ -47,6 +47,8 @@ public class AddTask extends AppCompatActivity  {
     private TimePicker mStartTimePicker, mEndTimePicker;
     private String lvl, date_n;
     private TextView mStartDateText, mEndDateText, mStartTimeText, mEndTimeText;
+    private ArrayList<Profile.Location> locarr= new ArrayList<>();
+    private int locpos=-1;
     //private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
     private final String location = new String();
     private FirebaseAuth mAuth;
@@ -124,6 +126,22 @@ public class AddTask extends AppCompatActivity  {
         //set the spinners adapter to the previously created one.
         dropdown.setAdapter(adapter);
 
+        addListenerOnSpinnerItemSelection();
+        addListenerOnSpinnerLocSelection();
+
+        ArrayList<String> locs = new ArrayList<>();
+        SharedPreferences s = getSharedPreferences("locations",MODE_PRIVATE);
+        Map<String,?> keys =s.getAll();
+        for(Map.Entry<String,?> entry : keys.entrySet()){
+            Gson gson = new Gson();
+            String json = entry.getValue().toString();
+            locarr.add(gson.fromJson(json, Profile.Location.class));
+            locs.add(gson.fromJson(json, Profile.Location.class).getTitle());
+        }
+
+        Spinner loc = findViewById(R.id.freqLocationSpinner);
+        ArrayAdapter<String> ladapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, locs);
+        loc.setAdapter(ladapter);
         //go to map or dropdown list of most frequent places
     }
 
@@ -144,18 +162,26 @@ public class AddTask extends AppCompatActivity  {
         final String userId = getUid();
         final String address = mLocationField.getText().toString();
         Point pnt = new Point(latitude,longitude);
-
-        final Task.Location location = new Task.Location(address, pnt);
-
-
+        final Task.Location location;
+        if(locpos == -1)
+        location  = new Task.Location(address, pnt);
+        else location= new Task.Location(locarr.get(locpos).getAddress(),locarr.get(locpos).getCoordinate());
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
-        Task task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location);
+        Task task=null;
+        DateTime s = getDateFromDatePicker(mStartDatePicker,mStartTimePicker);
+        DateTime e = getDateFromDatePicker(mEndDatePicker,mEndTimePicker);
+        if(s!=null && e==null)
+        task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s);
+        else if(s!=null && e!=null){task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s,e); }
+        else if(s==null && e == null){
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s);
+        }
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
     }
 
     public void addListenerOnSpinnerItemSelection() {
-        spinner1 = (Spinner) findViewById(R.id.importanceSpinner);
+        spinner1 = findViewById(R.id.importanceSpinner);
         spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
 
             @Override
@@ -165,9 +191,21 @@ public class AddTask extends AppCompatActivity  {
         });
     }
 
+    public void addListenerOnSpinnerLocSelection() {
+        Spinner loc = findViewById(R.id.freqLocationSpinner);
+        loc.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
+                locpos=pos;
+            }
+        });
+    }
+
     public void goToMap(View view)
     {
         Intent intent = new Intent(AddTask.this, MapViewActivity.class);
+        intent.putExtra("caller","AddTask.class"); //please don't delete
         startActivity(intent);
     }
 
@@ -232,5 +270,13 @@ public class AddTask extends AppCompatActivity  {
         else {
             mEndTimePicker.setVisibility(View.GONE);
         }
+    }
+    public static DateTime getDateFromDatePicker(DatePicker datePicker,TimePicker timePicker){
+        if(datePicker.getDayOfMonth()==0)
+            return null;
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), timePicker.getHour(),timePicker.getMinute());
+        DateTime dt = new DateTime(calendar.getTime());
+        return dt;
     }
 }
