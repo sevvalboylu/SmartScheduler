@@ -165,23 +165,32 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
             if (t.getStartTime() == null && t.getEndTime() == null) freeTasks.add(t);
         for (Task t : config.checkedTasks)
             if (t.getStartTime() != null && t.getEndTime() != null) schedTasks.add(t);
-        HashMap<String,String> match= new HashMap<>();
+        HashMap<Double,Integer> distOrder= new HashMap<>();
+        HashMap<String,Integer> match= new HashMap<>();
         PriorityQueue<Double> minHeap = new PriorityQueue<>();
 
         Collections.sort(schedTasks,TaskComparator);
         for(Task fr:freeTasks) {
             Task t = schedTasks.get(0);
-            int i = 1;
+            Integer i = 1;
             while (btimeComparer(String.valueOf(fr.getStartHour()) + ":" + String.valueOf(fr.getStartMinute()), String.valueOf(t.getStartHour()) + ":" + String.valueOf(t.getStartMinute())))
                 t = schedTasks.get(i);
             //task is between ith and i+1th if it exists
             //get midpoint and get distance
-            if ((i + 1) != schedTasks.size())
-                minHeap.add(findDistMid(schedTasks.get(i).getLocation().coordinate, schedTasks.get(i).getLocation().coordinate, fr.getLocation().coordinate));
-            else minHeap.add(findDist(t.getLocation().coordinate, fr.getLocation().coordinate));
+            if ((i + 1) != schedTasks.size()) {
+                double d =findDistMid(schedTasks.get(i).getLocation().coordinate, schedTasks.get(i).getLocation().coordinate, fr.getLocation().coordinate);
+                minHeap.add(d);
+                distOrder.put(d,i);
+            }
+            else{
+                double d =findDist(t.getLocation().coordinate, fr.getLocation().coordinate);
+                minHeap.add(d);
+                distOrder.put(d,i);
+            }
         }
-        for(Task fr:freeTasks)
-        match.put(fr.getTid(), minHeap.peek())
+       for(Task fr :freeTasks)
+           match.put(fr.getTid(),distOrder.get(minHeap.peek()));
+        //match.put(fr.getTid(), minHeap.peek())
 /*
         IntVar vars[] = new IntVar[2*freeTasks.size()];
         int driving = 20;
