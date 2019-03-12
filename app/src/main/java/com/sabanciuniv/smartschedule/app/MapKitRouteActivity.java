@@ -2,9 +2,7 @@ package com.sabanciuniv.smartschedule.app;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.VoiceInteractor;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -12,11 +10,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
-import com.sabanciuniv.smartschedule.app.MapViewActivity;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.directions.DirectionsFactory;
 import com.yandex.mapkit.directions.driving.DrivingArrivalPoint;
@@ -25,7 +20,6 @@ import com.yandex.mapkit.directions.driving.DrivingRoute;
 import com.yandex.mapkit.directions.driving.DrivingRouter;
 import com.yandex.mapkit.directions.driving.DrivingSession;
 import com.yandex.mapkit.directions.driving.RequestPoint;
-import com.yandex.mapkit.directions.driving.RequestPointType;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.MapObjectCollection;
@@ -34,13 +28,23 @@ import com.yandex.runtime.Error;
 import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
+import org.chocosolver.solver.ICause;
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
+import org.chocosolver.solver.constraints.nary.cnf.LogOp;
+import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.learn.ExplanationForSignedClause;
+import org.chocosolver.solver.learn.Implications;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.util.objects.ValueSortedMap;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
-import static android.support.constraint.Constraints.TAG;
-
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+;
 
 
 public class MapKitRouteActivity extends Activity implements DrivingSession.DrivingRouteListener {
@@ -48,16 +52,21 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
     private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
 
     private String provider;
+    private Model model;
     private LocationManager locationManager;
     private MapView mapView;
     private MapObjectCollection mapObjects;
     private DrivingRouter drivingRouter;
     private DrivingSession drivingSession;
+
+    ArrayList<Task> freeTasks = new ArrayList<>();
+    ArrayList<Task> schedTasks= new ArrayList<>();
     protected Location location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        model = new Model("Smart Scheduler");
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         provider = locationManager.getBestProvider(criteria, false);
@@ -135,7 +144,162 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
             drivingArrivalPts.add(new DrivingArrivalPoint(tmp,"Point "+count));
             count ++;
         }
-        requestPoints.add(new RequestPoint(currentLocation, arrivalPts,drivingArrivalPts,RequestPointType.WAYPOINT));
-        drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
+        try {
+            sortTasks();
+        } catch (ContradictionException e) {
+            e.printStackTrace();
+        }
+        //requestPoints.add(new RequestPoint(currentLocation, arrivalPts,drivingArrivalPts,RequestPointType.WAYPOINT));
+       // drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
+    }
+
+
+    private void sortTasks() throws ContradictionException {
+        //tasks with given time are already assigned
+
+        //others can not overlap
+
+        RecyclerView_Config config = MainActivity.getConfig();
+
+        //eliminate the ones with fixed slot
+
+        for (Task t : config.checkedTasks)
+            if (t.getStartTime() == null && t.getEndTime() == null) freeTasks.add(t);
+        for (Task t : config.checkedTasks)
+            if (t.getStartTime() != null && t.getEndTime() != null) schedTasks.add(t);
+
+        IntVar vars[] = new IntVar[2*freeTasks.size()];
+        int driving = 20;
+        //populate map with pairs of taskno and distance to route
+
+        //calculate route and change start time of the task //then append
+        for(int q = 0; q < 2*freeTasks.size(); q+=2){
+            vars[q] = model.intVar("task_" + q, 1,23); //keep only the start time
+            vars[q+1] = model.intVar("task_" + q,0,59);
+
+        }
+
+        for (int i = 0; i < vars.length; i+=2) {
+            for (int j = 0; j < schedTasks.size(); j += 1) {
+
+                BoolVar a = timeComparer(timeFormatter(Integer.parseInt(schedTasks.get(j).getStartTime().
+                        split("T")[1].split(":")[0]),
+                        Integer.parseInt(schedTasks.get(j).getStartTime().
+                                split("T")[1].split(":")[1])-driving),
+                        timeFormatter(vars[i].getValue(),vars[i+1].getValue()+driving+freeTasks.get(i).getDuration()));
+
+                BoolVar b = timeComparer(timeFormatter(vars[i].getValue(),vars[i+1].getValue()-driving),
+                        timeFormatter(Integer.parseInt(schedTasks.get(j).getEndTime().split("T")[1].split(":")[0]),
+                               Integer.parseInt( schedTasks.get(j).getEndTime().split("T")[1].split(":")[1])));
+
+                model.addClauses(LogOp.and(a,b));
+               // no time overlap with the scheduled ones
+            }
+        }
+
+
+        for (int i = 0; i < vars.length; i+=2) {
+            for (int j = 1; j < vars.length; j += 2) {
+
+                BoolVar a = timeComparer(timeFormatter(vars[j].getValue(),vars[j+1].getValue()+driving+freeTasks.get(j).getDuration()),timeFormatter(vars[j],vars[j+1]));
+                BoolVar b = timeComparer(timeFormatter(vars[i].getValue(),vars[i+1].getValue()+driving+freeTasks.get(i).getDuration()),timeFormatter(vars[i],vars[i+1]));
+                model.addClauses(LogOp.and(a,b));
+                // no time overlap with other unscheduled ones
+            }
+        }
+
+
+        //IntVar routecost = model.intVar(10);
+
+        IntVar OBJ = model.intVar("objective", 0, 999);
+        model.scalar(new IntVar[]{X,Y}, new int[]{3,-3}, OBJ).post();
+        model.setObjective(Model.MAXIMIZE, OBJ);
+
+       // model.scalar(X, P, "=", z).post(); // z = X[0] * P[0] + X[1] * P[1] + ... = z
+        //model.setObjective(Model.MAXIMIZE, z);
+
+        //rotaya uzaklık(minimize) + toplam importance(maximize)
+        //model.setObjective(Model.MINIMIZE, routecost);
+        //model.setObjective(Model.MAXIMIZE, impcost);
+        Solution solution = model.getSolver().findSolution();
+        if (solution != null) {
+            System.out.println(solution.toString());
+        }
+    }
+
+    private BoolVar timeComparer(String s, String s1) throws ContradictionException //returns 1 if left op is sooner
+    {
+        ICause c=new ICause() {
+            @Override
+            public void explain(ExplanationForSignedClause explanation, ValueSortedMap<IntVar> front, Implications implicationGraph, int pivot) {
+
+            }
+        };
+            BoolVar b = model.boolVar("b");
+            if(Integer.parseInt(s.split(":")[0])  >  Integer.parseInt(s1.split(":")[0])){
+
+                b.setToFalse(c);
+                return b;
+            }
+            else if(Integer.parseInt(s.split(":")[0]) == Integer.parseInt(s1.split(":")[0]))
+                if(Integer.parseInt(s.split(":")[1]) > Integer.parseInt(s1.split(":")[0])){
+                b.setToTrue(c);
+                return b;
+            }
+                else
+                {  b.setToFalse(c);
+                    return b;}
+                else
+                { b.setToTrue(c);
+                    return b;}
+
+    }
+    private String timeFormatter(int hr, int min) {
+        int mm1=min;
+        int hr1=hr;
+        if(min > 59) {
+            while(mm1>59)
+                mm1 = min - 60;
+            hr1+=1;
+        }
+        if(min < 0){
+            while(mm1 < 0){
+                hr1 -= 1;
+                mm1= 60 + min;
+            }
+        }
+        return String.valueOf(hr1)+":"+String.valueOf(mm1) ;
+    }
+    private String timeFormatter(IntVar hr, IntVar min) {
+        int mm1=min.getValue();
+        int hr1=hr.getValue();
+        if(min.getValue() > 59) {
+            while(mm1>59)
+              mm1 = min.getValue() - 60;
+              hr1+=1;
+        }
+        if(min.getValue()< 0){
+            while(mm1 < 0){
+                hr1 -= 1;
+                mm1= 60 + min.getValue();
+            }
+        }
+       return String.valueOf(hr1)+":"+String.valueOf(mm1);
+    }
+
+    public static Comparator<Task> TaskComparator = new Comparator<Task>() {
+
+        @Override
+        public int compare(Task t1, Task t2) {
+            return t1.getStartTime().compareTo(t2.getStartTime());
+        }
+    };
+
+    private double findDist(IntVar _hr, IntVar _min, int hr, int min) {
+        Collections.sort(schedTasks,TaskComparator);
+        for(Task t: schedTasks)
+        {
+
+        }
     }
 }

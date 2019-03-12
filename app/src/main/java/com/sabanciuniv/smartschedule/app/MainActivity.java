@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
    public void createSchedule(View v)
    {
        Intent intent = new Intent(MainActivity.this,MapKitRouteActivity.class);
