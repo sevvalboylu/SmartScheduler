@@ -66,6 +66,26 @@ public class Task {
 
         return startTime;
     }
+    public String getStartHour() {
+
+        return getStartTime().
+                split("T")[1].split(":")[0];
+    }
+    public String getStartMinute() {
+
+        return getStartTime().
+                split("T")[1].split(":")[1];
+    }
+    public String getEndHour() {
+
+        return getEndTime().
+                split("T")[1].split(":")[0];
+    }
+    public String getEndMinute() {
+
+        return getEndTime().
+                split("T")[1].split(":")[1];
+    }
     public int getDuration(){ //int minutes
         return duration;
     }

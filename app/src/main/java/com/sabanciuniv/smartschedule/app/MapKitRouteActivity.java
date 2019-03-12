@@ -30,8 +30,6 @@ import com.yandex.runtime.network.RemoteError;
 
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.constraints.nary.cnf.LogOp;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.learn.ExplanationForSignedClause;
 import org.chocosolver.solver.learn.Implications;
@@ -42,7 +40,10 @@ import org.chocosolver.util.objects.ValueSortedMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
 
 ;
 
@@ -156,18 +157,32 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
 
     private void sortTasks() throws ContradictionException {
         //tasks with given time are already assigned
-
         //others can not overlap
-
         RecyclerView_Config config = MainActivity.getConfig();
-
         //eliminate the ones with fixed slot
 
         for (Task t : config.checkedTasks)
             if (t.getStartTime() == null && t.getEndTime() == null) freeTasks.add(t);
         for (Task t : config.checkedTasks)
             if (t.getStartTime() != null && t.getEndTime() != null) schedTasks.add(t);
+        HashMap<String,String> match= new HashMap<>();
+        PriorityQueue<Double> minHeap = new PriorityQueue<>();
 
+        Collections.sort(schedTasks,TaskComparator);
+        for(Task fr:freeTasks) {
+            Task t = schedTasks.get(0);
+            int i = 1;
+            while (btimeComparer(String.valueOf(fr.getStartHour()) + ":" + String.valueOf(fr.getStartMinute()), String.valueOf(t.getStartHour()) + ":" + String.valueOf(t.getStartMinute())))
+                t = schedTasks.get(i);
+            //task is between ith and i+1th if it exists
+            //get midpoint and get distance
+            if ((i + 1) != schedTasks.size())
+                minHeap.add(findDistMid(schedTasks.get(i).getLocation().coordinate, schedTasks.get(i).getLocation().coordinate, fr.getLocation().coordinate));
+            else minHeap.add(findDist(t.getLocation().coordinate, fr.getLocation().coordinate));
+        }
+        for(Task fr:freeTasks)
+        match.put(fr.getTid(), minHeap.peek())
+/*
         IntVar vars[] = new IntVar[2*freeTasks.size()];
         int driving = 20;
         //populate map with pairs of taskno and distance to route
@@ -182,22 +197,18 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         for (int i = 0; i < vars.length; i+=2) {
             for (int j = 0; j < schedTasks.size(); j += 1) {
 
-                BoolVar a = timeComparer(timeFormatter(Integer.parseInt(schedTasks.get(j).getStartTime().
-                        split("T")[1].split(":")[0]),
-                        Integer.parseInt(schedTasks.get(j).getStartTime().
-                                split("T")[1].split(":")[1])-driving),
+                BoolVar a = timeComparer(timeFormatter(Integer.parseInt(schedTasks.get(j).getStartHour()),
+                        Integer.parseInt(schedTasks.get(j).getStartMinute())-driving),
                         timeFormatter(vars[i].getValue(),vars[i+1].getValue()+driving+freeTasks.get(i).getDuration()));
 
                 BoolVar b = timeComparer(timeFormatter(vars[i].getValue(),vars[i+1].getValue()-driving),
-                        timeFormatter(Integer.parseInt(schedTasks.get(j).getEndTime().split("T")[1].split(":")[0]),
-                               Integer.parseInt( schedTasks.get(j).getEndTime().split("T")[1].split(":")[1])));
+                        timeFormatter(Integer.parseInt(schedTasks.get(j).getEndHour()),
+                               Integer.parseInt( schedTasks.get(j).getEndMinute())));
 
                 model.addClauses(LogOp.and(a,b));
                // no time overlap with the scheduled ones
             }
         }
-
-
         for (int i = 0; i < vars.length; i+=2) {
             for (int j = 1; j < vars.length; j += 2) {
 
@@ -207,26 +218,38 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
                 // no time overlap with other unscheduled ones
             }
         }
-
-
         //IntVar routecost = model.intVar(10);
-
         IntVar OBJ = model.intVar("objective", 0, 999);
-        model.scalar(new IntVar[]{X,Y}, new int[]{3,-3}, OBJ).post();
-        model.setObjective(Model.MAXIMIZE, OBJ);
+        model.scalar(new IntVar[]{}, new int[]{3,-3}, OBJ).post();
+        model.setObjective(Model.MINIMIZE, OBJ);
 
-       // model.scalar(X, P, "=", z).post(); // z = X[0] * P[0] + X[1] * P[1] + ... = z
-        //model.setObjective(Model.MAXIMIZE, z);
-
-        //rotaya uzaklık(minimize) + toplam importance(maximize)
-        //model.setObjective(Model.MINIMIZE, routecost);
-        //model.setObjective(Model.MAXIMIZE, impcost);
         Solution solution = model.getSolver().findSolution();
         if (solution != null) {
             System.out.println(solution.toString());
         }
+        */
     }
 
+
+    private boolean btimeComparer(String s, String s1) throws ContradictionException //returns 1 if left op is sooner
+    {
+        ICause c=new ICause() {
+            @Override
+            public void explain(ExplanationForSignedClause explanation, ValueSortedMap<IntVar> front, Implications implicationGraph, int pivot) {
+
+            }
+        };
+        BoolVar b = model.boolVar("b");
+        if(Integer.parseInt(s.split(":")[0])  >  Integer.parseInt(s1.split(":")[0]))return false;
+        else if(Integer.parseInt(s.split(":")[0]) == Integer.parseInt(s1.split(":")[0]))
+            if(Integer.parseInt(s.split(":")[1]) > Integer.parseInt(s1.split(":")[0]))
+               return true;
+            else
+             return false;
+        else
+        return true;
+
+    }
     private BoolVar timeComparer(String s, String s1) throws ContradictionException //returns 1 if left op is sooner
     {
         ICause c=new ICause() {
@@ -295,11 +318,40 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         }
     };
 
-    private double findDist(IntVar _hr, IntVar _min, int hr, int min) {
-        Collections.sort(schedTasks,TaskComparator);
-        for(Task t: schedTasks)
-        {
-
-        }
+    private double findDistMid(Point p1,Point p2,Point p3) // get p3's distance from midpoint of p1 and p2
+    {
+        Point p = new Point((p1.getLatitude()+p2.getLatitude())/2, (p1.getLongitude()+p2.getLongitude())/2);
+        return findDist(p,p3);
     }
+    private double findDist(Point p1,Point p2){
+      return Math.sqrt(Math.pow(p1.getLatitude()-p2.getLatitude(),2) + Math.pow(p1.getLongitude()-p2.getLongitude(),2);
+    }
+    /*
+
+    private double findDist(IntVar _hr, IntVar _min) throws ContradictionException {
+        Collections.sort(schedTasks,TaskComparator);
+        Task t = schedTasks.get(0);
+        int i=1;
+        while(btimeComparer(String.valueOf(_hr.getValue())+":"+String.valueOf(_min.getValue())
+                ,String.valueOf(t.getStartHour())+":"+String.valueOf(t.getStartMinute())))
+
+            t=schedTasks.get(i);
+        //task is between ith and i+1th if it exists
+
+        //get midpoint and get distance
+        if(i+1 != schedTasks.size())
+             return findDistMid(t.getLocation().coordinate,);
+        else
+            return findDist(t.getLocation().coordinate,);
+
+    }
+
+    private double findDistMid(Point p1,Point p2,Point p3) // get p3's distance from midpoint of p1 and p2
+    {
+
+    }
+    private double findDist(){
+
+    }
+    */
 }
