@@ -28,26 +28,16 @@ import com.yandex.runtime.Error;
 import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
-import org.chocosolver.solver.ICause;
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.constraints.nary.cnf.LogOp;
-import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.learn.ExplanationForSignedClause;
-import org.chocosolver.solver.learn.Implications;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.util.objects.ValueSortedMap;
+import org.apache.commons.codec.StringEncoderComparator;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
-
-;
 
 
 public class MapKitRouteActivity extends Activity implements DrivingSession.DrivingRouteListener {
@@ -55,21 +45,18 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
     private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
 
     private String provider;
-    private Model model;
     private LocationManager locationManager;
     private MapView mapView;
     private MapObjectCollection mapObjects;
     private DrivingRouter drivingRouter;
     private DrivingSession drivingSession;
-
+    private RecyclerView_Config config;
     ArrayList<Task> freeTasks = new ArrayList<>();
     ArrayList<Task> schedTasks= new ArrayList<>();
     protected Location location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        model = new Model("Smart Scheduler");
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         provider = locationManager.getBestProvider(criteria, false);
@@ -134,8 +121,8 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
     private void submitRequest() {
         DrivingOptions options = new DrivingOptions();
         ArrayList<RequestPoint> requestPoints = new ArrayList<>();
-        Point currentLocation = new Point(location.getLatitude(),location.getLongitude());
-        RecyclerView_Config config= MainActivity.getConfig();
+        //Point currentLocation = new Point(location.getLatitude(),location.getLongitude());
+        config= MainActivity.getConfig();
 
         ArrayList<Point> arrivalPts = new ArrayList<>();
         ArrayList<DrivingArrivalPoint> drivingArrivalPts = new ArrayList<>();
@@ -147,17 +134,15 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
             drivingArrivalPts.add(new DrivingArrivalPoint(tmp,"Point "+count));
             count ++;
         }
-        try {
-            sortTasks();
-        } catch (ContradictionException e) {
-            e.printStackTrace();
-        }
+
+        sortTasks();
+
         //requestPoints.add(new RequestPoint(currentLocation, arrivalPts,drivingArrivalPts,RequestPointType.WAYPOINT));
        // drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
     }
 
 
-    private void sortTasks() throws ContradictionException {
+    private void sortTasks(){
         //tasks with given time are already assigned
         //others can not overlap
         RecyclerView_Config config = MainActivity.getConfig();
@@ -173,88 +158,149 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
 
         Collections.sort(schedTasks,TaskComparator);
 
-        if(schedTasks.size() >=1) {
+        if(schedTasks.size() >= freeTasks.size()) {
             for (Task fr : freeTasks) {
-                Task t = schedTasks.get(0);
-                Integer i = 1;
+                Integer i = 0;
 
-                fr.setStartHour((Integer.parseInt(t.getStartHour()) + Integer.parseInt(schedTasks.get(schedTasks.size()-1).getStartHour()))/2);
-                fr.setStartMinute((Integer.parseInt(t.getStartMinute()) + Integer.parseInt(schedTasks.get(schedTasks.size()-1).getStartMinute()))/2);
+                //fr.setStartHour((Integer.parseInt(t.getStartHour()) + Integer.parseInt(schedTasks.get(schedTasks.size()-1).getStartHour()))/2);
+                //fr.setStartMinute((Integer.parseInt(t.getStartMinute()) + Integer.parseInt(schedTasks.get(schedTasks.size()-1).getStartMinute()))/2);
 
                 while (i < schedTasks.size()) {
-                    i++;
-                    t = schedTasks.get(i);
+                    Task t = schedTasks.get(i);
+
                     //task is between ith and i+1th if it exists
                     //get midpoint and get distance
                     if ((i + 1) != schedTasks.size()) {
-                        double d = findDistMid(t.getLocation().coordinate, t.getLocation().coordinate, fr.getLocation().coordinate);
+                        Task p = schedTasks.get(i+1);
+                        double d = findDistMid(t.getLocation().coordinate, p.getLocation().coordinate, fr.getLocation().coordinate);
                         minHeap.add(d);
                         distOrder.put(d, i);
-                    } else {
+                    }
+                    else {
                         double d = findDist(t.getLocation().coordinate, fr.getLocation().coordinate);
                         minHeap.add(d);
                         distOrder.put(d, i);
                     }
+                    i++;
                 }
-                int driving = 20;
+                int driving = 20; //todo: to go to the free task & also to go back on route
                 if (btimeComparator(timeFormatter(Integer.parseInt(schedTasks.get(distOrder.get(minHeap.peek())).getStartHour()),
                             Integer.parseInt(schedTasks.get(distOrder.get(minHeap.peek())).getStartMinute()+ fr.getDuration() + driving)),
-
-                            schedTasks.get(distOrder.get(minHeap.peek())+1).getStartTime()))
+                            schedTasks.get(distOrder.get(minHeap.peek())+1).getStartHour()+":"+schedTasks.get(distOrder.get(minHeap.peek())+1).getStartMinute()))
                     match.put(fr.getTid(),i); //candidate unscheduled tasks to be inserted between ith and i+1th task
-                }
-             //
-            /*
-             TODO:sort match by value so that candidates are sorted
-            for each slot:
-                get max number of fitting tasks and put them in schedTasks
-             */
+                //todo: problem here
+            }
+
+
         }
-
-        else //all of them are unscheduled, use choco
+        else //all of them are unscheduled, schedule nearest & treat as other case
         {
-            IntVar vars[] = new IntVar[2*freeTasks.size()];
-            int driving = 20;
-            //populate map with pairs of taskno and distance to route
-
-            //calculate route and change start time of the task //then append
-            for(int q = 0; q < 2*freeTasks.size(); q+=2){
-                vars[q] = model.intVar("task_" + q, 1,23); //keep only the start time
-                vars[q+1] = model.intVar("task_" + q,0,59);
-
+            if(schedTasks.size() == 0)
+            {
+                //schedule one
             }
-            for (int i = 0; i < vars.length; i+=2) {
-                for (int j = 1; j < vars.length; j += 2) {
 
-                    BoolVar a = timeComparator(timeFormatter(vars[j].getValue(),vars[j+1].getValue()+driving+freeTasks.get(j).getDuration()),timeFormatter(vars[j],vars[j+1]));
-                    BoolVar b = timeComparator(timeFormatter(vars[i].getValue(),vars[i+1].getValue()+driving+freeTasks.get(i).getDuration()),timeFormatter(vars[i],vars[i+1]));
-                    model.addClauses(LogOp.and(a,b));
-                    // no time overlap with other unscheduled ones
+
+        }
+        //sort HashMap by value
+
+        List<HashMap.Entry> temp = new LinkedList<>(match.entrySet());
+
+        Collections.sort(temp, new Comparator<HashMap.Entry>() {
+            @Override
+            public int compare(Map.Entry entry, Map.Entry t1) {
+                Integer i = (Integer) entry.getValue();
+                Integer j = (Integer) entry.getValue();
+                return i.compareTo(j);
+            }
+
+        });
+
+        //now evaluate the candidate tasks in match
+
+        int lastindex = 0;
+        Integer max = (Integer) temp.get(temp.size()-1).getValue();
+        for(int k = 0; k < max; k++){
+            List<HashMap.Entry> candidates = new LinkedList<>();
+            int j;
+            for(j =lastindex;j<max;j++){
+                if((Integer)temp.get(j).getValue() == k)
+                    candidates.add(temp.get(j));
+                else
+                    break;
+            } //add all candidates for one interval
+            lastindex = j;
+
+            List<Task> candTasks = new LinkedList<>();
+            for (HashMap.Entry e:candidates) {
+                Task tmp = getTaskById(e.getKey().toString());
+                candTasks.add(tmp);
+            }
+
+            //now one by one evaluate the candidate tasks
+            Collections.sort(candTasks, new Comparator<Task>() {
+                @Override
+                public int compare(Task task, Task t1) {
+                    return -1*task.getLvl().compareTo(t1.getLvl());
                 }
-            }
+            });
+            /*
+            schedTasks.add(k+1,candTasks.get(0));
+            candTasks.remove(0);
 
-            //TODO:calculate the total driving time of the route and try to minimize it
-            IntVar OBJ = model.intVar("objective", 0, 999);
-            //model.scalar(new IntVar[]{}, new int[]{3,-3}, OBJ).post();
-            model.setObjective(Model.MINIMIZE, OBJ);
+            int driving = 20;
+            for(int i=0;i<candTasks.size();i++)
+            {
+                Task fr = candTasks.get(i);
+                if (btimeComparator(timeFormatter(Integer.parseInt(schedTasks.get(distOrder.get(minHeap.peek())).getStartHour()),
+                        Integer.parseInt(schedTasks.get(distOrder.get(minHeap.peek())).getStartMinute()+ fr.getDuration() + driving)),
+                        schedTasks.get(distOrder.get(minHeap.peek())+1).getStartTime()))
+                    match.put(fr.getTid(),i); //candidate unscheduled tasks to be inserted between ith and i+1th task
 
-            Solution solution = model.getSolver().findSolution();
-            if (solution != null) {
-                System.out.println(solution.toString());
-            }
+            }*/
+            if(candTasks.size()>0)
+               attachTasks(k,schedTasks.get(k),schedTasks.get(k+1),candTasks);
+            //else
+                //todo: sona ya da basa ekle
         }
     }
 
+    public void attachTasks(int index, Task t1, Task t2,List<Task> candidateTasks){
+        PriorityQueue<Double> minHeap = new PriorityQueue<>();
+        HashMap<Double,String> distOrder= new HashMap<>();
 
-    private boolean btimeComparator(String s, String s1) throws ContradictionException //returns 1 if left op is sooner
+        for (Task t: candidateTasks) {
+            double d = findDistMid(t1.getLocation().coordinate, t2.getLocation().coordinate, t.getLocation().coordinate);
+            minHeap.add(d);
+            distOrder.put(d, t.getTid());
+        }
+
+        String tid = distOrder.get(minHeap.peek());
+        Task tmp = getTaskById(tid);
+
+        int driving = 20;
+        if (btimeComparator(timeFormatter(Integer.parseInt(t1.getStartHour()),
+                Integer.parseInt(t1.getStartMinute()+ tmp.getDuration() + driving)), t2.getStartTime())) {
+            schedTasks.add(index + 1, tmp);
+        }
+        candidateTasks.remove(tmp);
+        if(candidateTasks.size() > 0){
+            attachTasks(index,t1,tmp,candidateTasks);
+            attachTasks(index+1,tmp,t2,candidateTasks);
+        }
+    }
+
+    public Task getTaskById(String tid){
+        for (Task t:config.checkedTasks) {
+            if(t.getTid().equals(tid))
+                return t;
+        }
+        return null;
+    }
+
+
+    private boolean btimeComparator(String s, String s1) //returns 1 if left op is sooner
     {
-        ICause c=new ICause() {
-            @Override
-            public void explain(ExplanationForSignedClause explanation, ValueSortedMap<IntVar> front, Implications implicationGraph, int pivot) {
-
-            }
-        };
-        BoolVar b = model.boolVar("b");
         if(Integer.parseInt(s.split(":")[0])  >  Integer.parseInt(s1.split(":")[0]))return false;
         else if(Integer.parseInt(s.split(":")[0]) == Integer.parseInt(s1.split(":")[0]))
             if(Integer.parseInt(s.split(":")[1]) > Integer.parseInt(s1.split(":")[0]))
@@ -265,34 +311,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         return true;
 
     }
-    private BoolVar timeComparator(String s, String s1) throws ContradictionException //returns 1 if left op is sooner
-    {
-        ICause c=new ICause() {
-            @Override
-            public void explain(ExplanationForSignedClause explanation, ValueSortedMap<IntVar> front, Implications implicationGraph, int pivot) {
-
-            }
-        };
-            BoolVar b = model.boolVar("b");
-            if(Integer.parseInt(s.split(":")[0])  >  Integer.parseInt(s1.split(":")[0])){
-
-                b.setToFalse(c);
-                return b;
-            }
-            else if(Integer.parseInt(s.split(":")[0]) == Integer.parseInt(s1.split(":")[0]))
-                if(Integer.parseInt(s.split(":")[1]) > Integer.parseInt(s1.split(":")[0])){
-                b.setToTrue(c);
-                return b;
-            }
-                else
-                {  b.setToFalse(c);
-                    return b;}
-                else
-                { b.setToTrue(c);
-                    return b;}
-
-    }
-    private String timeFormatter(int hr, int min) {
+   private String timeFormatter(int hr, int min) {
         int mm1=min;
         int hr1=hr;
         if(min > 59) {
@@ -308,23 +327,6 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         }
         return String.valueOf(hr1)+":"+String.valueOf(mm1) ;
     }
-    private String timeFormatter(IntVar hr, IntVar min) {
-        int mm1=min.getValue();
-        int hr1=hr.getValue();
-        if(min.getValue() > 59) {
-            while(mm1>59)
-              mm1 = min.getValue() - 60;
-              hr1+=1;
-        }
-        if(min.getValue()< 0){
-            while(mm1 < 0){
-                hr1 -= 1;
-                mm1= 60 + min.getValue();
-            }
-        }
-       return String.valueOf(hr1)+":"+String.valueOf(mm1);
-    }
-
     public static Comparator<Task> TaskComparator = new Comparator<Task>() {
 
         @Override
@@ -333,11 +335,13 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         }
     };
 
+    //todo: şevval get route distance from yandex
     private double findDistMid(Point p1,Point p2,Point p3) // get p3's distance from midpoint of p1 and p2
     {
         Point p = new Point((p1.getLatitude()+p2.getLatitude())/2, (p1.getLongitude()+p2.getLongitude())/2);
         return findDist(p,p3);
     }
+
     private double findDist(Point p1,Point p2){
       return Math.sqrt(Math.pow(p1.getLatitude()-p2.getLatitude(),2) + Math.pow(p1.getLongitude()-p2.getLongitude(),2));
     }
