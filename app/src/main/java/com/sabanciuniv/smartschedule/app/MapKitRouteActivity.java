@@ -197,10 +197,10 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
                     }
                 }
                 int driving = 20;
-                if (timeComparator(timeFormatter(Integer.parseInt(schedTasks.get(distOrder.get(minHeap.peek())).getStartHour()),
+                if (btimeComparator(timeFormatter(Integer.parseInt(schedTasks.get(distOrder.get(minHeap.peek())).getStartHour()),
                             Integer.parseInt(schedTasks.get(distOrder.get(minHeap.peek())).getStartMinute()+ fr.getDuration() + driving)),
 
-                            schedTasks.get(distOrder.get(minHeap.peek())+1).getStartTime())
+                            schedTasks.get(distOrder.get(minHeap.peek())+1).getStartTime()))
                     match.put(fr.getTid(),i); //candidate unscheduled tasks to be inserted between ith and i+1th task
                 }
              //
@@ -339,34 +339,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         return findDist(p,p3);
     }
     private double findDist(Point p1,Point p2){
-      return Math.sqrt(Math.pow(p1.getLatitude()-p2.getLatitude(),2) + Math.pow(p1.getLongitude()-p2.getLongitude(),2);
-    }
-    /*
-
-    private double findDist(IntVar _hr, IntVar _min) throws ContradictionException {
-        Collections.sort(schedTasks,TaskComparator);
-        Task t = schedTasks.get(0);
-        int i=1;
-        while(btimeComparer(String.valueOf(_hr.getValue())+":"+String.valueOf(_min.getValue())
-                ,String.valueOf(t.getStartHour())+":"+String.valueOf(t.getStartMinute())))
-
-            t=schedTasks.get(i);
-        //task is between ith and i+1th if it exists
-
-        //get midpoint and get distance
-        if(i+1 != schedTasks.size())
-             return findDistMid(t.getLocation().coordinate,);
-        else
-            return findDist(t.getLocation().coordinate,);
-
+      return Math.sqrt(Math.pow(p1.getLatitude()-p2.getLatitude(),2) + Math.pow(p1.getLongitude()-p2.getLongitude(),2));
     }
 
-    private double findDistMid(Point p1,Point p2,Point p3) // get p3's distance from midpoint of p1 and p2
-    {
-
-    }
-    private double findDist(){
-
-    }
-    */
 }
