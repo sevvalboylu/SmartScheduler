@@ -15,6 +15,8 @@ public class Task {
     public int duration;
     public String lvl;
     public String startTime;
+    public String startHr;
+    public String startMin;
     public String endTime;
 
     public Location getLocation() {
@@ -66,16 +68,29 @@ public class Task {
 
         return startTime;
     }
-    public String getStartHour() {
 
+    public String getStartHour() {
+        if(getStartTime() != null)
         return getStartTime().
                 split("T")[1].split(":")[0];
+        else return startHr;
     }
     public String getStartMinute() {
-
+        if(getStartTime()!=null)
         return getStartTime().
                 split("T")[1].split(":")[1];
+        else return startMin;
     }
+
+    public void setStartMinute(int s) {
+
+      this.startHr = String.valueOf(s);
+    }
+    public void setStartHour(int s) {
+
+      this.startMin = String.valueOf(s);
+    }
+
     public String getEndHour() {
 
         return getEndTime().
