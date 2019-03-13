@@ -68,7 +68,8 @@ public class MainActivity extends AppCompatActivity {
                     String key = prefs.getString("key" + readId++, "");
                     keys.add(key);
                 }
-                new RecyclerView_Config().setConfig(mRecyclerView, MainActivity.this, tasks, keys);
+                config = new RecyclerView_Config();
+                config.setConfig(mRecyclerView, MainActivity.this, tasks, keys);
             }
         }
 
@@ -76,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
    {
        Intent intent = new Intent(MainActivity.this,MapKitRouteActivity.class);
        startActivity(intent);
-
    }
 }
 

@@ -172,8 +172,10 @@ public class AddTask extends AppCompatActivity  {
         DateTime s = getDateFromDatePicker(mStartDatePicker,mStartTimePicker);
         DateTime e = getDateFromDatePicker(mEndDatePicker,mEndTimePicker);
         if(s!=null && e==null)
-        task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s);
-        else if(s!=null && e!=null){task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s,e); }
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s);
+        else if(s!=null && e!=null){
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s,e);
+        }
         else if(s==null && e == null){
             task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s);
         }

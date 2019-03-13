@@ -15,8 +15,6 @@ public class Task {
     public int duration;
     public String lvl;
     public String startTime;
-    public String startHr;
-    public String startMin;
     public String endTime;
 
     public Location getLocation() {
@@ -73,38 +71,19 @@ public class Task {
         if(getStartTime() != null)
         return getStartTime().
                 split("T")[1].split(":")[0];
-        else return startHr;
+        else return null;
     }
     public String getStartMinute() {
         if(getStartTime()!=null)
         return getStartTime().
                 split("T")[1].split(":")[1];
-        else return startMin;
+        else return null;
     }
 
-    public void setStartMinute(int s) {
-
-      this.startHr = String.valueOf(s);
-    }
-    public void setStartHour(int s) {
-
-      this.startMin = String.valueOf(s);
-    }
-
-    public String getEndHour() {
-
-        return getEndTime().
-                split("T")[1].split(":")[0];
-    }
-    public String getEndMinute() {
-
-        return getEndTime().
-                split("T")[1].split(":")[1];
-    }
     public int getDuration(){ //int minutes
         return duration;
     }
-public Task(){}
+    public Task(){}
 
 
     public Task(String uid, String tid, String lvl, String title, String location) {
@@ -118,6 +97,18 @@ public Task(){}
         this.location = location;
         this.duration = duration;
     }
+
+    public Task(String uid, String tid, String title, Location location, int duration, String lvl, String startTime, String endTime) {
+        this.uid = uid;
+        this.tid = tid;
+        this.title = title;
+        this.location = location;
+        this.duration = duration;
+        this.lvl = lvl;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
     public Task(String uid, String tid, String lvl, String title, Location location, DateTime start, DateTime end) {
         this.uid = uid;
         this.tid = tid;
