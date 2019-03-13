@@ -30,6 +30,8 @@ import com.yandex.runtime.network.RemoteError;
 
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
+import org.chocosolver.solver.constraints.nary.cnf.LogOp;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.learn.ExplanationForSignedClause;
 import org.chocosolver.solver.learn.Implications;
@@ -170,77 +172,81 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         PriorityQueue<Double> minHeap = new PriorityQueue<>();
 
         Collections.sort(schedTasks,TaskComparator);
-        for(Task fr:freeTasks) {
-            Task t = schedTasks.get(0);
-            Integer i = 1;
-            while (btimeComparer(String.valueOf(fr.getStartHour()) + ":" + String.valueOf(fr.getStartMinute()), String.valueOf(t.getStartHour()) + ":" + String.valueOf(t.getStartMinute())))
-                t = schedTasks.get(i);
-            //task is between ith and i+1th if it exists
-            //get midpoint and get distance
-            if ((i + 1) != schedTasks.size()) {
-                double d =findDistMid(schedTasks.get(i).getLocation().coordinate, schedTasks.get(i).getLocation().coordinate, fr.getLocation().coordinate);
-                minHeap.add(d);
-                distOrder.put(d,i);
+
+        if(schedTasks.size() >=1) {
+            for (Task fr : freeTasks) {
+                Task t = schedTasks.get(0);
+                Integer i = 1;
+
+                fr.setStartHour((Integer.parseInt(t.getStartHour()) + Integer.parseInt(schedTasks.get(schedTasks.size()-1).getStartHour()))/2);
+                fr.setStartMinute((Integer.parseInt(t.getStartMinute()) + Integer.parseInt(schedTasks.get(schedTasks.size()-1).getStartMinute()))/2);
+
+                while (i < schedTasks.size()) {
+                    i++;
+                    t = schedTasks.get(i);
+                    //task is between ith and i+1th if it exists
+                    //get midpoint and get distance
+                    if ((i + 1) != schedTasks.size()) {
+                        double d = findDistMid(t.getLocation().coordinate, t.getLocation().coordinate, fr.getLocation().coordinate);
+                        minHeap.add(d);
+                        distOrder.put(d, i);
+                    } else {
+                        double d = findDist(t.getLocation().coordinate, fr.getLocation().coordinate);
+                        minHeap.add(d);
+                        distOrder.put(d, i);
+                    }
+                }
+                int driving = 20;
+                if (timeComparator(timeFormatter(Integer.parseInt(schedTasks.get(distOrder.get(minHeap.peek())).getStartHour()),
+                            Integer.parseInt(schedTasks.get(distOrder.get(minHeap.peek())).getStartMinute()+ fr.getDuration() + driving)),
+
+                            schedTasks.get(distOrder.get(minHeap.peek())+1).getStartTime())
+                    match.put(fr.getTid(),i); //candidate unscheduled tasks to be inserted between ith and i+1th task
+                }
+             //
+            /*
+             TODO:sort match by value so that candidates are sorted
+            for each slot:
+                get max number of fitting tasks and put them in schedTasks
+             */
+        }
+
+        else //all of them are unscheduled, use choco
+        {
+            IntVar vars[] = new IntVar[2*freeTasks.size()];
+            int driving = 20;
+            //populate map with pairs of taskno and distance to route
+
+            //calculate route and change start time of the task //then append
+            for(int q = 0; q < 2*freeTasks.size(); q+=2){
+                vars[q] = model.intVar("task_" + q, 1,23); //keep only the start time
+                vars[q+1] = model.intVar("task_" + q,0,59);
+
             }
-            else{
-                double d =findDist(t.getLocation().coordinate, fr.getLocation().coordinate);
-                minHeap.add(d);
-                distOrder.put(d,i);
+            for (int i = 0; i < vars.length; i+=2) {
+                for (int j = 1; j < vars.length; j += 2) {
+
+                    BoolVar a = timeComparator(timeFormatter(vars[j].getValue(),vars[j+1].getValue()+driving+freeTasks.get(j).getDuration()),timeFormatter(vars[j],vars[j+1]));
+                    BoolVar b = timeComparator(timeFormatter(vars[i].getValue(),vars[i+1].getValue()+driving+freeTasks.get(i).getDuration()),timeFormatter(vars[i],vars[i+1]));
+                    model.addClauses(LogOp.and(a,b));
+                    // no time overlap with other unscheduled ones
+                }
+            }
+
+            //TODO:calculate the total driving time of the route and try to minimize it
+            IntVar OBJ = model.intVar("objective", 0, 999);
+            //model.scalar(new IntVar[]{}, new int[]{3,-3}, OBJ).post();
+            model.setObjective(Model.MINIMIZE, OBJ);
+
+            Solution solution = model.getSolver().findSolution();
+            if (solution != null) {
+                System.out.println(solution.toString());
             }
         }
-       for(Task fr :freeTasks)
-           match.put(fr.getTid(),distOrder.get(minHeap.peek()));
-        //match.put(fr.getTid(), minHeap.peek())
-/*
-        IntVar vars[] = new IntVar[2*freeTasks.size()];
-        int driving = 20;
-        //populate map with pairs of taskno and distance to route
-
-        //calculate route and change start time of the task //then append
-        for(int q = 0; q < 2*freeTasks.size(); q+=2){
-            vars[q] = model.intVar("task_" + q, 1,23); //keep only the start time
-            vars[q+1] = model.intVar("task_" + q,0,59);
-
-        }
-
-        for (int i = 0; i < vars.length; i+=2) {
-            for (int j = 0; j < schedTasks.size(); j += 1) {
-
-                BoolVar a = timeComparer(timeFormatter(Integer.parseInt(schedTasks.get(j).getStartHour()),
-                        Integer.parseInt(schedTasks.get(j).getStartMinute())-driving),
-                        timeFormatter(vars[i].getValue(),vars[i+1].getValue()+driving+freeTasks.get(i).getDuration()));
-
-                BoolVar b = timeComparer(timeFormatter(vars[i].getValue(),vars[i+1].getValue()-driving),
-                        timeFormatter(Integer.parseInt(schedTasks.get(j).getEndHour()),
-                               Integer.parseInt( schedTasks.get(j).getEndMinute())));
-
-                model.addClauses(LogOp.and(a,b));
-               // no time overlap with the scheduled ones
-            }
-        }
-        for (int i = 0; i < vars.length; i+=2) {
-            for (int j = 1; j < vars.length; j += 2) {
-
-                BoolVar a = timeComparer(timeFormatter(vars[j].getValue(),vars[j+1].getValue()+driving+freeTasks.get(j).getDuration()),timeFormatter(vars[j],vars[j+1]));
-                BoolVar b = timeComparer(timeFormatter(vars[i].getValue(),vars[i+1].getValue()+driving+freeTasks.get(i).getDuration()),timeFormatter(vars[i],vars[i+1]));
-                model.addClauses(LogOp.and(a,b));
-                // no time overlap with other unscheduled ones
-            }
-        }
-        //IntVar routecost = model.intVar(10);
-        IntVar OBJ = model.intVar("objective", 0, 999);
-        model.scalar(new IntVar[]{}, new int[]{3,-3}, OBJ).post();
-        model.setObjective(Model.MINIMIZE, OBJ);
-
-        Solution solution = model.getSolver().findSolution();
-        if (solution != null) {
-            System.out.println(solution.toString());
-        }
-        */
     }
 
 
-    private boolean btimeComparer(String s, String s1) throws ContradictionException //returns 1 if left op is sooner
+    private boolean btimeComparator(String s, String s1) throws ContradictionException //returns 1 if left op is sooner
     {
         ICause c=new ICause() {
             @Override
@@ -259,7 +265,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         return true;
 
     }
-    private BoolVar timeComparer(String s, String s1) throws ContradictionException //returns 1 if left op is sooner
+    private BoolVar timeComparator(String s, String s1) throws ContradictionException //returns 1 if left op is sooner
     {
         ICause c=new ICause() {
             @Override
