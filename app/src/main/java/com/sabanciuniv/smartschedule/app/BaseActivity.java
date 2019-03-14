@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -22,8 +21,6 @@ import com.alamkanak.weekview.DateTimeInterpreter;
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.firebase.client.Firebase;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
@@ -38,10 +35,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
     private int mWeekViewType = TYPE_THREE_DAY_VIEW;
     private DrawerLayout mDrawerLayout;
     private WeekView mWeekView;
-    private FirebaseAuth mAuth=FirebaseAuth.getInstance();
-    private GoogleSignInClient mGoogleSignInClient;
-    private Boolean signedIn=false;
-
     public void addTask(View view)
     {
         Intent intent = new Intent(BaseActivity.this, AddTask.class);
