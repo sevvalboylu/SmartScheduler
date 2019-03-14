@@ -140,6 +140,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
 
         //requestPoints.add(new RequestPoint(currentLocation, arrivalPts,drivingArrivalPts,RequestPointType.WAYPOINT));
        // drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
+
     }
 
 
@@ -266,6 +267,15 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         }
     }
 
+    public Task getTaskById(String tid){
+        for (Task t:config.checkedTasks) {
+            if(t.getTid().equals(tid))
+                return t;
+        }
+        return null;
+    }
+
+
     public void attachTasks(int index, Task t1, Task t2,List<Task> candidateTasks){
         PriorityQueue<Double> minHeap = new PriorityQueue<>();
         HashMap<Double,String> distOrder= new HashMap<>();
@@ -289,14 +299,6 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
             attachTasks(index,t1,tmp,candidateTasks);
             attachTasks(index+1,tmp,t2,candidateTasks);
         }
-    }
-
-    public Task getTaskById(String tid){
-        for (Task t:config.checkedTasks) {
-            if(t.getTid().equals(tid))
-                return t;
-        }
-        return null;
     }
 
 
