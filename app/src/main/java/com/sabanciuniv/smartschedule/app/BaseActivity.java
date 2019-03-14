@@ -110,6 +110,9 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
 
                         } else if (id == R.id.nav_share) {
 
+                        } else if(id == R.id.nav_feedback){
+                            Intent intent = new Intent(BaseActivity.this, FeedbackActivity.class);
+                            startActivity(intent);
                         }
                         mDrawerLayout.closeDrawers();
                         //DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

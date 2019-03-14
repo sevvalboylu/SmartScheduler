@@ -97,5 +97,8 @@
         <string name="firebaseui_title_text">FirebaseUI Auth</string>
         <string name="id_fmt">User ID: %s</string>
         <string name="email_fmt">Email: %s</string>
+    <string name="feedback_headline">Let us know what you think!</string>
+    <string name="send_button">SEND</string>
+    <string name="header_feedback">Please give us feedback!</string>
 </resources>
 
