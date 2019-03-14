@@ -8,14 +8,40 @@ import com.yandex.mapkit.geometry.Point;
 @IgnoreExtraProperties
 public class Task {
 
-    public String uid;
-    public String tid;
-    public String title;
-    public Location location;
-    public int duration;
-    public String lvl;
-    public String startTime;
-    public String endTime;
+    private String uid;
+    private String tid;
+    private String title;
+    private Location location;
+    private int duration;
+    private String lvl;
+    private String startTime;
+    private String endTime;
+    private String[] range = new String[2];
+
+    public void addRange(String start, String end){
+        range[0] =start;
+        range[1] = end;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public String[] getRange(){
+        return range;
+    }
 
     public Location getLocation() {
         return location;
@@ -97,8 +123,6 @@ public class Task {
         return duration;
     }
     public Task(){}
-
-
     public Task(String uid, String tid, String lvl, String title, String location) {
 
     }
@@ -110,7 +134,6 @@ public class Task {
         this.location = location;
         this.duration = duration;
     }
-
     public Task(String uid, String tid, String title, Location location, int duration, String lvl, String startTime, String endTime) {
         this.uid = uid;
         this.tid = tid;
@@ -121,7 +144,6 @@ public class Task {
         this.startTime = startTime;
         this.endTime = endTime;
     }
-
     public Task(String uid, String tid, String lvl, String title, Location location, DateTime start, DateTime end) {
         this.uid = uid;
         this.tid = tid;
@@ -140,7 +162,6 @@ public class Task {
         this.startTime = start.toString();
         this.endTime = "";
     }
-
     public Task(String uid, String tid, String lvl, String title, Location location) {
         this.uid = uid;
         this.tid = tid;
