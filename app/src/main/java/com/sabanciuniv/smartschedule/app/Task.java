@@ -21,6 +21,19 @@ public class Task {
         return location;
     }
 
+    public String getEndHour() {
+        if(getEndTime() != null)
+            return getEndTime().
+                    split("T")[1].split(":")[0];
+        else return null;
+    }
+    public String getEndMinute() {
+        if(getEndTime()!=null)
+            return getEndTime().
+                    split("T")[1].split(":")[1];
+        else return null;
+    }
+
     protected static class Location {
 
         String address;
