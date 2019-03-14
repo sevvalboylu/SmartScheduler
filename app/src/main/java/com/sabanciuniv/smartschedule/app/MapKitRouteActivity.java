@@ -1,3 +1,4 @@
+
 package com.sabanciuniv.smartschedule.app;
 
 import android.Manifest;
