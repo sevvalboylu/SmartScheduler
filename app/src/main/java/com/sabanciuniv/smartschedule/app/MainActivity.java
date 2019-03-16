@@ -24,6 +24,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -64,8 +65,21 @@ public class MainActivity extends AppCompatActivity {
                 TaskLoader tl = new TaskLoader(new DataStatus() {
                     @Override
                     public void DataIsLoaded(List<Task> tasks, List<String> keys) {
+                        List<Task> mTasks = new LinkedList<>();
+                        for (Task t :tasks) {
+                            if(t.getStartTime() != null)
+                            {
+                                String startDate = t.getStartTime().split("T")[0];
+                                String startTime = t.getStartTime().split("T")[1];
+                                if (startDate.equals(date_str) && btimeComparator(time_str, startTime)) {
+                                    mTasks.add(t);
+                                }
+                            }
+                            else
+                                mTasks.add(t); //free task
+                        }
                         config = new RecyclerView_Config();
-                        config.setConfig(mRecyclerView, MainActivity.this, tasks, keys);
+                        config.setConfig(mRecyclerView, MainActivity.this, mTasks, keys);
                     }
                 }, mAuth.getUid());
                 pullToRefresh.setRefreshing(false);
@@ -101,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
             }
             config = new RecyclerView_Config();
             config.setConfig(mRecyclerView, MainActivity.this, tasks, keys);
+            //todo: check if keys are mixed
         }
     }
 
