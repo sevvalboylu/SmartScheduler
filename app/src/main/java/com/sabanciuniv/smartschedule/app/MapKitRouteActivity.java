@@ -24,6 +24,7 @@ import com.yandex.mapkit.directions.driving.DrivingRoute;
 import com.yandex.mapkit.directions.driving.DrivingRouter;
 import com.yandex.mapkit.directions.driving.DrivingSession;
 import com.yandex.mapkit.directions.driving.RequestPoint;
+import com.yandex.mapkit.directions.driving.RequestPointType;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.MapObjectCollection;
@@ -120,36 +121,35 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         DrivingOptions options = new DrivingOptions();
         ArrayList<RequestPoint> requestPoints = new ArrayList<>();
         //Point currentLocation = new Point(location.getLatitude(),location.getLongitude());
-        config= MainActivity.getConfig();
+        config = MainActivity.getConfig();
 
         ArrayList<Point> arrivalPts = new ArrayList<>();
         ArrayList<DrivingArrivalPoint> drivingArrivalPts = new ArrayList<>();
         int count = 0;
-        for (Task temp: config.checkedTasks) {
+        for (Task temp : config.checkedTasks) {
             Point tmp = temp.getLocation().getCoordinate();
             arrivalPts.add(tmp);
-            drivingArrivalPts.add(new DrivingArrivalPoint(tmp,"Point "+count));
-            count ++;
+            drivingArrivalPts.add(new DrivingArrivalPoint(tmp, "Point " + count));
+            count++;
         }
 
         List<Address> address;
         String addressLine = "";
-        Point c = new Point(location.getLatitude(),location.getLongitude());
+        Point c = new Point(location.getLatitude(), location.getLongitude());
         final Geocoder geocoder = new Geocoder(MapKitRouteActivity.this, Locale.getDefault());
         try {
-            address = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1);
+            address = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             addressLine = address.get(0).getAddressLine(0);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Task.Location current = new Task.Location(addressLine,c);
+        Task.Location current = new Task.Location(addressLine, c);
         Scheduler sc = new Scheduler(current);
         ArrayList<Task> tasks = sc.sortTasks();
-        Log.d("", "submitRequest: returned");
-        //requestPoints.add(new RequestPoint(currentLocation, arrivalPts,drivingArrivalPts,RequestPointType.WAYPOINT));
-       // drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
-
+        Log.d("submit", "submitRequest:" + tasks.toString());
+        //requestPoints.add(new RequestPoint(c, arrivalPts,drivingArrivalPts, RequestPointType.WAYPOINT));
+        //drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
     }
 
 }

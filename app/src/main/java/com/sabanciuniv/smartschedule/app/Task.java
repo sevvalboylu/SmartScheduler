@@ -4,6 +4,8 @@ import com.google.api.client.util.DateTime;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.yandex.mapkit.geometry.Point;
 
+import java.util.ArrayList;
+
 // [START post_class]
 @IgnoreExtraProperties
 public class Task {
@@ -16,11 +18,11 @@ public class Task {
     private String lvl;
     private String startTime;
     private String endTime;
-    private String[] range = new String[2];
+    private ArrayList<String> range = new ArrayList<String>(2);
 
     public void addRange(String start, String end){
-        range[0] =start;
-        range[1] = end;
+        range.add(start);
+        range.add(end);
     }
 
     public void setDuration(int duration) {
@@ -39,7 +41,7 @@ public class Task {
         this.location = location;
     }
 
-    public String[] getRange(){
+    public ArrayList<String> getRange(){
         return range;
     }
 
