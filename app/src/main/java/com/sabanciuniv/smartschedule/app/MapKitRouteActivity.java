@@ -5,7 +5,9 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -30,8 +32,10 @@ import com.yandex.runtime.Error;
 import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MapKitRouteActivity extends Activity implements DrivingSession.DrivingRouteListener {
 
@@ -47,6 +51,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
     private RecyclerView_Config config;
 
     protected Location location;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +131,20 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
             drivingArrivalPts.add(new DrivingArrivalPoint(tmp,"Point "+count));
             count ++;
         }
-        Scheduler sc = new Scheduler();
+
+        List<Address> address;
+        String addressLine = "";
+        Point c = new Point(location.getLatitude(),location.getLongitude());
+        final Geocoder geocoder = new Geocoder(MapKitRouteActivity.this, Locale.getDefault());
+        try {
+            address = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1);
+            addressLine = address.get(0).getAddressLine(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Task.Location current = new Task.Location(addressLine,c);
+        Scheduler sc = new Scheduler(current);
         ArrayList<Task> tasks = sc.sortTasks();
         Log.d("", "submitRequest: returned");
         //requestPoints.add(new RequestPoint(currentLocation, arrivalPts,drivingArrivalPts,RequestPointType.WAYPOINT));
