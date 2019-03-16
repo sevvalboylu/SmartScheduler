@@ -76,14 +76,14 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
 
                         int id = item.getItemId();
 
-                        if (id == R.id.nav_sched) {
-                            // view schedules
-
-                        } else if (id == R.id.nav_tasks) {
+                        if (id == R.id.nav_tasks) {
                             Intent intent = new Intent(BaseActivity.this, MainActivity.class);
                             startActivity(intent);
 
-                        } else if (id == R.id.nav_reminders) {
+                        } else if (id == R.id.nav_all_tasks) {
+                            Intent intent = new Intent(BaseActivity.this, AllTasks.class);
+                            startActivity(intent);
+
 
                         } else if (id == R.id.nav_settings) {
 
