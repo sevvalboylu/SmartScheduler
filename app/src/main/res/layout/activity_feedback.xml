@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/feedback_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="95dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/header_feedback"
+        android:textAlignment="center"
+        android:textAppearance="@style/Toolbar.TitleText"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/feedback_input"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.121" />
+
+    <android.support.design.widget.TextInputEditText
+        android:id="@+id/feedback_input"
+        android:layout_width="328dp"
+        android:layout_height="234dp"
+        android:layout_marginTop="31dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="11dp"
+        android:hint="@string/feedback_headline"
+        app:layout_constraintBottom_toTopOf="@+id/button_feedback"
+        app:layout_constraintEnd_toEndOf="@+id/feedback_text"
+        app:layout_constraintHorizontal_bias="0.706"
+        app:layout_constraintStart_toStartOf="@+id/feedback_text"
+        app:layout_constraintTop_toBottomOf="@+id/feedback_text" />
+
+    <Button
+        android:id="@+id/button_feedback"
+        android:layout_width="100dp"
+        android:layout_height="72dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="260dp"
+        android:text="@string/send_button"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/feedback_input"
+        app:layout_constraintStart_toStartOf="@+id/feedback_input"
+        app:layout_constraintTop_toBottomOf="@+id/feedback_input"
+        app:layout_constraintVertical_bias="1.0" />
+
+</android.support.constraint.ConstraintLayout>

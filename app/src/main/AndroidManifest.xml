@@ -66,6 +66,8 @@
             android:name=".MapKitRouteActivity"
             android:label="MapKitRouteActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".FeedbackActivity"></activity>
 
     </application>
 
