@@ -1,22 +1,21 @@
+
 package com.sabanciuniv.smartschedule.app;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.VoiceInteractor;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
-import com.sabanciuniv.smartschedule.app.MapViewActivity;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.directions.DirectionsFactory;
 import com.yandex.mapkit.directions.driving.DrivingArrivalPoint;
@@ -34,16 +33,13 @@ import com.yandex.runtime.Error;
 import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
-import static android.support.constraint.Constraints.TAG;
-
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-
+import java.util.Locale;
 
 public class MapKitRouteActivity extends Activity implements DrivingSession.DrivingRouteListener {
+
     private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
     private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
 
@@ -53,11 +49,13 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
     private MapObjectCollection mapObjects;
     private DrivingRouter drivingRouter;
     private DrivingSession drivingSession;
+    private RecyclerView_Config config;
+
     protected Location location;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         provider = locationManager.getBestProvider(criteria, false);
@@ -122,20 +120,36 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
     private void submitRequest() {
         DrivingOptions options = new DrivingOptions();
         ArrayList<RequestPoint> requestPoints = new ArrayList<>();
-        Point currentLocation = new Point(location.getLatitude(),location.getLongitude());
-        RecyclerView_Config config= MainActivity.getConfig();
+        //Point currentLocation = new Point(location.getLatitude(),location.getLongitude());
+        config = MainActivity.getConfig();
 
         ArrayList<Point> arrivalPts = new ArrayList<>();
         ArrayList<DrivingArrivalPoint> drivingArrivalPts = new ArrayList<>();
         int count = 0;
-        for (Task temp: config.checkedTasks) {
-
+        for (Task temp : config.checkedTasks) {
             Point tmp = temp.getLocation().getCoordinate();
             arrivalPts.add(tmp);
-            drivingArrivalPts.add(new DrivingArrivalPoint(tmp,"Point "+count));
-            count ++;
+            drivingArrivalPts.add(new DrivingArrivalPoint(tmp, "Point " + count));
+            count++;
         }
-        requestPoints.add(new RequestPoint(currentLocation, arrivalPts,drivingArrivalPts,RequestPointType.WAYPOINT));
-        drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
+
+        List<Address> address;
+        String addressLine = "";
+        Point c = new Point(location.getLatitude(), location.getLongitude());
+        final Geocoder geocoder = new Geocoder(MapKitRouteActivity.this, Locale.getDefault());
+        try {
+            address = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            addressLine = address.get(0).getAddressLine(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Task.Location current = new Task.Location(addressLine, c);
+        Scheduler sc = new Scheduler(current);
+        ArrayList<Task> tasks = sc.sortTasks();
+        Log.d("submit", "submitRequest:" + tasks.toString());
+        //requestPoints.add(new RequestPoint(c, arrivalPts,drivingArrivalPts, RequestPointType.WAYPOINT));
+        //drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
     }
+
 }

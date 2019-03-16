@@ -70,7 +70,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
         if(!isNetworkConnected()) {
             SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
             int readId = 1;
-                while (prefs.contains("task" + readId)) {
+            while (prefs.contains("task" + readId)) {
                     Gson gson = new Gson();
                     String json = prefs.getString("task" + readId++, "");
                     mTasks.add(gson.fromJson(json, Task.class));

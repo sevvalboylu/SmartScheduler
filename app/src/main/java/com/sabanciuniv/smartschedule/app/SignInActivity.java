@@ -69,7 +69,8 @@ public class SignInActivity  extends AppCompatActivity {
         else if (lastEmail != "" )
         {
             mAuth.signInWithEmailAndPassword(lastEmail, lastpwd);
-            loadIntent();
+            Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
+            startActivity(intent);
         }
 
         else

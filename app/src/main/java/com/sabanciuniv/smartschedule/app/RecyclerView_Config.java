@@ -30,7 +30,7 @@ public class RecyclerView_Config {
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(mTaskAdapter);
     }
-    class TaskItemView extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener{
+    class TaskItemView extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView mTitle;
         private TextView mLocation;
         private TextView mImp;
@@ -47,7 +47,6 @@ public class RecyclerView_Config {
             mImp = itemView.findViewById(R.id.imp_text);
             ck = itemView.findViewById(R.id.checkBox);
             ck.setOnClickListener(this);
-            mTitle.setOnLongClickListener(this);
         }
 
         public void bind(Task task, String key) {
@@ -72,18 +71,12 @@ public class RecyclerView_Config {
         public void setItemClickListener(ItemClickListener ic) {
             this.itemClickListener = ic;
         }
-        public void setItemLongClickListener(ItemLongClickListener ic) {
-            this.itemLongClickListener = ic;
-        }
+
         @Override
         public void onClick(View v) {
             this.itemClickListener.onItemClick(v, getLayoutPosition());
         }
-        @Override
-        public boolean onLongClick(View v) {
-            this.itemLongClickListener.onItemLongClick(v, getLayoutPosition());
-            return true;
-        }
+
     }
     class TaskAdapter extends RecyclerView.Adapter<TaskItemView>{
     private List<Task> mTasklist;
@@ -116,20 +109,7 @@ public class RecyclerView_Config {
                    }
                }
            });
-            holder.setItemLongClickListener(new ItemLongClickListener() {
-                @Override
-                public void onItemLongClick(View v, int pos) {
-                    Bundle extras;
-                    extras = new Bundle();
-                    Gson gson = new Gson();
-                    String json = gson.toJson(mTasklist.get(pos));
-                    extras.putString("clickedEvent", json);
 
-                    Intent in = new Intent(mContext, EditTask.class);
-                    in.putExtras(extras);
-                    mContext.startActivity(in);
-                }
-            });
         }
 
         @Override

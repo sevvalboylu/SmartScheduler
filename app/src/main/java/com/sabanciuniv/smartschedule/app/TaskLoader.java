@@ -6,6 +6,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class TaskLoader {
                     List<String> keys = new ArrayList<>();
                     for (DataSnapshot keyNode : dataSnapshot.getChildren()) {
                         keys.add(keyNode.getKey());
-                        com.sabanciuniv.smartschedule.app.Task temp = keyNode.getValue(com.sabanciuniv.smartschedule.app.Task.class);
+                        Task temp = keyNode.getValue(com.sabanciuniv.smartschedule.app.Task.class);
                         tasks.add(temp);
                     }
                     List<Objects> s = new ArrayList<Objects>();
@@ -43,4 +44,5 @@ public class TaskLoader {
         });
 
     }
+
 }
