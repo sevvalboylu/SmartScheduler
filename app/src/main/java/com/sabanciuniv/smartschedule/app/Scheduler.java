@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-public class Scheduler extends Activity {
+public class Scheduler extends Activity implements RouteConfig {
 
     private ArrayList<Task> freeTasks = new ArrayList<>();
     private ArrayList<Task> schedTasks = new ArrayList<>();
