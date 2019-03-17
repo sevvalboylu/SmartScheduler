@@ -66,6 +66,7 @@ dependencies {
     implementation 'com.github.alamkanak:android-week-view:1.2.6'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'com.tomtom.online:sdk-routing:2.243'
+    implementation 'com.tomtom.online:sdk-maps:2.243'
     compileOnly 'com.google.android.wearable:wearable:2.4.0'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
