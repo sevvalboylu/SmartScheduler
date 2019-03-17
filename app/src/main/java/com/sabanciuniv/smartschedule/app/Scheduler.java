@@ -37,6 +37,7 @@ public class Scheduler extends Activity {
 
     HashMap<Double, Integer> distOrder = new HashMap<>();
     HashMap<String, Integer> match = new HashMap<>();
+    ArrayList<MapKitRouteActivity.distanceMatrix> dmGlobal = new ArrayList<>();
     PriorityQueue<Double> minHeap = new PriorityQueue<>(2 * config.checkedTasks.size(), new Comparator<Double>() {
         @Override
         public int compare(Double o1, Double o2) {
@@ -69,12 +70,11 @@ public class Scheduler extends Activity {
                 i++;
             }
 
-            int driving = 20;
             Double index = minHeap.peek();
             int order = distOrder.get(index);
             int hr = Integer.parseInt(schedTasks.get(order).getEndHour());
             int min = Integer.parseInt(schedTasks.get(distOrder.get(minHeap.peek())).getEndMinute());
-            min += fr.getDuration() + driving;
+            min += fr.getDuration() + getDistMins(fr.getTid(), schedTasks.get(distOrder.get(minHeap.peek()) + 1).getTid());
             String s = timeFormatter(hr, min);
             String s1 = schedTasks.get(distOrder.get(minHeap.peek()) + 1).getStartHour() + ":" + schedTasks.get(distOrder.get(minHeap.peek()) + 1).getStartMinute();
             if (btimeComparator(s, s1))
@@ -100,8 +100,7 @@ public class Scheduler extends Activity {
 
     public Task getTaskById(String tid) {
         for (Task t : config.checkedTasks) {
-            if (t.getTid().equals(tid))
-                return t;
+            if (t.getTid().equals(tid)) return t;
         }
         return null;
     }
@@ -115,7 +114,7 @@ public class Scheduler extends Activity {
         //tasks with given time are already assigned
         //others can not overlap
         //eliminate the ones with fixed slot
-
+        dmGlobal = dm;
         for (Task t : config.checkedTasks)
             if (t.getStartTime() == null && t.getEndTime() == null) freeTasks.add(t);
         for (Task t : config.checkedTasks)
@@ -135,10 +134,8 @@ public class Scheduler extends Activity {
                     List<HashMap.Entry> candidates = new LinkedList<>();
                     int j;
                     for (j = lastindex; j < temp.size(); j++) {
-                        if ((Integer) temp.get(j).getValue() == k)
-                            candidates.add(temp.get(j));
-                        else
-                            break;
+                        if ((Integer) temp.get(j).getValue() == k) candidates.add(temp.get(j));
+                        else break;
                     } //add all candidates for one interval
                     lastindex = j;
 
@@ -165,10 +162,8 @@ public class Scheduler extends Activity {
                         for (Task fr : freeTasks) {
                             Double distFirst = findDist(first.getLocation().coordinate, fr.getLocation().coordinate);
                             Double distLast = findDist(last.getLocation().coordinate, fr.getLocation().coordinate);
-                            if (distFirst > distLast)
-                                schedTasks.add(fr);
-                            else
-                                schedTasks.add(0, fr);
+                            if (distFirst > distLast) schedTasks.add(fr);
+                            else schedTasks.add(0, fr);
                             //todo: may need to check our logic
                         }
 
@@ -181,10 +176,8 @@ public class Scheduler extends Activity {
                 for (Task fr : freeTasks) {
                     Double distFirst = findDist(first.getLocation().coordinate, fr.getLocation().coordinate);
                     Double distLast = findDist(last.getLocation().coordinate, fr.getLocation().coordinate);
-                    if (distFirst > distLast)
-                        schedTasks.add(fr);
-                    else
-                        schedTasks.add(0, fr);
+                    if (distFirst > distLast) schedTasks.add(fr);
+                    else schedTasks.add(0, fr);
                     //todo: may need to check our logic
                 }
 
@@ -204,14 +197,10 @@ public class Scheduler extends Activity {
                 @Override
                 public int compare(mixedArray m1, mixedArray m2) {
                     if (Integer.parseInt(m1.importance) > Integer.parseInt(m2.importance)) {
-                        if (m1.distance < m2.distance)
-                            return 1;
-                        else if (m1.distance == m2.distance)
-                            return 0;
-                        else
-                            return -1;
-                    } else
-                        return -1;
+                        if (m1.distance < m2.distance) return 1;
+                        else if (m1.distance == m2.distance) return 0;
+                        else return -1;
+                    } else return -1;
                 }
             });
 
@@ -241,10 +230,8 @@ public class Scheduler extends Activity {
                     List<HashMap.Entry> candidates = new LinkedList<>();
                     int j;
                     for (j = lastindex; j < temp.size(); j++) {
-                        if ((Integer) temp.get(j).getValue() == k)
-                            candidates.add(temp.get(j));
-                        else
-                            break;
+                        if ((Integer) temp.get(j).getValue() == k) candidates.add(temp.get(j));
+                        else break;
                     } //add all candidates for one interval
                     lastindex = j;
 
@@ -271,10 +258,8 @@ public class Scheduler extends Activity {
                         for (Task fr : freeTasks) {
                             Double distFirst = findDist(first.getLocation().coordinate, fr.getLocation().coordinate);
                             Double distLast = findDist(last.getLocation().coordinate, fr.getLocation().coordinate);
-                            if (distFirst > distLast)
-                                schedTasks.add(fr);
-                            else
-                                schedTasks.add(0, fr);
+                            if (distFirst > distLast) schedTasks.add(fr);
+                            else schedTasks.add(0, fr);
                             //todo: may need to check our logic
                         }
 
@@ -288,16 +273,15 @@ public class Scheduler extends Activity {
                 for (Task fr : freeTasks) {
                     Double distFirst = findDist(first.getLocation().coordinate, fr.getLocation().coordinate);
                     Double distLast = findDist(last.getLocation().coordinate, fr.getLocation().coordinate);
-                    if (distFirst > distLast)
-                        schedTasks.add(fr);
-                    else
-                        schedTasks.add(0, fr);
+                    if (distFirst > distLast) schedTasks.add(fr);
+                    else schedTasks.add(0, fr);
                     //todo: may need to check our logic
                 }
 
             }
 
             schedTasks.remove(0);
+
         } else //all of them are unscheduled, schedule nearest & treat as other case
         {
             // use location = current location
@@ -313,30 +297,21 @@ public class Scheduler extends Activity {
                 @Override
                 public int compare(mixedArray m1, mixedArray m2) {
                     if (Integer.parseInt(m1.importance) > Integer.parseInt(m2.importance))
-                        if (m1.distance < m2.distance)
-                            return 1;
-                        else if (m1.distance == m2.distance)
-                            return 0;
-                        else
-                            return -1;
-                    else
-                        return -1;
+                        if (m1.distance < m2.distance) return 1;
+                        else if (m1.distance == m2.distance) return 0;
+                        else return -1;
+                    else return -1;
                 }
             });
 
-            int driving = 20;
             Calendar cal = Calendar.getInstance();
             DateFormat dt = new SimpleDateFormat("H:mm:ss");
             DateFormat dd = new SimpleDateFormat("yyyy-MM-dd");
             String time_str = dt.format(cal.getTime());
             String date_str = dd.format(cal.getTime());
 
-            String earliestStart = timeFormatter(Integer.parseInt(time_str.split(":")[0]), Integer.parseInt(time_str.split(":")[1]) + driving + 30);
-            String latestEnd = timeFormatter(Integer.parseInt(earliestStart.split(":")[0]) + 6, Integer.parseInt(earliestStart.split(":")[1]));
-            Task tmp = getTaskById(mArray.get(mArray.size() - 1).tid);
-            freeTasks.remove(tmp);
-            tmp.addRange(earliestStart, latestEnd);  //todo: prompt user for the latestEnd
-            schedTasks.add(tmp);
+
+            String tid = mArray.get(mArray.size() - 1).tid;
 
             //check if we can attach another task now
             Task dummy = new Task();
@@ -348,16 +323,21 @@ public class Scheduler extends Activity {
             dummy.setEndTime(endTime);
             schedTasks.add(0, dummy);
 
-            attachTasks(0, schedTasks.get(0), schedTasks.get(1), freeTasks);
 
+            String earliestStart = timeFormatter(Integer.parseInt(time_str.split(":")[0]), Integer.parseInt(time_str.split(":")[1]) + getDistMins("0", tid) + 30);
+            String latestEnd = timeFormatter(Integer.parseInt(earliestStart.split(":")[0]) + 6, Integer.parseInt(earliestStart.split(":")[1]));
+            Task tmp = getTaskById(tid);
+            freeTasks.remove(tmp);
+            tmp.addRange(earliestStart, latestEnd);  //todo: prompt user for the latestEnd
+            schedTasks.add(tmp);
+
+            attachTasks(0, schedTasks.get(0), schedTasks.get(1), freeTasks);
             schedTasks.remove(0);
-        }
-        return schedTasks;
+        } return schedTasks;
     }
 
     public void attachTasks(int index, Task t1, Task t2, List<Task> candidateTasks) {
-        if (candidateTasks.size() == 0)
-            return;
+        if (candidateTasks.size() == 0) return;
 
         PriorityQueue<Double> minHeap = new PriorityQueue<>();
         HashMap<Double, String> distOrder = new HashMap<>();
@@ -373,25 +353,21 @@ public class Scheduler extends Activity {
 
         ArrayList<String> timerange1 = null, timerange2 = null;
         int hr = 0, min = 0, hr2 = 0, min2 = 0;
-        int driving = 20;
-        if (t1.getStartTime() == null)
-            timerange1 = t1.getRange();
+        if (t1.getStartTime() == null) timerange1 = t1.getRange();
         else {
             hr = Integer.parseInt(t1.getEndHour());
             min = Integer.parseInt(t1.getEndMinute());
         }
-        if (t2.getStartTime() == null)
-            timerange2 = t2.getRange();
+        if (t2.getStartTime() == null) timerange2 = t2.getRange();
         else {
             hr2 = Integer.parseInt(t2.getStartHour());
             min2 = Integer.parseInt(t2.getStartMinute());
         }
-
+        int driving = getDistMins(t1.getTid(),t2.getTid());
         if (timerange1 == null && timerange2 != null) {
             //t1 scheduled, t2 free
             String time1 = timeFormatter(hr, min + driving + tmp.getDuration());
-            String time2 = timeFormatter(Integer.parseInt(timerange2.get(1).split(":")[0]),
-                    Integer.parseInt(timerange2.get(1).split(":")[1]) - t2.getDuration() - driving);
+            String time2 = timeFormatter(Integer.parseInt(timerange2.get(1).split(":")[0]), Integer.parseInt(timerange2.get(1).split(":")[1]) - t2.getDuration() - driving);
             if (btimeComparator(time1, time2)) {
                 String start = timeFormatter(hr, min + driving);
                 hr2 = Integer.parseInt(timerange2.get(1).split(":")[0]);
@@ -400,8 +376,7 @@ public class Scheduler extends Activity {
                 tmp.addRange(start, end);
 
                 schedTasks.remove(t2);
-                t2.addRange(timeFormatter(Integer.parseInt(end.split(":")[0]),
-                        Integer.parseInt(end.split(":")[1]) + driving), t2.getRange().get(1));
+                t2.addRange(timeFormatter(Integer.parseInt(end.split(":")[0]), Integer.parseInt(end.split(":")[1]) + driving), t2.getRange().get(1));
                 schedTasks.add(index + 1, t2);
                 schedTasks.add(index + 1, tmp);
                 candidateTasks.remove(tmp);
@@ -419,8 +394,7 @@ public class Scheduler extends Activity {
                 tmp.addRange(start, end);
 
                 schedTasks.remove(t1);
-                t1.addRange(t1.getRange().get(0), timeFormatter(Integer.parseInt(tmp.getRange().get(0).split(":")[0]),
-                        Integer.parseInt(tmp.getRange().get(0).split(":")[1]) - driving));
+                t1.addRange(t1.getRange().get(0), timeFormatter(Integer.parseInt(tmp.getRange().get(0).split(":")[0]), Integer.parseInt(tmp.getRange().get(0).split(":")[1]) - driving));
                 schedTasks.add(index, t1);
                 schedTasks.add(index + 1, tmp);
             }
@@ -440,13 +414,11 @@ public class Scheduler extends Activity {
                 tmp.addRange(start, end);
 
                 schedTasks.remove(t1);
-                t1.addRange(t1.getRange().get(0), timeFormatter(Integer.parseInt(start.split(":")[0]),
-                        Integer.parseInt(start.split(":")[1]) - driving));
+                t1.addRange(t1.getRange().get(0), timeFormatter(Integer.parseInt(start.split(":")[0]), Integer.parseInt(start.split(":")[1]) - driving));
                 schedTasks.add(index, t1);
 
                 schedTasks.remove(t2);
-                t2.addRange(timeFormatter(Integer.parseInt(end.split(":")[0]),
-                        Integer.parseInt(end.split(":")[1]) + driving), t2.getRange().get(1));
+                t2.addRange(timeFormatter(Integer.parseInt(end.split(":")[0]), Integer.parseInt(end.split(":")[1]) + driving), t2.getRange().get(1));
                 schedTasks.add(index + 1, t2);
 
                 schedTasks.add(index + 1, tmp);
@@ -454,7 +426,7 @@ public class Scheduler extends Activity {
             candidateTasks.remove(tmp);
         } else {
             //when we have two driving durations, also replace min2 with min2-driving2
-            if (btimeComparator(timeFormatter(hr, min + driving + tmp.getDuration()), timeFormatter(hr2, min2 - driving))) {
+            if (btimeComparator(timeFormatter(hr, min + driving + tmp.getDuration()), timeFormatter(hr2, min2 - getDistMins(t2.getTid(),schedTasks.get(index+1).getTid())))) {
                 String start = timeFormatter(hr, min + driving);
                 String end = timeFormatter(hr2, min2 - driving);
                 tmp.addRange(start, end);
@@ -472,17 +444,13 @@ public class Scheduler extends Activity {
 
     }
 
-
     private boolean btimeComparator(String s, String s1) //returns 1 if left op is sooner
     {
         if (Integer.parseInt(s.split(":")[0]) > Integer.parseInt(s1.split(":")[0])) return false;
         else if (Integer.parseInt(s.split(":")[0]) == Integer.parseInt(s1.split(":")[0]))
-            if (Integer.parseInt(s.split(":")[1]) < Integer.parseInt(s1.split(":")[0]))
-                return true;
-            else
-                return false;
-        else
-            return true;
+            if (Integer.parseInt(s.split(":")[1]) < Integer.parseInt(s1.split(":")[0])) return true;
+            else return false;
+        else return true;
 
     }
 
@@ -522,4 +490,14 @@ public class Scheduler extends Activity {
     private double findDist(Point p1, Point p2) {
         return Math.sqrt(Math.pow(p1.getLatitude() - p2.getLatitude(), 2) + Math.pow(p1.getLongitude() - p2.getLongitude(), 2));
     }
+
+
+    private int getDistMins(String id1, String id2) {
+        for (MapKitRouteActivity.distanceMatrix d:dmGlobal) {
+          if(d.tid1==id1 && d.tid2==id2)
+              return d.distance;
+        }
+        return 0;
+    }
+
 }
