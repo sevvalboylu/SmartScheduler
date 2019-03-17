@@ -123,7 +123,7 @@ public class MapKitRouteActivity extends AppCompatActivity {
 
         List<LatLng> wayPoints = new ArrayList<LatLng>();
         for (Task temp : tasks) {
-            LatLng tmp = new LatLng(temp.getLocation().getCoordinate().getLatitude(), temp.getLocation().getCoordinate().getLatitude());
+            LatLng tmp = new LatLng(temp.getLocation().getCoordinate().getLatitude(), temp.getLocation().getCoordinate().getLongitude());
             wayPoints.add(tmp);
         }
 
@@ -141,8 +141,8 @@ public class MapKitRouteActivity extends AppCompatActivity {
         for (Task t : config.checkedTasks)
             for (Task m : config.checkedTasks) {
                 if (t.getTid() != m.getTid()) {
-                    LatLng pt1 = new LatLng(t.getLocation().getCoordinate().getLatitude(),t.getLocation().getCoordinate().getLatitude());
-                    LatLng pt2 = new LatLng(m.getLocation().getCoordinate().getLatitude(),m.getLocation().getCoordinate().getLatitude());
+                    LatLng pt1 = new LatLng(t.getLocation().getCoordinate().getLatitude(),t.getLocation().getCoordinate().getLongitude());
+                    LatLng pt2 = new LatLng(m.getLocation().getCoordinate().getLatitude(),m.getLocation().getCoordinate().getLongitude());
                     RouteQuery routeQuery = new RouteQueryBuilder(pt1, pt2).withTravelMode(travelMode);
                     routingApi.planRoute(routeQuery).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(routeResult -> {
                         for (FullRoute fullRoute : routeResult.getRoutes()) {
