@@ -58,7 +58,6 @@
            super.onCreate(savedInstanceState);
            mapView = (MapView)findViewById(R.id.mapview);
            mapObjects = mapView.getMap().getMapObjects().addCollection();
-
            // And to show what can be done with it, we move the camera to the center of Istanbul
            mapView.getMap().move(
                 new CameraPosition(TARGET_LOCATION, 8.0f, 0.0f, 0.0f),

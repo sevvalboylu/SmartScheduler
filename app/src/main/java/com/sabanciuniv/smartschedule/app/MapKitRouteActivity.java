@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.tomtom.online.sdk.common.location.LatLng;
 import com.tomtom.online.sdk.map.CameraPosition;
+import com.tomtom.online.sdk.map.Icon;
 import com.tomtom.online.sdk.map.MapFragment;
 import com.tomtom.online.sdk.map.MarkerBuilder;
 import com.tomtom.online.sdk.map.OnMapReadyCallback;
@@ -41,31 +42,21 @@ import java.util.regex.Pattern;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.tomtom.online.sdk.map.MarkerBuilder.DEFAULT_ICON_SCALE;
+
 public class MapKitRouteActivity extends AppCompatActivity {
 
-    //private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
+    protected Location location;
     RoutingApi routingApi = null;
     RouteType routeType = RouteType.SHORTEST;
     TravelMode travelMode = TravelMode.CAR;
     TomtomMap map;
     int listSize;
+    ArrayList<distanceMatrix> dm = new ArrayList<distanceMatrix>();
     private String provider;
     private LocationManager locationManager;
     private RecyclerView_Config config;
-    ArrayList<distanceMatrix> dm = new ArrayList<distanceMatrix>();
-    protected Location location;
-
-    public class distanceMatrix {
-        int distance;
-        String tid2;
-        String tid1;
-
-        protected distanceMatrix(int distance, String tid1, String tid2) {
-            this.distance = distance;
-            this.tid2 = tid2;
-            this.tid1 = tid1;
-        }
-    }
+    private MapFragment mapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +73,7 @@ public class MapKitRouteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tomtom);
         routingApi = OnlineRoutingApi.create(MapKitRouteActivity.this);
-        final MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view);
+        mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view);
         mapFragment.getAsyncMap(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull TomtomMap tomtomMap) {
@@ -133,10 +124,15 @@ public class MapKitRouteActivity extends AppCompatActivity {
         routingApi.planRoute(routeQuery).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(routeResult -> {
             for (FullRoute fullRoute : routeResult.getRoutes()) {
                 RouteBuilder routeBuilder = new RouteBuilder(fullRoute.getCoordinates());
-                  map.addRoute(routeBuilder);
+                Icon startIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_departure);
+                Icon endIcon  = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_destination);
+                routeBuilder.startIcon(startIcon);
+                routeBuilder.endIcon(endIcon);
+                map.addRoute(routeBuilder);
             }
         });
     }
+
     private void getDrivingMins() {
         for (Task t : config.checkedTasks)
             for (Task m : config.checkedTasks) {
@@ -163,9 +159,22 @@ public class MapKitRouteActivity extends AppCompatActivity {
                 }
             }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         map.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public class distanceMatrix {
+        int distance;
+        String tid2;
+        String tid1;
+
+        protected distanceMatrix(int distance, String tid1, String tid2) {
+            this.distance = distance;
+            this.tid2 = tid2;
+            this.tid1 = tid1;
+        }
     }
 }
