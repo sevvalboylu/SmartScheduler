@@ -111,7 +111,7 @@ public class Scheduler extends Activity {
         this.location = loc;
     }
 
-    public ArrayList<Task> sortTasks() {//todo:get driving time as list
+    public ArrayList<Task> sortTasks(ArrayList<MapKitRouteActivity.distanceMatrix> dm) {//todo:get driving time as list
         //tasks with given time are already assigned
         //others can not overlap
         //eliminate the ones with fixed slot
