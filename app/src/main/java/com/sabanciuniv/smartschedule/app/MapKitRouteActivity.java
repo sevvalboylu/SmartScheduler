@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
 import com.tomtom.online.sdk.common.location.LatLng;
@@ -29,11 +30,8 @@ import com.tomtom.online.sdk.routing.data.RouteQuery;
 import com.tomtom.online.sdk.routing.data.RouteQueryBuilder;
 import com.tomtom.online.sdk.routing.data.RouteType;
 import com.tomtom.online.sdk.routing.data.TravelMode;
-import com.yandex.mapkit.MapKitFactory;
-import com.yandex.mapkit.directions.driving.DrivingOptions;
 import com.yandex.mapkit.directions.driving.DrivingRouter;
 import com.yandex.mapkit.directions.driving.DrivingSession;
-import com.yandex.mapkit.directions.driving.RequestPoint;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.map.MapObjectCollection;
 
@@ -74,13 +72,13 @@ public class MapKitRouteActivity extends AppCompatActivity{
         }
 
         location = locationManager.getLastKnownLocation(provider);
-        MapKitFactory.setApiKey(MAPKIT_API_KEY);
-        MapKitFactory.initialize(this);
+        //MapKitFactory.setApiKey(MAPKIT_API_KEY);
+        //MapKitFactory.initialize(this);
         // Now MapView can be created.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tomtom);
-
-        final MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
+        routingApi = OnlineRoutingApi.create(MapKitRouteActivity.this);
+        final MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view);
         mapFragment.getAsyncMap(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull TomtomMap tomtomMap) {
@@ -91,58 +89,13 @@ public class MapKitRouteActivity extends AppCompatActivity{
                 tomtomMap.centerOn(CameraPosition.builder(amsterdam).zoom(7.0).build());
             }
         });
-        routingApi = OnlineRoutingApi.create(this);
-       // MapKitFactory.initialize(this);
-        //DirectionsFactory.initialize(this);
-       // mapView = findViewById(R.id.routeview);
-       // mapObjects = mapView.getMap().getMapObjects().addCollection();
 
-       /* mapView.getMap().move(new CameraPosition(
-                TARGET_LOCATION, 5, 0, 0));
-        drivingRouter = DirectionsFactory.getInstance().createDrivingRouter();
-        mapObjects = mapView.getMap().getMapObjects().addCollection();
-
-*/
         submitRequest();
     }
-/*
-    @Override
-    public void onDrivingRoutes(@NonNull List<DrivingRoute> list) {
-        for (DrivingRoute route : list) {
-            mapObjects.addPolyline(route.getGeometry());
-        }
-    }
-*/
-/*
-    @Override
-    public void onDrivingRoutesError(@NonNull Error error) {
-        String errorMessage = getString(R.string.unknown_error_message);
-        if (error instanceof RemoteError) {
-            errorMessage = getString(R.string.remote_error_message);
-        } else if (error instanceof NetworkError) {
-            errorMessage = getString(R.string.network_error_message);
-        }
 
-        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    protected void onStop() {
-        mapView.onStop();
-        MapKitFactory.getInstance().onStop();
-        super.onStop();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        MapKitFactory.getInstance().onStart();
-        mapView.onStart();
-    }
-*/
     private void submitRequest() {
         //DrivingOptions options = new DrivingOptions();
-        RoutingApi routingApi = OnlineRoutingApi.create(MapKitRouteActivity.this);
+
        // ArrayList<RequestPoint> requestPoints = new ArrayList<>();
         //Point currentLocation = new Point(location.getLatitude(),location.getLongitude());
         config = MainActivity.getConfig();
@@ -164,7 +117,8 @@ public class MapKitRouteActivity extends AppCompatActivity{
                     for (FullRoute fullRoute : routeResult.getRoutes()) {
                         RouteBuilder routeBuilder = new RouteBuilder(
                                 fullRoute.getCoordinates());
-                        map.addRoute(routeBuilder);
+                        //
+                        // map.addRoute(routeBuilder);
                     }
                 });
      /*
@@ -218,5 +172,39 @@ private int getDrivingMins(LatLng pt1,LatLng pt2){
             });
     return Integer.parseInt(k)/60;
 }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        assignMap();
+        submitRequest();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+    public void assignMap() {
+        MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view);
+        mapFragment.getAsyncMap(tomtommap -> {
+            map = tomtommap;
+            LatLng amsterdam = new LatLng(41.0082, 28.9784);
+            SimpleMarkerBalloon balloon = new SimpleMarkerBalloon("MyLocation");
+            map.addMarker(new MarkerBuilder(amsterdam).markerBalloon(balloon));
+            map.centerOn(CameraPosition.builder(amsterdam).zoom(15).build());
+            map.getUiSettings().turnOnRasterTrafficIncidents();
+            map.getUiSettings().turnOnRasterTrafficFlowTiles();
+
+    });
+    }
 
 }
