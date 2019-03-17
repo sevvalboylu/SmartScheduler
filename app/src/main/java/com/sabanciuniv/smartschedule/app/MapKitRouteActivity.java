@@ -69,6 +69,8 @@ public class MapKitRouteActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        config = MainActivity.getConfig();
+        listSize = config.checkedTasks.size();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         provider = locationManager.getBestProvider(criteria, false);
@@ -88,21 +90,20 @@ public class MapKitRouteActivity extends AppCompatActivity {
                     map.setMyLocationEnabled(true);
                     //LatLng amsterdam = new LatLng(52.37, 4.90);
                     Location myLocation = map.getUserLocation();
-                    LatLng userLocation = new LatLng(41.0082, 28.9784);
+                    LatLng userLocation;
                     if(myLocation != null)
-                        userLocation = new LatLng(myLocation.getLatitude(),myLocation.getLongitude());
+                        userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                    else
+                        userLocation = new LatLng(41.0082, 28.9784);
                     SimpleMarkerBalloon balloon = new SimpleMarkerBalloon("My Location");
-                    tomtomMap.addMarker(new MarkerBuilder(userLocation).markerBalloon(balloon));
-                    tomtomMap.centerOn(CameraPosition.builder(userLocation).zoom(2.0).build());
-                getDrivingMins();
+                    map.addMarker(new MarkerBuilder(userLocation).markerBalloon(balloon));
+                    map.centerOn(CameraPosition.builder(userLocation).zoom(2.0).build());
+                    getDrivingMins();
             }
         });
     }
 
     private void submitRequest() {
-        config = MainActivity.getConfig();
-        listSize = config.checkedTasks.size();
-        getDrivingMins();
         List<Address> address;
         String addressLine = "";
 
@@ -137,7 +138,6 @@ public class MapKitRouteActivity extends AppCompatActivity {
         });
     }
     private void getDrivingMins() {
-
         for (Task t : config.checkedTasks)
             for (Task m : config.checkedTasks) {
                 if (t.getTid() != m.getTid()) {
@@ -153,7 +153,10 @@ public class MapKitRouteActivity extends AppCompatActivity {
                                 final String k = mat.group(0).replaceAll("travelTimeInSeconds=", "");
                                 dm.add(new distanceMatrix(Integer.parseInt(k) / 60, t.getTid(), m.getTid()));
                                 if(dm.size()==(listSize*(listSize-1))/2)
+                                {
                                     submitRequest();
+                                    return;
+                                }
                             }
                         }
                     });
