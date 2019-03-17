@@ -1,8 +1,6 @@
 
    package com.sabanciuniv.smartschedule.app;
 
-   import android.app.ActivityManager;
-   import android.content.ComponentName;
    import android.content.Intent;
    import android.location.Address;
    import android.location.Geocoder;
