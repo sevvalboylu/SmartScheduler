@@ -114,14 +114,15 @@ public class MapKitRouteActivity extends AppCompatActivity {
         Scheduler sc = new Scheduler(current);
         ArrayList<Task> tasks = sc.sortTasks(dm);
 
-
-        List<LatLng> wayPoints = new ArrayList<LatLng>();
+        List<LatLng> wayPoints = new ArrayList<>();
         for (Task temp : tasks) {
             LatLng tmp = new LatLng(temp.getLocation().getCoordinate().getLatitude(), temp.getLocation().getCoordinate().getLongitude());
-            wayPoints.add(tmp);
+            wayPoints.add(0,tmp);
         }
 
+
         LatLng[] wayPointsArray = wayPoints.toArray(new LatLng[wayPoints.size()]);
+
        // RouteQuery routeQuery = new RouteQueryBuilder(wayPointsArray[0], wayPointsArray[wayPoints.size() - 1]).withWayPoints(wayPointsArray).withTraffic(true);
         Icon startIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_departure);
         Icon endIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_destination);
@@ -157,6 +158,30 @@ public class MapKitRouteActivity extends AppCompatActivity {
         return (wayPoints != null) ?
                 new RouteQueryBuilder(start, stop).withWayPoints(wayPoints).withRouteType(RouteType.FASTEST) :
                 new RouteQueryBuilder(start, stop).withRouteType(RouteType.FASTEST);
+/*
+
+        for(int i = 0; i<tasks.size()-1; i++)
+        {
+            RouteQuery routeQuery = new RouteQueryBuilder(wayPointsArray[i], wayPointsArray[i+1]).withWayPoints(wayPointsArray).withTraffic(true);
+            int finalI = i;
+            routingApi.planRoute(routeQuery).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(routeResult -> {
+                for (FullRoute fullRoute : routeResult.getRoutes()) {
+                    RouteBuilder routeBuilder = new RouteBuilder(fullRoute.getCoordinates());
+                    if(finalI == 0)
+                    {
+                        Icon startIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_departure);
+                        routeBuilder.startIcon(startIcon);
+                    }
+                    else
+                    {
+                        Icon endIcon  = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_destination);
+                        routeBuilder.endIcon(endIcon);
+                    }
+                    map.addRoute(routeBuilder);
+                }
+            });
+        }
+*/
     }
 
     private void getDrivingMins() {
