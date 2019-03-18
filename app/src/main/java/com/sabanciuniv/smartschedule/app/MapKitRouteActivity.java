@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.tomtom.online.sdk.common.location.LatLng;
 import com.tomtom.online.sdk.map.CameraPosition;
@@ -20,6 +21,7 @@ import com.tomtom.online.sdk.map.Icon;
 import com.tomtom.online.sdk.map.MapFragment;
 import com.tomtom.online.sdk.map.MarkerBuilder;
 import com.tomtom.online.sdk.map.OnMapReadyCallback;
+import com.tomtom.online.sdk.map.Route;
 import com.tomtom.online.sdk.map.RouteBuilder;
 import com.tomtom.online.sdk.map.SimpleMarkerBalloon;
 import com.tomtom.online.sdk.map.TomtomMap;
@@ -28,6 +30,7 @@ import com.tomtom.online.sdk.routing.RoutingApi;
 import com.tomtom.online.sdk.routing.data.FullRoute;
 import com.tomtom.online.sdk.routing.data.RouteQuery;
 import com.tomtom.online.sdk.routing.data.RouteQueryBuilder;
+import com.tomtom.online.sdk.routing.data.RouteResult;
 import com.tomtom.online.sdk.routing.data.RouteType;
 import com.tomtom.online.sdk.routing.data.TravelMode;
 import com.yandex.mapkit.geometry.Point;
@@ -40,9 +43,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
-
-import static com.tomtom.online.sdk.map.MarkerBuilder.DEFAULT_ICON_SCALE;
 
 public class MapKitRouteActivity extends AppCompatActivity {
 
@@ -52,6 +54,7 @@ public class MapKitRouteActivity extends AppCompatActivity {
     TravelMode travelMode = TravelMode.CAR;
     TomtomMap map;
     int listSize;
+    private Route route;
     ArrayList<distanceMatrix> dm = new ArrayList<distanceMatrix>();
     private String provider;
     private LocationManager locationManager;
@@ -119,18 +122,41 @@ public class MapKitRouteActivity extends AppCompatActivity {
         }
 
         LatLng[] wayPointsArray = wayPoints.toArray(new LatLng[wayPoints.size()]);
-        RouteQuery routeQuery = new RouteQueryBuilder(wayPointsArray[0], wayPointsArray[wayPoints.size() - 1]).withWayPoints(wayPointsArray).withTraffic(true);
+       // RouteQuery routeQuery = new RouteQueryBuilder(wayPointsArray[0], wayPointsArray[wayPoints.size() - 1]).withWayPoints(wayPointsArray).withTraffic(true);
+        Icon startIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_departure);
+        Icon endIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_destination);
+        RouteQuery routeQuery = createRouteQuery(wayPointsArray[0],wayPointsArray[-1], wayPointsArray);
+        //showDialogInProgress();
+        routingApi.planRoute(routeQuery)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DisposableSingleObserver<RouteResult>() {
 
-        routingApi.planRoute(routeQuery).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(routeResult -> {
-            for (FullRoute fullRoute : routeResult.getRoutes()) {
-                RouteBuilder routeBuilder = new RouteBuilder(fullRoute.getCoordinates());
-                Icon startIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_departure);
-                Icon endIcon  = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_destination);
-                routeBuilder.startIcon(startIcon);
-                routeBuilder.endIcon(endIcon);
-                map.addRoute(routeBuilder);
-            }
-        });
+                    @Override
+                    public void onSuccess(RouteResult routeResult) {
+                        //dismissDialogInProgress();
+                        displayRoutes(routeResult.getRoutes());
+                        map.displayRoutesOverview();
+                    }
+
+                    private void displayRoutes(List<FullRoute> routes) {
+                        for (FullRoute fullRoute : routes) {
+                            route = map.addRoute(new RouteBuilder(
+                                    fullRoute.getCoordinates()).startIcon(startIcon).endIcon(endIcon).isActive(true));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                       Log.d("","Route display failed");
+                    }
+                });
+    }
+
+    private RouteQuery createRouteQuery(LatLng start, LatLng stop, LatLng[] wayPoints) {
+        return (wayPoints != null) ?
+                new RouteQueryBuilder(start, stop).withWayPoints(wayPoints).withRouteType(RouteType.FASTEST) :
+                new RouteQueryBuilder(start, stop).withRouteType(RouteType.FASTEST);
     }
 
     private void getDrivingMins() {

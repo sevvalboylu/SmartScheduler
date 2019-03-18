@@ -139,7 +139,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
     public List<? extends WeekViewEvent> onMonthChange(final int newYear, final int newMonth) {
         if(teventloaded!=true)
         loadFireBaseTasks(newYear,newMonth);
-        if(gLoaded!=true)
+        if(gLoaded!=true && mAuth.getCurrentUser().getProviders().get(0).equals("google.com"))
         loadGoogleEvents(newYear,newMonth);
         List<WeekViewEvent> matchedEvents = new ArrayList<>();
         for (WeekViewEvent event : mEvents) {

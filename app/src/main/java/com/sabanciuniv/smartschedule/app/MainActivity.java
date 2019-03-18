@@ -1,16 +1,10 @@
 package com.sabanciuniv.smartschedule.app;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +18,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -64,8 +59,21 @@ public class MainActivity extends AppCompatActivity {
                 TaskLoader tl = new TaskLoader(new DataStatus() {
                     @Override
                     public void DataIsLoaded(List<Task> tasks, List<String> keys) {
+                        List<Task> mTasks = new LinkedList<>();
+                        for (Task t :tasks) {
+                            if(t.getStartTime() != null)
+                            {
+                                String startDate = t.getStartTime().split("T")[0];
+                                String startTime = t.getStartTime().split("T")[1];
+                                if (startDate.equals(date_str) && btimeComparator(time_str, startTime)) {
+                                    mTasks.add(t);
+                                }
+                            }
+                            else
+                                mTasks.add(t); //free task
+                        }
                         config = new RecyclerView_Config();
-                        config.setConfig(mRecyclerView, MainActivity.this, tasks, keys);
+                        config.setConfig(mRecyclerView, MainActivity.this, mTasks, keys);
                     }
                 }, mAuth.getUid());
                 pullToRefresh.setRefreshing(false);
@@ -101,7 +109,9 @@ public class MainActivity extends AppCompatActivity {
             }
             config = new RecyclerView_Config();
             config.setConfig(mRecyclerView, MainActivity.this, tasks, keys);
+            //todo: check if keys are mixed
         }
+
     }
 
     private boolean btimeComparator(String s, String s1) //returns 1 if left op is sooner
