@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -53,7 +54,6 @@ public class Profile extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         s=this.getSharedPreferences("locations",MODE_PRIVATE);
-
         setContentView(R.layout.activity_profile);
         mRecyclerView = findViewById(R.id.recyclerview_loclist);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
