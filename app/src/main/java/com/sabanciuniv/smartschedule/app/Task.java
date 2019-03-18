@@ -164,11 +164,12 @@ public class Task {
         this.startTime = start.toString();
         this.endTime = "";
     }
-    public Task(String uid, String tid, String lvl, String title, Location location) {
+    public Task(String uid, String tid, String lvl ,int duration,String title, Location location) {
         this.uid = uid;
         this.tid = tid;
         this.lvl=lvl;
         this.title = title;
+        this.duration=duration;
         this.location = location;
     }
 
