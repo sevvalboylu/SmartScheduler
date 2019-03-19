@@ -184,7 +184,7 @@ public class MapKitRouteActivity extends AppCompatActivity {
 */
     }
 
-    private void getDrivingMins() {
+    public void getDrivingMins() {
         for (Task t : config.checkedTasks)
             for (Task m : config.checkedTasks) {
                 if (t.getTid() != m.getTid()) {

@@ -2,6 +2,7 @@ package com.sabanciuniv.smartschedule.app;
 
 import com.google.api.client.util.DateTime;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.tomtom.online.sdk.common.location.LatLng;
 import com.yandex.mapkit.geometry.Point;
 
 import java.util.ArrayList;
@@ -62,7 +63,7 @@ public class Task {
         else return null;
     }
 
-    protected static class Location {
+    public static class Location {
 
         String address;
         Point coordinate;
@@ -70,6 +71,10 @@ public class Task {
         public Location(String address, Point coordinate) {
             this.address = address;
             this.coordinate = coordinate;
+        }
+        public Location(String address, LatLng coordinate) {
+            this.address = address;
+            this.coordinate= new Point(coordinate.getLatitude(),coordinate.getLongitude());
         }
 
         public Location() {
@@ -136,6 +141,14 @@ public class Task {
         this.location = location;
         this.duration = duration;
     }
+    public Task(String uid, String tid, String lvl ,int duration, String title, Location location) {
+        this.uid = uid;
+        this.tid = tid;
+        this.lvl=lvl;
+        this.title = title;
+        this.duration=duration;
+        this.location = location;
+    }
     public Task(String uid, String tid, String title, Location location, int duration, String lvl, String startTime, String endTime) {
         this.uid = uid;
         this.tid = tid;
@@ -164,13 +177,6 @@ public class Task {
         this.startTime = start.toString();
         this.endTime = "";
     }
-    public Task(String uid, String tid, String lvl ,int duration,String title, Location location) {
-        this.uid = uid;
-        this.tid = tid;
-        this.lvl=lvl;
-        this.title = title;
-        this.duration=duration;
-        this.location = location;
-    }
+
 
 }
