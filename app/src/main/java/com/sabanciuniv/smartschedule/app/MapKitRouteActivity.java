@@ -3,6 +3,7 @@ package com.sabanciuniv.smartschedule.app;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Criteria;
@@ -11,9 +12,11 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 
 import com.tomtom.online.sdk.common.location.LatLng;
 import com.tomtom.online.sdk.map.CameraPosition;
@@ -48,6 +51,11 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MapKitRouteActivity extends AppCompatActivity {
 
+    private static ArrayList<Task> tasks;
+    public static ArrayList<Task> getTasks() {
+        return tasks;
+    }
+
     protected Location location;
     RoutingApi routingApi = null;
     RouteType routeType = RouteType.SHORTEST;
@@ -60,6 +68,8 @@ public class MapKitRouteActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private RecyclerView_Config config;
     private MapFragment mapFragment;
+    FloatingActionButton gotolist;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +85,15 @@ public class MapKitRouteActivity extends AppCompatActivity {
         location = locationManager.getLastKnownLocation(provider);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tomtom);
+        gotolist = findViewById(R.id.list_fob);
+        gotolist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MapKitRouteActivity.this, ViewSchedule.class);
+                startActivity(intent);
+            }
+        });
+
         routingApi = OnlineRoutingApi.create(MapKitRouteActivity.this);
         mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view);
         mapFragment.getAsyncMap(new OnMapReadyCallback() {
@@ -112,7 +131,7 @@ public class MapKitRouteActivity extends AppCompatActivity {
 
         Task.Location current = new Task.Location(addressLine, c);
         Scheduler sc = new Scheduler(current);
-        ArrayList<Task> tasks = sc.sortTasks(dm);
+        tasks = sc.sortTasks(dm);
 
         List<LatLng> wayPoints = new ArrayList<>();
         for (Task temp : tasks) {
@@ -126,7 +145,7 @@ public class MapKitRouteActivity extends AppCompatActivity {
        // RouteQuery routeQuery = new RouteQueryBuilder(wayPointsArray[0], wayPointsArray[wayPoints.size() - 1]).withWayPoints(wayPointsArray).withTraffic(true);
         Icon startIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_departure);
         Icon endIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_destination);
-        RouteQuery routeQuery = createRouteQuery(wayPointsArray[0],wayPointsArray[-1], wayPointsArray);
+        RouteQuery routeQuery = createRouteQuery(wayPointsArray[0],wayPointsArray[1], wayPointsArray);
         //showDialogInProgress();
         routingApi.planRoute(routeQuery)
                 .subscribeOn(Schedulers.io())
