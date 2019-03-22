@@ -42,6 +42,7 @@
         android:clickable="true"
         app:layout_anchor="@+id/recyclerview_schedule"
         app:layout_anchorGravity="right|bottom"
+        app:backgroundTint="@color/blue"
         app:srcCompat="@android:drawable/ic_dialog_map" />
 
 </android.support.design.widget.CoordinatorLayout>
