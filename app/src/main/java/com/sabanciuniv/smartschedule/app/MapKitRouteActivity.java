@@ -60,7 +60,7 @@ public class MapKitRouteActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private RecyclerView_Config config;
     private MapFragment mapFragment;
-
+    LatLng userLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         config = MainActivity.getConfig();
@@ -73,6 +73,7 @@ public class MapKitRouteActivity extends AppCompatActivity {
         }
 
         location = locationManager.getLastKnownLocation(provider);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tomtom);
         routingApi = OnlineRoutingApi.create(MapKitRouteActivity.this);
@@ -84,11 +85,11 @@ public class MapKitRouteActivity extends AppCompatActivity {
                     map.setMyLocationEnabled(true);
                     //LatLng amsterdam = new LatLng(52.37, 4.90);
                     Location myLocation = map.getUserLocation();
-                    LatLng userLocation;
-                    if(myLocation != null)
-                        userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                    else
-                        userLocation = new LatLng(41.0082, 28.9784);
+
+                    //if(myLocation != null)
+                       // userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                   // else
+                    userLocation = new LatLng(41.0082, 28.9784);
                     SimpleMarkerBalloon balloon = new SimpleMarkerBalloon("My Location");
                     map.addMarker(new MarkerBuilder(userLocation).markerBalloon(balloon));
                     map.centerOn(CameraPosition.builder(userLocation).zoom(2.0).build());
@@ -101,10 +102,10 @@ public class MapKitRouteActivity extends AppCompatActivity {
         List<Address> address;
         String addressLine = "";
 
-        Point c = new Point(location.getLatitude(), location.getLongitude());
+        Point c = new Point(userLocation.getLatitude(), userLocation.getLongitude());
         final Geocoder geocoder = new Geocoder(MapKitRouteActivity.this, Locale.getDefault());
         try {
-            address = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            address = geocoder.getFromLocation(userLocation.getLatitude(), userLocation.getLongitude(), 1);
             addressLine = address.get(0).getAddressLine(0);
         } catch (IOException e) {
             e.printStackTrace();
@@ -126,7 +127,7 @@ public class MapKitRouteActivity extends AppCompatActivity {
        // RouteQuery routeQuery = new RouteQueryBuilder(wayPointsArray[0], wayPointsArray[wayPoints.size() - 1]).withWayPoints(wayPointsArray).withTraffic(true);
         Icon startIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_departure);
         Icon endIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_destination);
-        RouteQuery routeQuery = createRouteQuery(wayPointsArray[0],wayPointsArray[-1], wayPointsArray);
+        RouteQuery routeQuery = createRouteQuery(wayPointsArray[0],wayPointsArray[wayPoints.size()-1], wayPointsArray);
         //showDialogInProgress();
         routingApi.planRoute(routeQuery)
                 .subscribeOn(Schedulers.io())

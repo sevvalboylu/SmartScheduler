@@ -178,12 +178,10 @@ public class AddTask extends AppCompatActivity  {
         DateTime s = getDateFromDatePicker(mStartDatePicker,mStartTimePicker);
         DateTime e = getDateFromDatePicker(mEndDatePicker,mEndTimePicker);
 
-        if(s!=null && e==null)
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s);
-        else if(s!=null && e!=null){
+        if(!mAllDaySwitch.isChecked()){
             task = new com.sabanciuniv.smartschedule.app.Task(userId,taskId,title,location,getDuration(s.toString(),e.toString()),lvl, s.toString(),e.toString());
         }
-        else if(s==null && e == null){
+        else{
             task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl,Integer.parseInt(mDurationText.getText().toString()), title, location);
         }
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
