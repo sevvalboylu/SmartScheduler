@@ -2,7 +2,9 @@
 package com.sabanciuniv.smartschedule.app;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Criteria;
@@ -11,29 +13,38 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.tomtom.online.sdk.common.location.LatLng;
-import com.tomtom.online.sdk.map.CameraPosition;
-import com.tomtom.online.sdk.map.Icon;
-import com.tomtom.online.sdk.map.MapFragment;
-import com.tomtom.online.sdk.map.MarkerBuilder;
-import com.tomtom.online.sdk.map.OnMapReadyCallback;
-import com.tomtom.online.sdk.map.Route;
-import com.tomtom.online.sdk.map.RouteBuilder;
-import com.tomtom.online.sdk.map.SimpleMarkerBalloon;
-import com.tomtom.online.sdk.map.TomtomMap;
 import com.tomtom.online.sdk.routing.OnlineRoutingApi;
 import com.tomtom.online.sdk.routing.RoutingApi;
 import com.tomtom.online.sdk.routing.data.FullRoute;
 import com.tomtom.online.sdk.routing.data.RouteQuery;
 import com.tomtom.online.sdk.routing.data.RouteQueryBuilder;
-import com.tomtom.online.sdk.routing.data.RouteResult;
 import com.tomtom.online.sdk.routing.data.RouteType;
 import com.tomtom.online.sdk.routing.data.TravelMode;
+import com.yandex.mapkit.Animation;
+import com.yandex.mapkit.MapKitFactory;
+import com.yandex.mapkit.directions.Directions;
+import com.yandex.mapkit.directions.DirectionsFactory;
+import com.yandex.mapkit.directions.driving.DrivingRouter;
+import com.yandex.mapkit.directions.driving.DrivingOptions;
+import com.yandex.mapkit.directions.driving.DrivingSession;
+import com.yandex.mapkit.directions.driving.DrivingRoute;
+import com.yandex.mapkit.RequestPoint;
+import com.yandex.mapkit.RequestPointType;
 import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.map.CameraPosition;
+import com.yandex.mapkit.map.MapObjectCollection;
+import com.yandex.mapkit.mapview.MapView;
+import com.yandex.runtime.Error;
+import com.yandex.runtime.network.NetworkError;
+import com.yandex.runtime.network.RemoteError;
+import com.yandex.mapkit.map.PlacemarkMapObject;
+import com.yandex.runtime.image.ImageProvider;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,24 +54,39 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
-public class MapKitRouteActivity extends AppCompatActivity {
+public class MapKitRouteActivity extends Activity implements DrivingSession.DrivingRouteListener {
+
+    private static ArrayList<Task> tasks;
+
+    public static ArrayList<Task> getTasks() {
+        return tasks;
+    }
 
     protected Location location;
-    RoutingApi routingApi = null;
-    RouteType routeType = RouteType.SHORTEST;
-    TravelMode travelMode = TravelMode.CAR;
-    TomtomMap map;
     int listSize;
-    private Route route;
+    RoutingApi routingApi = null;
+    TravelMode travelMode = TravelMode.CAR;
     ArrayList<distanceMatrix> dm = new ArrayList<distanceMatrix>();
     private String provider;
     private LocationManager locationManager;
     private RecyclerView_Config config;
-    private MapFragment mapFragment;
+
     LatLng userLocation;
+    FloatingActionButton gotolist;
+
+    private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
+    private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
+
+    private MapView mapView;
+    private MapObjectCollection mapObjects;
+    private DrivingRouter drivingRouter;
+    private DrivingSession drivingSession;
+
+    private String url, response;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         config = MainActivity.getConfig();
@@ -72,30 +98,63 @@ public class MapKitRouteActivity extends AppCompatActivity {
             // TODO: Consider requesting the permissions again
         }
 
+        routingApi = OnlineRoutingApi.create(MapKitRouteActivity.this);
         location = locationManager.getLastKnownLocation(provider);
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tomtom);
-        routingApi = OnlineRoutingApi.create(MapKitRouteActivity.this);
-        mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view);
-        mapFragment.getAsyncMap(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull TomtomMap tomtomMap) {
-                    map = tomtomMap;
-                    map.setMyLocationEnabled(true);
-                    //LatLng amsterdam = new LatLng(52.37, 4.90);
-                    Location myLocation = map.getUserLocation();
+        MapKitFactory.setApiKey(MAPKIT_API_KEY);
+        MapKitFactory.initialize(this);
+        DirectionsFactory.initialize(this);
 
-                    //if(myLocation != null)
-                       // userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                   // else
-                    userLocation = new LatLng(41.0082, 28.9784);
-                    SimpleMarkerBalloon balloon = new SimpleMarkerBalloon("My Location");
-                    map.addMarker(new MarkerBuilder(userLocation).markerBalloon(balloon));
-                    map.centerOn(CameraPosition.builder(userLocation).zoom(2.0).build());
-                    getDrivingMins();
-            }
-        });
+        setContentView(R.layout.activity_route);
+        gotolist = findViewById(R.id.list_fob);
+
+
+        mapView = findViewById(R.id.routeview);
+        mapObjects = mapView.getMap().getMapObjects().addCollection();
+        mapView.getMap().move(new CameraPosition(
+                TARGET_LOCATION, 5, 0, 0));
+        Directions factory = DirectionsFactory.getInstance();
+        drivingRouter = factory.createDrivingRouter();
+        mapObjects = mapView.getMap().getMapObjects().addCollection();
+        try {
+            getDrivingMins();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onDrivingRoutes(@NonNull List<DrivingRoute> list) {
+        for (DrivingRoute route : list) {
+            mapObjects.addPolyline(route.getGeometry());
+        }
+    }
+
+    @Override
+    public void onDrivingRoutesError(@NonNull Error error) {
+        String errorMessage = getString(R.string.unknown_error_message);
+        if (error instanceof RemoteError) {
+            errorMessage = getString(R.string.remote_error_message);
+        } else if (error instanceof NetworkError) {
+            errorMessage = getString(R.string.network_error_message);
+        }
+
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onStop() {
+        mapView.onStop();
+        MapKitFactory.getInstance().onStop();
+        super.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        MapKitFactory.getInstance().onStart();
+        mapView.onStart();
     }
 
     private void submitRequest() {
@@ -113,84 +172,44 @@ public class MapKitRouteActivity extends AppCompatActivity {
 
         Task.Location current = new Task.Location(addressLine, c);
         Scheduler sc = new Scheduler(current);
-        ArrayList<Task> tasks = sc.sortTasks(dm);
+        tasks = sc.sortTasks(dm);
 
-        List<LatLng> wayPoints = new ArrayList<>();
+        List<Point> wayPoints = new ArrayList<>();
         for (Task temp : tasks) {
-            LatLng tmp = new LatLng(temp.getLocation().getCoordinate().getLatitude(), temp.getLocation().getCoordinate().getLongitude());
-            wayPoints.add(0,tmp);
+            Point tmp = new Point(temp.getLocation().getCoordinate().getLatitude(), temp.getLocation().getCoordinate().getLongitude());
+            wayPoints.add(0, tmp);
         }
 
+        final PlacemarkMapObject mark = mapObjects.addPlacemark(wayPoints.get(0));
+        mark.setIcon(ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
 
         LatLng[] wayPointsArray = wayPoints.toArray(new LatLng[wayPoints.size()]);
 
-       // RouteQuery routeQuery = new RouteQueryBuilder(wayPointsArray[0], wayPointsArray[wayPoints.size() - 1]).withWayPoints(wayPointsArray).withTraffic(true);
-        Icon startIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_departure);
-        Icon endIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_destination);
-        RouteQuery routeQuery = createRouteQuery(wayPointsArray[0],wayPointsArray[wayPoints.size()-1], wayPointsArray);
-        //showDialogInProgress();
-        routingApi.planRoute(routeQuery)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new DisposableSingleObserver<RouteResult>() {
+        DrivingOptions options = new DrivingOptions();
+        options.setAlternativeCount(1); // todo: somehow we may reach the fastest route possible.
+        ArrayList<RequestPoint> requestPoints = new ArrayList<>();
 
-                    @Override
-                    public void onSuccess(RouteResult routeResult) {
-                        //dismissDialogInProgress();
-                        displayRoutes(routeResult.getRoutes());
-                        map.displayRoutesOverview();
-                    }
-
-                    private void displayRoutes(List<FullRoute> routes) {
-                        for (FullRoute fullRoute : routes) {
-                            route = map.addRoute(new RouteBuilder(
-                                    fullRoute.getCoordinates()).startIcon(startIcon).endIcon(endIcon).isActive(true));
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                       Log.d("","Route display failed");
-                    }
-                });
-    }
-
-    private RouteQuery createRouteQuery(LatLng start, LatLng stop, LatLng[] wayPoints) {
-        return (wayPoints != null) ?
-                new RouteQueryBuilder(start, stop).withWayPoints(wayPoints).withRouteType(RouteType.FASTEST) :
-                new RouteQueryBuilder(start, stop).withRouteType(RouteType.FASTEST);
-/*
-
-        for(int i = 0; i<tasks.size()-1; i++)
-        {
-            RouteQuery routeQuery = new RouteQueryBuilder(wayPointsArray[i], wayPointsArray[i+1]).withWayPoints(wayPointsArray).withTraffic(true);
-            int finalI = i;
-            routingApi.planRoute(routeQuery).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(routeResult -> {
-                for (FullRoute fullRoute : routeResult.getRoutes()) {
-                    RouteBuilder routeBuilder = new RouteBuilder(fullRoute.getCoordinates());
-                    if(finalI == 0)
-                    {
-                        Icon startIcon = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_departure);
-                        routeBuilder.startIcon(startIcon);
-                    }
-                    else
-                    {
-                        Icon endIcon  = Icon.Factory.fromResources(mapFragment.getContext(), R.drawable.ic_map_route_destination);
-                        routeBuilder.endIcon(endIcon);
-                    }
-                    map.addRoute(routeBuilder);
-                }
-            });
+        for (Point p : wayPoints) {
+            requestPoints.add(new RequestPoint(p, RequestPointType.WAYPOINT, null));
+            final PlacemarkMapObject tmp = mapObjects.addPlacemark(p);
+            tmp.setIcon(ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
         }
-*/
+
+        drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
+
+        mapView.getMap().move(
+                new CameraPosition(wayPoints.get(0), 12.0f, 0.0f, 0.0f),
+                new Animation(Animation.Type.SMOOTH, 5),
+                null);
     }
 
-    public void getDrivingMins() {
+
+    public void getDrivingMins() throws IOException {
         for (Task t : config.checkedTasks)
             for (Task m : config.checkedTasks) {
                 if (t.getTid() != m.getTid()) {
-                    LatLng pt1 = new LatLng(t.getLocation().getCoordinate().getLatitude(),t.getLocation().getCoordinate().getLongitude());
-                    LatLng pt2 = new LatLng(m.getLocation().getCoordinate().getLatitude(),m.getLocation().getCoordinate().getLongitude());
+                    LatLng pt1 = new LatLng(t.getLocation().getCoordinate().getLatitude(), t.getLocation().getCoordinate().getLongitude());
+                    LatLng pt2 = new LatLng(m.getLocation().getCoordinate().getLatitude(), m.getLocation().getCoordinate().getLongitude());
                     RouteQuery routeQuery = new RouteQueryBuilder(pt1, pt2).withTravelMode(travelMode);
                     routingApi.planRoute(routeQuery).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(routeResult -> {
                         for (FullRoute fullRoute : routeResult.getRoutes()) {
@@ -200,22 +219,16 @@ public class MapKitRouteActivity extends AppCompatActivity {
                             if (mat.find()) {
                                 final String k = mat.group(0).replaceAll("travelTimeInSeconds=", "");
                                 dm.add(new distanceMatrix(Integer.parseInt(k) / 60, t.getTid(), m.getTid()));
-                                if(dm.size()==(listSize*(listSize-1))/2)
-                                {
+                                if (dm.size() == (listSize * (listSize - 1)) / 2) {
                                     submitRequest();
                                     return;
                                 }
                             }
                         }
                     });
+
                 }
             }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        map.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     public class distanceMatrix {
@@ -229,4 +242,6 @@ public class MapKitRouteActivity extends AppCompatActivity {
             this.tid1 = tid1;
         }
     }
+
+
 }

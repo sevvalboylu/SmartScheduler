@@ -75,10 +75,12 @@
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".MapKitRouteActivity"
-            android:label="MapKitRouteActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name=".FeedbackActivity"></activity>
+            android:name=".FeedbackActivity"
+            android:label="SmartScheduler"></activity>
+        <activity android:name=".ViewSchedule"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
 
     </application>
 

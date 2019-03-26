@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
     {
         if (Integer.parseInt(s.split(":")[0]) > Integer.parseInt(s1.split(":")[0])) return false;
         else if (Integer.parseInt(s.split(":")[0]) == Integer.parseInt(s1.split(":")[0]))
-            if (Integer.parseInt(s.split(":")[1]) < Integer.parseInt(s1.split(":")[0]))
+            if (Integer.parseInt(s.split(":")[1]) < Integer.parseInt(s1.split(":")[1]))
                 return true;
             else
                 return false;

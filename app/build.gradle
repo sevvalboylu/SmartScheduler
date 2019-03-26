@@ -76,11 +76,11 @@ dependencies {
     compileOnly 'com.google.android.wearable:wearable:2.4.0'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
-    implementation 'com.yandex.android:mapkit:3.2.0'
-    implementation 'com.yandex.android:search:3.2.0'
-    implementation 'com.yandex.android:directions:3.2.0'
-    implementation 'com.yandex.android:transport:3.2.0'
-    implementation 'com.yandex.android:places:3.2.0'
+    implementation 'com.yandex.android:mapkit:3.3.1'
+    implementation 'com.yandex.android:search:3.3.1'
+    implementation 'com.yandex.android:directions:3.3.1'
+    implementation 'com.yandex.android:transport:3.3.1'
+    implementation 'com.yandex.android:places:3.3.1'
     androidTestImplementation 'androidx.test:core:1.0.0'
 
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
@@ -118,6 +118,7 @@ dependencies {
 
 
     testImplementation 'junit:junit:4.12'
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
 }
 apply plugin: 'com.google.gms.google-services'
 com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true
