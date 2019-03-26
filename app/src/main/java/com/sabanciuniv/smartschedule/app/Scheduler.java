@@ -495,7 +495,7 @@ public class Scheduler extends Activity {
     private int getDistMins(String id1, String id2) {
         for (MapKitRouteActivity.distanceMatrix d:dmGlobal) {
           if(d.tid1==id1 && d.tid2==id2)
-              return d.distance;
+              return d.duration;
         }
         return 0;
     }

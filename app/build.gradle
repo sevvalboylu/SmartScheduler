@@ -109,7 +109,7 @@ dependencies {
 
     testImplementation "org.robolectric:robolectric:4.0-alpha-1"
 
-
+    implementation 'com.googlecode.json-simple:json-simple:1.1'
     androidTestImplementation 'androidx.test:runner:1.1.0'
     implementation 'com.google.apis:google-api-services-calendar:v3-rev305-1.23.0'
     androidTestUtil 'androidx.test:orchestrator:1.1.0'
