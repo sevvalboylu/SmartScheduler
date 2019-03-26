@@ -55,6 +55,11 @@ public class MapKitRouteActivity extends AppCompatActivity {
     TomtomMap map;
     int listSize;
     private Route route;
+
+    public ArrayList<distanceMatrix> getDm() {
+        return dm;
+    }
+
     ArrayList<distanceMatrix> dm = new ArrayList<distanceMatrix>();
     private String provider;
     private LocationManager locationManager;
@@ -93,26 +98,28 @@ public class MapKitRouteActivity extends AppCompatActivity {
                     map.addMarker(new MarkerBuilder(userLocation).markerBalloon(balloon));
                     map.centerOn(CameraPosition.builder(userLocation).zoom(2.0).build());
                     getDrivingMins();
+
+                    List<Address> address;
+                    String addressLine = "";
+
+                    Point c = new Point(location.getLatitude(), location.getLongitude());
+                    final Geocoder geocoder = new Geocoder(MapKitRouteActivity.this, Locale.getDefault());
+                    try {
+                    address = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                    addressLine = address.get(0).getAddressLine(0);
+                    } catch (IOException e) {
+                    e.printStackTrace();
+                    }
+                    Task.Location current = new Task.Location(addressLine, c);
+                    Scheduler sc = new Scheduler(current);
+                    ArrayList<Task> tasks = sc.sortTasks(dm);
+                    //submitRequest(tasks);
             }
         });
     }
 
-    private void submitRequest() {
-        List<Address> address;
-        String addressLine = "";
+    private void submitRequest(ArrayList<Task> tasks) {
 
-        Point c = new Point(location.getLatitude(), location.getLongitude());
-        final Geocoder geocoder = new Geocoder(MapKitRouteActivity.this, Locale.getDefault());
-        try {
-            address = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            addressLine = address.get(0).getAddressLine(0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Task.Location current = new Task.Location(addressLine, c);
-        Scheduler sc = new Scheduler(current);
-        ArrayList<Task> tasks = sc.sortTasks(dm);
 
         List<LatLng> wayPoints = new ArrayList<>();
         for (Task temp : tasks) {
@@ -201,7 +208,7 @@ public class MapKitRouteActivity extends AppCompatActivity {
                                 dm.add(new distanceMatrix(Integer.parseInt(k) / 60, t.getTid(), m.getTid()));
                                 if(dm.size()==(listSize*(listSize-1))/2)
                                 {
-                                    submitRequest();
+                                    System.out.print(dm);
                                     return;
                                 }
                             }
