@@ -323,7 +323,6 @@ public class Scheduler extends Activity {
             dummy.setEndTime(endTime);
             schedTasks.add(0, dummy);
 
-
             String earliestStart = timeFormatter(Integer.parseInt(time_str.split(":")[0]), Integer.parseInt(time_str.split(":")[1]) + getDistMins("0", tid) + 30);
             String latestEnd = timeFormatter(Integer.parseInt(earliestStart.split(":")[0]) + 6, Integer.parseInt(earliestStart.split(":")[1]));
             Task tmp = getTaskById(tid);
@@ -333,7 +332,8 @@ public class Scheduler extends Activity {
 
             attachTasks(0, schedTasks.get(0), schedTasks.get(1), freeTasks);
             schedTasks.remove(0);
-        } return schedTasks;
+        }
+        return schedTasks;
     }
 
     public void attachTasks(int index, Task t1, Task t2, List<Task> candidateTasks) {
@@ -448,7 +448,7 @@ public class Scheduler extends Activity {
     {
         if (Integer.parseInt(s.split(":")[0]) > Integer.parseInt(s1.split(":")[0])) return false;
         else if (Integer.parseInt(s.split(":")[0]) == Integer.parseInt(s1.split(":")[0]))
-            if (Integer.parseInt(s.split(":")[1]) < Integer.parseInt(s1.split(":")[0])) return true;
+            if (Integer.parseInt(s.split(":")[1]) < Integer.parseInt(s1.split(":")[1])) return true;
             else return false;
         else return true;
 
