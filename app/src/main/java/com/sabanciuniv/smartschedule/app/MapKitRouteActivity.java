@@ -11,6 +11,7 @@ import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -38,6 +39,8 @@ import com.yandex.runtime.image.ImageProvider;
 import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
+import org.apache.xpath.operations.Bool;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -53,6 +56,7 @@ import java.util.regex.Pattern;
 public class MapKitRouteActivity extends Activity implements DrivingSession.DrivingRouteListener {
 
     private static ArrayList<Task> tasks;
+    private Object lock = new Object();
 
     public static ArrayList<Task> getTasks() {
         return tasks;
@@ -60,7 +64,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
 
     protected Location location;
     int listSize;
-    ArrayList<distanceMatrix> dm = new ArrayList<distanceMatrix>();
+
     private String provider;
     private LocationManager locationManager;
     private RecyclerView_Config config;
@@ -89,6 +93,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
             // TODO: Consider requesting the permissions again
         }
 
+
         location = locationManager.getLastKnownLocation(provider);
 
         super.onCreate(savedInstanceState);
@@ -107,8 +112,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         });
         mapView = findViewById(R.id.routeview);
         mapObjects = mapView.getMap().getMapObjects().addCollection();
-        mapView.getMap().move(new CameraPosition(
-                TARGET_LOCATION, 5, 0, 0));
+        mapView.getMap().move(new CameraPosition(TARGET_LOCATION, 5, 0, 0));
         Directions factory = DirectionsFactory.getInstance();
         drivingRouter = factory.createDrivingRouter();
         mapObjects = mapView.getMap().getMapObjects().addCollection();
@@ -148,10 +152,13 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         mapView.onStart();
     }
 
-    private void submitRequest() {
+
+    public void getDrivingMins() {
+
+        ArrayList<distanceMatrix> dm = new ArrayList<distanceMatrix>();
+        GetDrivingMinsTask.execute(dm);
         List<Address> address;
         String addressLine = "";
-
         Point c = new Point(41.0082, 28.9784); //location.getLatitude(),location.getLongitude()
         final Geocoder geocoder = new Geocoder(MapKitRouteActivity.this, Locale.getDefault());
         try {
@@ -160,17 +167,38 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         Task.Location current = new Task.Location(addressLine, c);
-        Scheduler sc = new Scheduler(current);
-        tasks = sc.sortTasks(dm);
-
         List<Point> wayPoints = new ArrayList<>();
-        for (Task temp : tasks) {
-            Point tmp = new Point(temp.getLocation().getCoordinate().getLatitude(), temp.getLocation().getCoordinate().getLongitude());
-            wayPoints.add(0, tmp);
-        }
+        Runnable r_consumer = new Runnable() {
+            @Override
+            public void run() {
+                synchronized (lock) {
+                    while (dm.size() != (listSize * (listSize - 1)) / 2) {
+                        try {
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    Scheduler sc = new Scheduler(current);
+                    tasks = sc.sortTasks(dm);
 
+                    for (Task temp : tasks) {
+                        Point tmp = new Point(temp.getLocation().getCoordinate().getLatitude(), temp.getLocation().getCoordinate().getLongitude());
+                        wayPoints.add(0, tmp);
+                    }
+
+                    showOnMap(wayPoints);
+                }
+
+            }
+        };
+        Thread t_cons = new Thread(r_consumer);
+        t_cons.start();
+
+    }
+
+    public void showOnMap(List<Point> wayPoints) {
         final PlacemarkMapObject mark = mapObjects.addPlacemark(wayPoints.get(0));
         mark.setIcon(ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
 
@@ -186,24 +214,35 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
 
         drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
 
-        mapView.getMap().move(
-                new CameraPosition(wayPoints.get(0), 12.0f, 0.0f, 0.0f),
-                new Animation(Animation.Type.SMOOTH, 5),
-                null);
+        mapView.getMap().move(new CameraPosition(wayPoints.get(0), 12.0f, 0.0f, 0.0f), new Animation(Animation.Type.SMOOTH, 5), null);
+
     }
 
 
-    public void getDrivingMins() {
+    public class distanceMatrix {
+        int duration;
+        String tid2;
+        String tid1;
 
-        for (Task t : config.checkedTasks)
-            for (Task m : config.checkedTasks) {
-                if (t.getTid() != m.getTid()) {
-                    String origin = "origins=" + t.getLocation().getCoordinate().getLatitude() + "," + t.getLocation().getCoordinate().getLongitude();
-                    String destination = "destinations=" + m.getLocation().getCoordinate().getLatitude() + "," + m.getLocation().getCoordinate().getLongitude();
-                    String s_url = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?" + origin + "&" + destination + "&travelMode=driving&&timeUnit=minute&key=AipJt1t0OydHSoksAhHLJE7c25Bvl-ts3J6MQ-CHypr9UdeUSm9eKgoYZVKWl_eH";
-                    Runnable r = new Runnable() {
-                        @Override
-                        public void run() {
+        protected distanceMatrix(int duration, String tid1, String tid2) {
+            this.duration = duration;
+            this.tid2 = tid2;
+            this.tid1 = tid1;
+        }
+    }
+
+
+    private class GetDrivingMinsTask extends AsyncTask<ArrayList<distanceMatrix>,Boolean,Boolean> {
+
+        @Override
+        protected Boolean doInBackground(ArrayList<distanceMatrix> dm) {
+            for (Task t : config.checkedTasks)
+                for (Task m : config.checkedTasks) {
+                    if (t.getTid() != m.getTid()) {
+                        String origin = "origins=" + t.getLocation().getCoordinate().getLatitude() + "," + t.getLocation().getCoordinate().getLongitude();
+                        String destination = "destinations=" + m.getLocation().getCoordinate().getLatitude() + "," + m.getLocation().getCoordinate().getLongitude();
+                        String s_url = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?" + origin + "&" + destination + "&travelMode=driving&&timeUnit=minute&key=AipJt1t0OydHSoksAhHLJE7c25Bvl-ts3J6MQ-CHypr9UdeUSm9eKgoYZVKWl_eH";
+                        synchronized (lock) {
                             HttpURLConnection urlConnection = null;
                             try {
                                 String inline = "";
@@ -213,8 +252,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
                                 urlConnection = (HttpURLConnection) url.openConnection();
 
                                 int status = urlConnection.getResponseCode();
-                                if (status != 200)
-                                    throw new RuntimeException("HttpResponseCode: " + status);
+                                if (status != 200) throw new RuntimeException("HttpResponseCode: " + status);
                                 else {
                                     Scanner sc = new Scanner(url.openStream());
                                     while (sc.hasNext()) {
@@ -230,38 +268,33 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
                                 if (mat.find()) {
                                     final String k = mat.group(0).replaceAll("\"travelDuration\":", "");
                                     int mk = Integer.parseInt(k.split("\\.")[0]);
-                                    distanceMatrix d =new distanceMatrix(mk,t.getTid(), m.getTid());
+                                    distanceMatrix d = new distanceMatrix(mk, t.getTid(), m.getTid());
+
                                     dm.add(d);
                                     if (dm.size() == (listSize * (listSize - 1)) / 2) {
-                                        submitRequest();
-                                        return;
+                                        lock.notify();
+                                        return true;
                                     }
-
                                 }
+
                             } catch (MalformedURLException e) {
                                 e.printStackTrace();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
-                        };
-                            Thread thread = new Thread(r);
-                            thread.start();
 
+                    }
                 }
-            }}
-
-    public class distanceMatrix {
-       int duration;
-        String tid2;
-        String tid1;
-
-        protected distanceMatrix(int duration, String tid1, String tid2) {
-            this.duration = duration;
-            this.tid2 = tid2;
-            this.tid1 = tid1;
+            return false;
         }
+        protected void onProgressUpdate(Integer... progress) {
+
+        }
+
+        protected void onPostExecute(Long result) {
+
+        }
+
     }
-
-
 }
