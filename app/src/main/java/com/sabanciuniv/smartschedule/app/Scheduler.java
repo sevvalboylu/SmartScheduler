@@ -39,7 +39,7 @@ public class Scheduler extends Activity {
 
     HashMap<Double, Integer> distOrder = new HashMap<>();
     HashMap<String, Integer> match = new HashMap<>();
-    ArrayList<MapKitRouteActivity.distanceMatrix> dmGlobal = new ArrayList<>();
+    ArrayList<ViewSchedule.distanceMatrix> dmGlobal = new ArrayList<>();
     PriorityQueue<Double> minHeap = new PriorityQueue<>(2 * config.checkedTasks.size(), new Comparator<Double>() {
         @Override
         public int compare(Double o1, Double o2) {
@@ -112,7 +112,7 @@ public class Scheduler extends Activity {
         this.location = loc;
     }
 
-    public ArrayList<Task> sortTasks(ArrayList<MapKitRouteActivity.distanceMatrix> dm) {//todo:get driving time as list
+    public ArrayList<Task> sortTasks(ArrayList<ViewSchedule.distanceMatrix> dm) {//todo:get driving time as list
         //tasks with given time are already assigned
         //others can not overlap
         //eliminate the ones with fixed slot
@@ -495,7 +495,7 @@ public class Scheduler extends Activity {
 
 
     private int getDistMins(String id1, String id2) {
-        for (MapKitRouteActivity.distanceMatrix d:dmGlobal) {
+        for (ViewSchedule.distanceMatrix d:dmGlobal) {
           if(d.tid1==id1 && d.tid2==id2)
               return d.duration;
         }
