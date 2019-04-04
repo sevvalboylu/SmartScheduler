@@ -4,12 +4,18 @@ android {
     configurations {
         all*.exclude module: 'guava-jdk5'
     }
-
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+    configurations.all {
+        resolutionStrategy.force 'com.android.support:support-annotations:23.1.0'
+    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.sabanciuniv.smartschedule.app"
         minSdkVersion 23
         targetSdkVersion 27
+        testInstrumentationRunner "android.test.runner.AndroidJUnitRunner"
         versionCode 1
         versionName "1.0"
     }
@@ -70,14 +76,26 @@ dependencies {
     compileOnly 'com.google.android.wearable:wearable:2.4.0'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
-    implementation 'com.yandex.android:mapkit:3.2.0'
-    implementation 'com.yandex.android:search:3.2.0'
-    implementation 'com.yandex.android:directions:3.2.0'
-    implementation 'com.yandex.android:transport:3.2.0'
-    implementation 'com.yandex.android:places:3.2.0'
+    implementation 'com.yandex.android:mapkit:3.3.1'
+    implementation 'com.yandex.android:search:3.3.1'
+    implementation 'com.yandex.android:directions:3.3.1'
+    implementation 'com.yandex.android:transport:3.3.1'
+    implementation 'com.yandex.android:places:3.3.1'
+    androidTestImplementation 'androidx.test:core:1.0.0'
+
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'androidx.test:rules:1.1.0'
+
     implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation 'com.google.firebase:firebase-database:16.0.1'
 
+    androidTestImplementation 'com.android.support:support-annotations:23.1.0'
+    implementation 'com.android.support.test:rules:1.0.2'
+    testImplementation 'org.powermock:powermock-api-mockito:1.6.2'
+    testImplementation 'org.powermock:powermock-module-junit4-rule-agent:1.6.2'
+    testImplementation 'org.powermock:powermock-module-junit4-rule:1.6.2'
+    testImplementation 'org.powermock:powermock-module-junit4:1.6.2'
+    testImplementation 'junit:junit:4.12'
     implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '2.+'
     implementation 'com.google.http-client:google-http-client-jackson2:1.21.0'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
@@ -88,10 +106,19 @@ dependencies {
     implementation 'com.google.firebase:firebase-functions:16.1.1'
     implementation 'com.google.firebase:firebase-messaging:17.3.3'
     implementation 'com.google.firebase:firebase-storage:16.0.3'
+
+    testImplementation "org.robolectric:robolectric:4.0-alpha-1"
+
+    implementation 'com.googlecode.json-simple:json-simple:1.1'
+    androidTestImplementation 'androidx.test:runner:1.1.0'
     implementation 'com.google.apis:google-api-services-calendar:v3-rev305-1.23.0'
+    androidTestUtil 'androidx.test:orchestrator:1.1.0'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
+
+
     testImplementation 'junit:junit:4.12'
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
 }
 apply plugin: 'com.google.gms.google-services'
 com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true

@@ -26,6 +26,8 @@ import com.yandex.mapkit.geometry.Point;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -38,7 +40,7 @@ public class AddTask extends AppCompatActivity  {
     private static final String TAG = "AddTask";
     private static final String REQUIRED = "Required";
     private DatabaseReference mDatabase;
-    private EditText mTitleField;
+    private EditText mTitleField,mDurationText;
     private TextView mLocationField;
     private Spinner spinner1, freqLocationSpinner;
     private Button mSubmitButton;
@@ -93,14 +95,17 @@ public class AddTask extends AppCompatActivity  {
         mStartTimePicker.setVisibility(View.GONE);
         mEndTimePicker = findViewById(R.id.timePicker2);
         mEndTimePicker.setVisibility(View.GONE);
+        mDurationText = findViewById(R.id.durationText);
 
         mAllDaySwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mAllDaySwitch.isChecked()) {
+                    mDurationText.setEnabled(true);
                     mStartTimeText.setVisibility(View.GONE);
                     mEndTimeText.setVisibility(View.GONE);
                 } else if(!mAllDaySwitch.isChecked()) {
+                    mDurationText.setEnabled(false);
                     mStartTimeText.setVisibility(View.VISIBLE);
                     mEndTimeText.setVisibility(View.VISIBLE);
                 }
@@ -173,13 +178,11 @@ public class AddTask extends AppCompatActivity  {
         DateTime s = getDateFromDatePicker(mStartDatePicker,mStartTimePicker);
         DateTime e = getDateFromDatePicker(mEndDatePicker,mEndTimePicker);
 
-        if(s!=null && e==null)
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s);
-        else if(s!=null && e!=null){
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s,e);
+        if(!mAllDaySwitch.isChecked()){
+            task = new com.sabanciuniv.smartschedule.app.Task(userId,taskId,title,location,getDuration(s.toString(),e.toString()),lvl, s.toString(),e.toString());
         }
-        else if(s==null && e == null){
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, title, location, s);
+        else{
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl,Integer.parseInt(mDurationText.getText().toString()), title, location);
         }
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
     }
@@ -217,7 +220,9 @@ public class AddTask extends AppCompatActivity  {
     public String getUid() {
         return mAuth.getUid();
     }
-
+    public int getDuration(String s1,String s2){
+       return Integer.parseInt(s2.split("T")[1].split(":")[0])-Integer.parseInt(s1.split("T")[1].split(":")[0]);
+    }
 
     @Override
     protected void onResume() {

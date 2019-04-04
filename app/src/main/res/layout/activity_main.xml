@@ -53,5 +53,4 @@
         android:textAllCaps="true"
         android:textColor="@color/colorPrimaryDark" />
 
-
 </android.support.design.widget.CoordinatorLayout>

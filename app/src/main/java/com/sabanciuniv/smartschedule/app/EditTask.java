@@ -235,11 +235,9 @@ public class EditTask extends AppCompatActivity {
         startActivity(intent);
     }
 
-
     public String getUid() {
         return mAuth.getUid();
     }
-
 
     @Override
     protected void onResume() {
@@ -265,7 +263,6 @@ public class EditTask extends AppCompatActivity {
             mStartDatePicker.setVisibility(View.GONE);
         }
     }
-
     public void onEndDateTextClick(View view) {
         endDateTextClickCount++;
         if (endDateTextClickCount%2 == 1) {

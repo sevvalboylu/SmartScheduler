@@ -6,16 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".MapKitRouteActivity">
 
-    <fragment
-        android:id="@+id/map_view"
-        android:name="com.tomtom.online.sdk.map.MapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="418dp"
+        android:layout_height="731dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.571"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.918"></fragment>
+        app:layout_constraintVertical_bias="1.0" />
 
 </android.support.constraint.ConstraintLayout>

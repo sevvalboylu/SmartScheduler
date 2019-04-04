@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+
 public class Scheduler extends Activity {
+
 
     private ArrayList<Task> freeTasks = new ArrayList<>();
     private ArrayList<Task> schedTasks = new ArrayList<>();
@@ -323,7 +325,6 @@ public class Scheduler extends Activity {
             dummy.setEndTime(endTime);
             schedTasks.add(0, dummy);
 
-
             String earliestStart = timeFormatter(Integer.parseInt(time_str.split(":")[0]), Integer.parseInt(time_str.split(":")[1]) + getDistMins("0", tid) + 30);
             String latestEnd = timeFormatter(Integer.parseInt(earliestStart.split(":")[0]) + 6, Integer.parseInt(earliestStart.split(":")[1]));
             Task tmp = getTaskById(tid);
@@ -333,7 +334,8 @@ public class Scheduler extends Activity {
 
             attachTasks(0, schedTasks.get(0), schedTasks.get(1), freeTasks);
             schedTasks.remove(0);
-        } return schedTasks;
+        }
+        return schedTasks;
     }
 
     public void attachTasks(int index, Task t1, Task t2, List<Task> candidateTasks) {
@@ -448,7 +450,7 @@ public class Scheduler extends Activity {
     {
         if (Integer.parseInt(s.split(":")[0]) > Integer.parseInt(s1.split(":")[0])) return false;
         else if (Integer.parseInt(s.split(":")[0]) == Integer.parseInt(s1.split(":")[0]))
-            if (Integer.parseInt(s.split(":")[1]) < Integer.parseInt(s1.split(":")[0])) return true;
+            if (Integer.parseInt(s.split(":")[1]) < Integer.parseInt(s1.split(":")[1])) return true;
             else return false;
         else return true;
 
@@ -495,7 +497,7 @@ public class Scheduler extends Activity {
     private int getDistMins(String id1, String id2) {
         for (MapKitRouteActivity.distanceMatrix d:dmGlobal) {
           if(d.tid1==id1 && d.tid2==id2)
-              return d.distance;
+              return d.duration;
         }
         return 0;
     }

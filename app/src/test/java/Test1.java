@@ -1,9 +1,12 @@
-package com.sabanciuniv.smartschedule;
+import android.content.Context;
+import android.test.AndroidTestCase;
+
+import com.sabanciuniv.smartschedule.app.Task;
+import com.tomtom.online.sdk.common.location.LatLng;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -11,12 +14,13 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class Test1 {
+public class Test1 extends AndroidTestCase{
 
     WebDriver driver;
-
+    private Context mContext=getContext();
     @Before
     public void setUp() throws MalformedURLException {
         // Created object of DesiredCapabilities class.
@@ -51,17 +55,12 @@ public class Test1 {
         driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 
     }
-
     @Test
     public void testFirstCalculator() {
 
-        // Click on DELETE/CLR button to clear result text box before running test.
-        driver.findElements(By.xpath("//android.widget.Button")).get(0).click();
 
-        // Click on number 2 button.
-        driver.findElement(By.name("7")).click();
 
-        driver.manage().timeouts().implicitlyWait(30,TimeUnit.SECONDS);
+        //driver push the creare schedule button
     }
 
     @After
