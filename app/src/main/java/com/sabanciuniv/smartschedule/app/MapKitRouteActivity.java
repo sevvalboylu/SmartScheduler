@@ -60,24 +60,29 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
 
     private String provider;
     private LocationManager locationManager;
+    private RecyclerView_Config config;
 
     private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
     private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
 
     private MapView mapView;
     private MapObjectCollection mapObjects;
+    private DrivingRouter drivingRouter;
+    private DrivingSession drivingSession;
 
     private ArrayList<Task> tasks;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        config = MainActivity.getConfig();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         provider = locationManager.getBestProvider(criteria, false);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider requesting the permissions again
         }
+
 
         location = locationManager.getLastKnownLocation(provider);
 
@@ -88,11 +93,12 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
 
         setContentView(R.layout.activity_route);
 
+
         mapView = findViewById(R.id.routeview);
         mapObjects = mapView.getMap().getMapObjects().addCollection();
         mapView.getMap().move(new CameraPosition(TARGET_LOCATION, 5, 0, 0));
         Directions factory = DirectionsFactory.getInstance();
-
+        drivingRouter = factory.createDrivingRouter();
         mapObjects = mapView.getMap().getMapObjects().addCollection();
 
         do {
@@ -122,24 +128,20 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
             wayPoints.add(0, tmp);
         }
 
+        /*
         final PlacemarkMapObject mark = mapObjects.addPlacemark(wayPoints.get(0));
         mark.setIcon(ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
 
         requestPoints.add(new RequestPoint(wayPoints.get(0), RequestPointType.WAYPOINT, null));
+        */
 
-        for (int i = 1; i < wayPoints.size() - 1; i++) {
-            Point p = wayPoints.get(i);
+        for (Point p : wayPoints) {
             requestPoints.add(new RequestPoint(p, RequestPointType.WAYPOINT, null));
-            if (wayPoints.indexOf(p) != wayPoints.size() - 1) {
-                final PlacemarkMapObject tmp = mapObjects.addPlacemark(p);
-                tmp.setIcon(ImageProvider.fromResource(this, R.drawable.ic_markedlocation));
-            }
+            final PlacemarkMapObject tmp = mapObjects.addPlacemark(p);
+            tmp.setIcon(ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
         }
 
-        final PlacemarkMapObject markfinal = mapObjects.addPlacemark(wayPoints.get(wayPoints.size() - 1));
-        markfinal.setIcon(ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
-        requestPoints.add(new RequestPoint(wayPoints.get(wayPoints.size() - 1), RequestPointType.WAYPOINT, null));
-
+        drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
         mapView.getMap().move(new CameraPosition(wayPoints.get(0), 12.0f, 0.0f, 0.0f), new Animation(Animation.Type.SMOOTH, 5), null);
 
     }

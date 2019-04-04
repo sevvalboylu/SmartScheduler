@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
@@ -128,8 +129,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createSchedule(View v) {
-        Intent intent = new Intent(MainActivity.this, ViewSchedule.class);
-        startActivity(intent);
+        if(config.checkedTasks.size()> 0) {
+            Intent intent = new Intent(MainActivity.this, ViewSchedule.class);
+            startActivity(intent);
+        }
+        else
+            Toast.makeText(this, "Please select tasks!", Toast.LENGTH_SHORT).show();
     }
 }
 
