@@ -182,18 +182,30 @@ public void scheduleTasks(){
         wayPoints.add(0, tmp);
     }
 
-    final PlacemarkMapObject mark = mapObjects.addPlacemark(wayPoints.get(0));
-    mark.setIcon(ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
 
     DrivingOptions options = new DrivingOptions();
     options.setAlternativeCount(1); // todo: somehow we may reach the fastest route possible.
     ArrayList<RequestPoint> requestPoints = new ArrayList<>();
 
-    for (Point p : wayPoints) {
+
+    final PlacemarkMapObject mark = mapObjects.addPlacemark(wayPoints.get(0));
+    mark.setIcon(ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
+
+    requestPoints.add(new RequestPoint(wayPoints.get(0), RequestPointType.WAYPOINT, null));
+
+    for (int i = 1; i< wayPoints.size()-1 ; i++) {
+        Point p = wayPoints.get(i);
         requestPoints.add(new RequestPoint(p, RequestPointType.WAYPOINT, null));
-        final PlacemarkMapObject tmp = mapObjects.addPlacemark(p);
-        tmp.setIcon(ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
+        if(wayPoints.indexOf(p) != wayPoints.size() - 1) {
+            final PlacemarkMapObject tmp = mapObjects.addPlacemark(p);
+            tmp.setIcon(ImageProvider.fromResource(this, R.drawable.ic_markedlocation));
+        }
     }
+
+    final PlacemarkMapObject markfinal = mapObjects.addPlacemark(wayPoints.get(wayPoints.size()-1));
+    markfinal.setIcon(ImageProvider.fromResource(this, R.drawable.search_layer_pin_selected_default));
+    requestPoints.add(new RequestPoint(wayPoints.get(wayPoints.size()-1), RequestPointType.WAYPOINT, null));
+
 
     drivingSession = drivingRouter.requestRoutes(requestPoints, options, this);
     mapView.getMap().move(new CameraPosition(wayPoints.get(0), 12.0f, 0.0f, 0.0f), new Animation(Animation.Type.SMOOTH, 5), null);
