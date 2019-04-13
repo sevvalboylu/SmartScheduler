@@ -1,6 +1,8 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -11,18 +13,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.yandex.mapkit.Animation;
-import com.yandex.mapkit.RequestPoint;
-import com.yandex.mapkit.RequestPointType;
-import com.yandex.mapkit.directions.driving.DrivingOptions;
+import com.google.gson.Gson;
 import com.yandex.mapkit.geometry.Point;
-import com.yandex.mapkit.map.CameraPosition;
-import com.yandex.mapkit.map.PlacemarkMapObject;
-import com.yandex.runtime.image.ImageProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,6 +52,19 @@ public class ViewSchedule extends AppCompatActivity {
     public static ArrayList<distanceMatrix> dm = new ArrayList<>();
 
     private ProgressBar spinner;
+
+    protected class cacheDM {
+        private Point curr;
+        private Point dest;
+        private int mins;
+
+        public cacheDM(Point curr,Point dest,int mins){
+            this.curr = curr;
+            this.dest = dest;
+            this.mins = mins;
+        }
+    }
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -126,9 +134,17 @@ public class ViewSchedule extends AppCompatActivity {
     private class GetDrivingMinsTask extends AsyncTask<ArrayList<Task>, Boolean, Boolean> {
         @Override
         protected Boolean doInBackground(ArrayList<Task>... arrayLists) {
+            SharedPreferences prefs = getSharedPreferences("Distance Matrices", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+
             for (Task t : arrayLists[0])
                 for (Task m : arrayLists[0]) {
                     if (t.getTid() != m.getTid()) {
+                        if(prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude())+','+ Double.toString(t.getLocation().getCoordinate().getLongitude())+','+Double.toString(t.getLocation().getCoordinate().getLongitude())+ ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()))) {
+                            int mins=0;prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude())+','+ Double.toString(t.getLocation().getCoordinate().getLongitude())+','+Double.toString(t.getLocation().getCoordinate().getLongitude())+ ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()),mins);
+                            dm.add(new distanceMatrix(mins,t.getTid(),m.getTid()));
+                        }
+                        else{
                         String origin = "origins=" + t.getLocation().getCoordinate().getLatitude() + "," + t.getLocation().getCoordinate().getLongitude();
                         String destination = "destinations=" + m.getLocation().getCoordinate().getLatitude() + "," + m.getLocation().getCoordinate().getLongitude();
                         String s_url = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?" + origin + "&" + destination + "&travelMode=driving&&timeUnit=minute&key=AipJt1t0OydHSoksAhHLJE7c25Bvl-ts3J6MQ-CHypr9UdeUSm9eKgoYZVKWl_eH";
@@ -158,11 +174,15 @@ public class ViewSchedule extends AppCompatActivity {
                             Matcher mat = p.matcher(inline);
                             if (mat.find()) {
                                 final String k = mat.group(0).replaceAll("\"travelDuration\":", "");
-                                int mk = Integer.parseInt(k.split("\\.")[0]);
+                                Integer mk = Integer.parseInt(k.split("\\.")[0]);
+                                cacheDM cdm = new cacheDM(t.getLocation().getCoordinate(),m.getLocation().getCoordinate(),mk);
+                                Gson gson = new Gson();
+                                String json = gson.toJson(cdm);
+                                editor.putInt(Double.toString(t.getLocation().getCoordinate().getLatitude())+','+ Double.toString(t.getLocation().getCoordinate().getLongitude())+','+Double.toString(t.getLocation().getCoordinate().getLongitude())+ ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()), mk);
                                 distanceMatrix d = new distanceMatrix(mk, t.getTid(), m.getTid());
                                 dm.add(d);
                                 if (dm.size() == (listSize * (listSize - 1)) / 2) {
-                                    //lock.notify();
+                                     editor.commit();
                                     return true;
                                 }
                             }
@@ -172,6 +192,7 @@ public class ViewSchedule extends AppCompatActivity {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                    }
                     }
                 }
             return false;
@@ -185,5 +206,7 @@ public class ViewSchedule extends AppCompatActivity {
             spinner.setVisibility(View.GONE);
         }
     }
+
+
 
 }
