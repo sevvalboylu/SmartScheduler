@@ -25,6 +25,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
@@ -136,11 +137,12 @@ public class ViewSchedule extends AppCompatActivity {
         protected Boolean doInBackground(ArrayList<Task>... arrayLists) {
             SharedPreferences prefs = getSharedPreferences("Distance Matrices", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
-
+            Calendar rightNow = Calendar.getInstance();
+            int currentHour= rightNow.get(Calendar.HOUR_OF_DAY);
             for (Task t : arrayLists[0])
                 for (Task m : arrayLists[0]) {
                     if (t.getTid() != m.getTid()) {
-                        if(prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude())+','+ Double.toString(t.getLocation().getCoordinate().getLongitude())+','+Double.toString(t.getLocation().getCoordinate().getLongitude())+ ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()))) {
+                        if(prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude())+','+ Double.toString(t.getLocation().getCoordinate().getLongitude())+','+Double.toString(t.getLocation().getCoordinate().getLongitude())+ ',' + Double.toString(t.getLocation().getCoordinate().getLongitude())+ classifyHr(currentHour))) {
                             int mins=0;prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude())+','+ Double.toString(t.getLocation().getCoordinate().getLongitude())+','+Double.toString(t.getLocation().getCoordinate().getLongitude())+ ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()),mins);
                             dm.add(new distanceMatrix(mins,t.getTid(),m.getTid()));
                         }
@@ -178,7 +180,7 @@ public class ViewSchedule extends AppCompatActivity {
                                 cacheDM cdm = new cacheDM(t.getLocation().getCoordinate(),m.getLocation().getCoordinate(),mk);
                                 Gson gson = new Gson();
                                 String json = gson.toJson(cdm);
-                                editor.putInt(Double.toString(t.getLocation().getCoordinate().getLatitude())+','+ Double.toString(t.getLocation().getCoordinate().getLongitude())+','+Double.toString(t.getLocation().getCoordinate().getLongitude())+ ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()), mk);
+                                editor.putInt(Double.toString(t.getLocation().getCoordinate().getLatitude())+','+ Double.toString(t.getLocation().getCoordinate().getLongitude())+','+Double.toString(t.getLocation().getCoordinate().getLongitude())+ ',' + Double.toString(t.getLocation().getCoordinate().getLongitude())+classifyHr(currentHour), mk);
                                 distanceMatrix d = new distanceMatrix(mk, t.getTid(), m.getTid());
                                 dm.add(d);
                                 if (dm.size() == (listSize * (listSize - 1)) / 2) {
@@ -207,6 +209,13 @@ public class ViewSchedule extends AppCompatActivity {
         }
     }
 
+public String classifyHr(int hr){
 
+        if(hr >= 0 && hr <= 10) return "morning";
+        if(hr > 10 && hr <= 16){return "noon";}
+        if(hr > 16 &&  hr <= 20){return "evening";}
+        if(hr > 20){return "night";}
+        return "";
+}
 
 }

@@ -127,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
 
     }
+
     public boolean checkclashes(ArrayList<Task> ct){
         for(Task t1: ct)
             for (Task t2:ct){
@@ -143,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
+
     public void createSchedule(View v) {
         if(config.checkedTasks.size()> 0 ) {
             if(checkclashes(config.checkedTasks)){
