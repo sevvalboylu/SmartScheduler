@@ -20,7 +20,6 @@ import java.util.List;
 public class RecyclerView_Config_AllTasks {
     private Context mContext;
     private RecyclerView_Config_AllTasks.TaskAdapter mTaskAdapter;
-    public ArrayList<Task> checkedTasks = new ArrayList<Task>();
 
     public void setConfig(RecyclerView recyclerView, Context context, List<Task> tasks, List<String> keys)
     {
@@ -35,7 +34,6 @@ public class RecyclerView_Config_AllTasks {
         private TextView mImp;
         private String key;
 
-        ItemClickListener itemClickListener;
         ItemLongClickListener itemLongClickListener;
 
         public TaskItemView(ViewGroup parent) {

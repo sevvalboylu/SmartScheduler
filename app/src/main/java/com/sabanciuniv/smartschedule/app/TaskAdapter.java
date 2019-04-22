@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -13,9 +14,11 @@ import java.util.ArrayList;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
 
     private ArrayList<Task> taskArrayList;
+    boolean checkboxPref;
 
-    public TaskAdapter(ArrayList<Task> taskArrayList) {
+    public TaskAdapter(ArrayList<Task> taskArrayList,boolean check) {
         this.taskArrayList = taskArrayList;
+        this.checkboxPref = check;
     }
 
     public class TaskView extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -23,6 +26,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         TextView taskTime;
         TextView taskAddr;
         TextView taskImp;
+        CheckBox checkbox;
 
         public TaskView(View itemView) {
             super(itemView);
@@ -30,14 +34,22 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
             taskTime = itemView.findViewById(R.id.taskTime);
             taskAddr = itemView.findViewById(R.id.taskAddress);
             taskImp = itemView.findViewById(R.id.taskImportance);
+            checkbox = itemView.findViewById(R.id.checkBox2);
+            if(!checkboxPref)
+                SetNoCheckBox();
         }
-
 
         @Override
         public void onClick(View view) {
 
         }
+
+        //method to remove checkboxes.
+        public void SetNoCheckBox() {
+            checkbox.setVisibility(itemView.GONE);
+        }
     }
+
 
     @NonNull
     @Override
@@ -60,13 +72,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         else
             holder.taskImp.setTextColor(Color.rgb(182,1,59));
 
-
         if(row.getStartTime() != null){
             holder.taskTime.setText(""+ row.getStartHour()+":"+row.getStartMinute() + " - "
                     + row.getEndHour() + ":" + row. getEndMinute());
         }
         else
-            holder.taskTime.setText(" ");
+            holder.taskTime.setText("--:-- - --:--");
     }
 
     @Override

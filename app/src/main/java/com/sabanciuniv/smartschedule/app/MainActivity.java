@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 TaskLoader tl = new TaskLoader(new DataStatus() {
                     @Override
                     public void DataIsLoaded(List<Task> tasks, List<String> keys) {
-                        List<Task> mTasks = new LinkedList<>();
+                        ArrayList<Task> mTasks = new ArrayList<>();
                         for (Task t :tasks) {
                             if(t.getStartTime() != null)
                             {
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                                 mTasks.add(t); //free task
                         }
                         config = new RecyclerView_Config();
-                        config.setConfig(mRecyclerView, MainActivity.this, mTasks, keys);
+                        config.setConfig(mRecyclerView, MainActivity.this, mTasks);
                     }
                 }, mAuth.getUid());
                 pullToRefresh.setRefreshing(false);
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 keys.add(key);
             }
             config = new RecyclerView_Config();
-            config.setConfig(mRecyclerView, MainActivity.this, tasks, keys);
+            config.setConfig(mRecyclerView, MainActivity.this, tasks);
             //todo: check if keys are mixed
         }
 

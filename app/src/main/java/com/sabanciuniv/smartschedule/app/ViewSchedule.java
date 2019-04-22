@@ -78,7 +78,7 @@ public class ViewSchedule extends AppCompatActivity {
         spinner = (ProgressBar)findViewById(R.id.progressBar1);
 
         // now inflate the recyclerView
-        taskAdapter = new TaskAdapter(tasks);
+        taskAdapter = new TaskAdapter(tasks,false);
         RecyclerView.setLayoutManager(new LinearLayoutManager(this));
         RecyclerView.setAdapter(taskAdapter);
         spinner.setVisibility(View.VISIBLE);
@@ -179,7 +179,7 @@ public class ViewSchedule extends AppCompatActivity {
 
         protected void onPostExecute(Boolean result) {
             scheduleTasks();
-            taskAdapter = new TaskAdapter(tasks);
+            taskAdapter = new TaskAdapter(tasks,false);
             RecyclerView.setLayoutManager(new LinearLayoutManager(ViewSchedule.this));
             RecyclerView.setAdapter(taskAdapter);
             spinner.setVisibility(View.GONE);

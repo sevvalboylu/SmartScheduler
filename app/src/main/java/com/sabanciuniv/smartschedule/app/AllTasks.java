@@ -19,7 +19,7 @@ public class AllTasks extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private FirebaseAuth mAuth=FirebaseAuth.getInstance();
-    private static RecyclerView_Config_AllTasks config;
+    private static RecyclerView_Config config;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +35,8 @@ public class AllTasks extends AppCompatActivity {
                 TaskLoader tl = new TaskLoader(new DataStatus() {
                     @Override
                     public void DataIsLoaded(List<Task> tasks, List<String> keys) {
-                        config = new RecyclerView_Config_AllTasks();
-                        config.setConfig(mRecyclerView, AllTasks.this, tasks, keys);
+                        config = new RecyclerView_Config();
+                        config.setConfig(mRecyclerView, AllTasks.this, (ArrayList<Task>) tasks);
                     }
                 }, mAuth.getUid());
                 pullToRefresh.setRefreshing(false);
@@ -60,8 +60,8 @@ public class AllTasks extends AppCompatActivity {
                 String key = prefs.getString("key" + readId++, "");
                 keys.add(key);
             }
-            config = new RecyclerView_Config_AllTasks();
-            config.setConfig(mRecyclerView, AllTasks.this, tasks, keys);
+            config = new RecyclerView_Config();
+            config.setConfig(mRecyclerView, AllTasks.this, tasks);
         }
     }
 
