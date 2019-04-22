@@ -257,6 +257,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:timePickerMode="spinner"/>
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Estimated duration:" />
+
+            <EditText
+                android:id="@+id/durationText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:ems="10"
+                android:inputType="numberSigned" />
             <Button
                 android:id="@+id/deleteTask"
                 android:layout_width="match_parent"
