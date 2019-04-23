@@ -43,7 +43,6 @@ public class AddTask extends AppCompatActivity  {
     private EditText mTitleField,mDurationText;
     private TextView mLocationField;
     private Spinner spinner1, freqLocationSpinner;
-    private Button mSubmitButton;
     private Switch mAllDaySwitch;
     private DatePicker mStartDatePicker, mEndDatePicker;
     private TimePicker mStartTimePicker, mEndTimePicker;
@@ -83,7 +82,6 @@ public class AddTask extends AppCompatActivity  {
 
         mTitleField = findViewById(R.id.taskTitleText);
         mLocationField = findViewById(R.id.address);
-        mSubmitButton = findViewById(R.id.addTask);
         mAllDaySwitch = findViewById(R.id.allDaySwitch);
 
         mStartDatePicker = findViewById(R.id.datePicker1);
@@ -116,12 +114,6 @@ public class AddTask extends AppCompatActivity  {
         Spinner dropdown = findViewById(R.id.importanceSpinner);
         addListenerOnSpinnerItemSelection();
         //create a list of items for the spinner.
-        mSubmitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                submitTask();
-            }
-        });
 
         //TODO: make importance levels user-friendly: change from integer to string ("High", "Moderate", "Low")
         String[] items = new String[]{"1", "2", "3"};
@@ -150,9 +142,9 @@ public class AddTask extends AppCompatActivity  {
         //go to map or dropdown list of most frequent places
     }
 
-    private void submitTask() {
+    public void submitTask(View view) {
         final String title = mTitleField.getText().toString();
-        Intent intent = this.getIntent();
+
         // Title is required
         if (TextUtils.isEmpty(title)) {
             mTitleField.setError(REQUIRED);
@@ -185,6 +177,10 @@ public class AddTask extends AppCompatActivity  {
             task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl,Integer.parseInt(mDurationText.getText().toString()), title, location);
         }
         mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
+
+        Intent intent = new Intent(AddTask.this, BasicActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivityForResult(intent, 1);
     }
 
     public void addListenerOnSpinnerItemSelection() {

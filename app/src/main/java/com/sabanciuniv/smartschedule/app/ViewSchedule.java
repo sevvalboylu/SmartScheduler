@@ -44,7 +44,7 @@ public class ViewSchedule extends AppCompatActivity {
         return tasks;
     }
 
-    private RecyclerView_Config config;
+    private TaskAdapter adapter;
 
     private RecyclerView RecyclerView;
     FloatingActionButton mapBtn;
@@ -71,8 +71,8 @@ public class ViewSchedule extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        config = MainActivity.getConfig();
-        listSize = config.checkedTasks.size();
+        adapter = MainActivity.getAdapter();
+        listSize = adapter.checkedTasks.size();
         setContentView(R.layout.activity_viewschedule);
         mapBtn = findViewById(R.id.map_fob);
         mapBtn.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +87,7 @@ public class ViewSchedule extends AppCompatActivity {
         spinner = (ProgressBar)findViewById(R.id.progressBar1);
 
         // now inflate the recyclerView
-        taskAdapter = new TaskAdapter(tasks);
+        taskAdapter = new TaskAdapter(ViewSchedule.this,tasks,false,false,false);
         RecyclerView.setLayoutManager(new LinearLayoutManager(this));
         RecyclerView.setAdapter(taskAdapter);
         spinner.setVisibility(View.VISIBLE);
@@ -97,7 +97,7 @@ public class ViewSchedule extends AppCompatActivity {
 
 
     public void getDrivingMins() {
-        ArrayList<Task> cTasks = config.checkedTasks;
+        ArrayList<Task> cTasks = adapter.checkedTasks;
         new GetDrivingMinsTask().execute(cTasks);
     }
 
@@ -202,7 +202,7 @@ public class ViewSchedule extends AppCompatActivity {
 
         protected void onPostExecute(Boolean result) {
             scheduleTasks();
-            taskAdapter = new TaskAdapter(tasks);
+            taskAdapter = new TaskAdapter(ViewSchedule.this,tasks,false,false,false);
             RecyclerView.setLayoutManager(new LinearLayoutManager(ViewSchedule.this));
             RecyclerView.setAdapter(taskAdapter);
             spinner.setVisibility(View.GONE);

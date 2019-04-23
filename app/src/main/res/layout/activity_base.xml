@@ -58,7 +58,7 @@
             android:clickable="true"
             android:onClick="addTask"
             app:backgroundTint="@color/colorAccent"
-            app:srcCompat="@android:drawable/ic_input_add" />
+            app:srcCompat="@drawable/ic_baseline_add_24px" />
 
     </FrameLayout>
 

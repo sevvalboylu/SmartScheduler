@@ -19,11 +19,11 @@ import java.util.PriorityQueue;
 
 public class Scheduler extends Activity {
 
-
     private ArrayList<Task> freeTasks = new ArrayList<>(); //selected unscheduled tasks
     private ArrayList<Task> schedTasks = new ArrayList<>(); //selected scheduled tasks
-    private RecyclerView_Config config = MainActivity.getConfig(); //configuration taken from main act.(chosen tasks)
+    private Task.Location location; //configuration taken from main act.(chosen tasks)
     private Task.Location location; //curr location
+
 
     private class mixedArray {
         double distance;
@@ -36,7 +36,7 @@ public class Scheduler extends Activity {
             this.tid = tid;
         }
     }
-
+  
     HashMap<Double, Integer> distOrder = new HashMap<>(); //keeps distance matrix
     HashMap<String, Integer> match = new HashMap<>(); //keeps the matched pairs of tid and tasks's order in list
     ArrayList<ViewSchedule.distanceMatrix> dmGlobal = new ArrayList<>(); //global distance matrix (filled by bingmaps)
@@ -101,7 +101,7 @@ public class Scheduler extends Activity {
     }
 
     public Task getTaskById(String tid) {
-        for (Task t : config.checkedTasks) {
+        for (Task t : adapter.checkedTasks) {
             if (t.getTid().equals(tid)) return t;
         }
         return null;
@@ -117,9 +117,9 @@ public class Scheduler extends Activity {
         //others can not overlap
         //eliminate the ones with fixed slot
         dmGlobal = dm;
-        for (Task t : config.checkedTasks)
+        for (Task t : adapter.checkedTasks)
             if (t.getStartTime() == null && t.getEndTime() == null) freeTasks.add(t);
-        for (Task t : config.checkedTasks)
+        for (Task t : adapter.checkedTasks)
             if (t.getStartTime() != null && t.getEndTime() != null) schedTasks.add(t);
 
 
@@ -482,7 +482,6 @@ public class Scheduler extends Activity {
         }
     };
 
-    //todo: şevval get route distance from yandex
     private double findDistMid(Point p1, Point p2, Point p3) // get p3's distance from midpoint of p1 and p2
     {
         Point p = new Point((p1.getLatitude() + p2.getLatitude()) / 2, (p1.getLongitude() + p2.getLongitude()) / 2);

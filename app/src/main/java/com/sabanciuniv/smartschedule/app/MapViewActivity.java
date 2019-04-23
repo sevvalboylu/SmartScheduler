@@ -109,7 +109,7 @@
            Intent current = getIntent();
            Intent intent = null;
            if (current.getStringExtra("caller").equals("Profile.class"))
-           intent = new Intent( MapViewActivity.this, Profile.class);
+               intent = new Intent( MapViewActivity.this, Profile.class);
            else if (current.getStringExtra("caller").equals("AddTask.class"))
                intent = new Intent( MapViewActivity.this, AddTask.class);
            else     //let's hope we never enter this else here but need to be safe xx
