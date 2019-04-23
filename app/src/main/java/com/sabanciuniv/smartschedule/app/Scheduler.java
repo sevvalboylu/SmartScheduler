@@ -19,11 +19,11 @@ import java.util.PriorityQueue;
 
 public class Scheduler extends Activity {
 
+    private ArrayList<Task> freeTasks = new ArrayList<>(); //selected unscheduled tasks
+    private ArrayList<Task> schedTasks = new ArrayList<>(); //selected scheduled tasks
+    private Task.Location location; //configuration taken from main act.(chosen tasks)
+    private Task.Location location; //curr location
 
-    private ArrayList<Task> freeTasks = new ArrayList<>();
-    private ArrayList<Task> schedTasks = new ArrayList<>();
-    private TaskAdapter adapter = MainActivity.getAdapter();
-    private Task.Location location;
 
     private class mixedArray {
         double distance;
@@ -36,11 +36,11 @@ public class Scheduler extends Activity {
             this.tid = tid;
         }
     }
-
-    HashMap<Double, Integer> distOrder = new HashMap<>();
-    HashMap<String, Integer> match = new HashMap<>();
-    ArrayList<ViewSchedule.distanceMatrix> dmGlobal = new ArrayList<>();
-    PriorityQueue<Double> minHeap = new PriorityQueue<>(2 * adapter.checkedTasks.size(), new Comparator<Double>() {
+  
+    HashMap<Double, Integer> distOrder = new HashMap<>(); //keeps distance matrix
+    HashMap<String, Integer> match = new HashMap<>(); //keeps the matched pairs of tid and tasks's order in list
+    ArrayList<ViewSchedule.distanceMatrix> dmGlobal = new ArrayList<>(); //global distance matrix (filled by bingmaps)
+    PriorityQueue<Double> minHeap = new PriorityQueue<>(2 * config.checkedTasks.size(), new Comparator<Double>() { //keeps the min distance
         @Override
         public int compare(Double o1, Double o2) {
             return o1.compareTo(o2);
@@ -207,7 +207,7 @@ public class Scheduler extends Activity {
             });
 
 
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(); //today - now
             DateFormat dt = new SimpleDateFormat("H:mm:ss");
             DateFormat dd = new SimpleDateFormat("yyyy-MM-dd");
             String time_str = dt.format(cal.getTime());
@@ -223,7 +223,7 @@ public class Scheduler extends Activity {
             dummy.setEndTime(endTime);
             schedTasks.add(0, dummy);
 
-            List<HashMap.Entry> temp = matchTasks();
+            List<HashMap.Entry> temp = matchTasks(); //temp keeps the candidate tasks
 
             if (temp.size() > 0) {
                 int lastindex = 0;
@@ -338,7 +338,7 @@ public class Scheduler extends Activity {
         return schedTasks;
     }
 
-    public void attachTasks(int index, Task t1, Task t2, List<Task> candidateTasks) {
+    public void attachTasks(int index, Task t1, Task t2, List<Task> candidateTasks) { //consider candidates
         if (candidateTasks.size() == 0) return;
 
         PriorityQueue<Double> minHeap = new PriorityQueue<>();
@@ -439,7 +439,7 @@ public class Scheduler extends Activity {
 
         if (candidateTasks.size() > 0) {
             if (schedTasks.size() > index + 1)
-                attachTasks(index, schedTasks.get(index), schedTasks.get(index + 1), candidateTasks);
+                attachTasks(index, schedTasks.get(index), schedTasks.get(index + 1), candidateTasks); //recursive call to next interval
             if (schedTasks.size() > index + 2)
                 attachTasks(index + 1, schedTasks.get(index + 1), schedTasks.get(index + 2), candidateTasks);
         }
@@ -474,7 +474,7 @@ public class Scheduler extends Activity {
         return String.valueOf(hr1) + ":" + String.valueOf(mm1);
     }
 
-    public static Comparator<Task> TaskComparator = new Comparator<Task>() {
+    public static Comparator<Task> TaskComparator = new Comparator<Task>() { //compares tasks by start time
 
         @Override
         public int compare(Task t1, Task t2) {
@@ -482,7 +482,6 @@ public class Scheduler extends Activity {
         }
     };
 
-    //todo: şevval get route distance from yandex
     private double findDistMid(Point p1, Point p2, Point p3) // get p3's distance from midpoint of p1 and p2
     {
         Point p = new Point((p1.getLatitude() + p2.getLatitude()) / 2, (p1.getLongitude() + p2.getLongitude()) / 2);

@@ -134,10 +134,34 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public boolean checkclashes(ArrayList<Task> ct){
+        for(Task t1: ct)
+            for (Task t2:ct){
+            if(t1!=t2)
+            if(t1.getStartTime() !=null && t2.getStartTime()!=null)
+            {
+                if(t2.getStartTime().compareTo(t1.getStartTime())>=0 && t2.getStartTime().compareTo(t1.getEndTime())<=0)
+                    return false;
+                if(t2.getStartTime().compareTo(t1.getStartTime())<=0 && t1.getStartTime().compareTo(t2.getEndTime())<=0)
+                    return false;
+
+            }
+
+        }
+        return true;
+    }
+
     public void createSchedule(View v) {
-        if(adapter.checkedTasks.size()> 0) {
-            Intent intent = new Intent(MainActivity.this, ViewSchedule.class);
-            startActivity(intent);
+      
+        if(config.checkedTasks.size()> 0 ) {
+            if(checkclashes(config.checkedTasks)){
+               Intent intent = new Intent(MainActivity.this, ViewSchedule.class);
+               startActivity(intent);
+            }
+            else
+            {
+                Toast.makeText(this, "Some of the tasks overlap!", Toast.LENGTH_SHORT).show();
+            }
         }
         else
             Toast.makeText(this, "Please select tasks!", Toast.LENGTH_SHORT).show();
