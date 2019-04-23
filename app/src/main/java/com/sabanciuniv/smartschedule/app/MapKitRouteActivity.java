@@ -60,7 +60,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
 
     private String provider;
     private LocationManager locationManager;
-    private RecyclerView_Config config;
+    private TaskAdapter adapter;
 
     private final String MAPKIT_API_KEY = "e9704f28-2c92-49b7-a560-dd270b81ac8c";
     private final Point TARGET_LOCATION = new Point(41.0082, 28.9784);
@@ -75,7 +75,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        config = MainActivity.getConfig();
+        adapter = MainActivity.getAdapter();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         provider = locationManager.getBestProvider(criteria, false);

@@ -22,7 +22,7 @@ public class Scheduler extends Activity {
 
     private ArrayList<Task> freeTasks = new ArrayList<>();
     private ArrayList<Task> schedTasks = new ArrayList<>();
-    private RecyclerView_Config config = MainActivity.getConfig();
+    private TaskAdapter adapter = MainActivity.getAdapter();
     private Task.Location location;
 
     private class mixedArray {
@@ -40,7 +40,7 @@ public class Scheduler extends Activity {
     HashMap<Double, Integer> distOrder = new HashMap<>();
     HashMap<String, Integer> match = new HashMap<>();
     ArrayList<ViewSchedule.distanceMatrix> dmGlobal = new ArrayList<>();
-    PriorityQueue<Double> minHeap = new PriorityQueue<>(2 * config.checkedTasks.size(), new Comparator<Double>() {
+    PriorityQueue<Double> minHeap = new PriorityQueue<>(2 * adapter.checkedTasks.size(), new Comparator<Double>() {
         @Override
         public int compare(Double o1, Double o2) {
             return o1.compareTo(o2);
@@ -101,7 +101,7 @@ public class Scheduler extends Activity {
     }
 
     public Task getTaskById(String tid) {
-        for (Task t : config.checkedTasks) {
+        for (Task t : adapter.checkedTasks) {
             if (t.getTid().equals(tid)) return t;
         }
         return null;
@@ -117,9 +117,9 @@ public class Scheduler extends Activity {
         //others can not overlap
         //eliminate the ones with fixed slot
         dmGlobal = dm;
-        for (Task t : config.checkedTasks)
+        for (Task t : adapter.checkedTasks)
             if (t.getStartTime() == null && t.getEndTime() == null) freeTasks.add(t);
-        for (Task t : config.checkedTasks)
+        for (Task t : adapter.checkedTasks)
             if (t.getStartTime() != null && t.getEndTime() != null) schedTasks.add(t);
 
 

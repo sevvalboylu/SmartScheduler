@@ -117,7 +117,7 @@
                     android:src="@drawable/ic_baseline_place_24px"/>
 
                 <Button
-                    android:id="@+id/buttonBasic"
+                    android:id="@+id/scheduleBtn"
                     style="@style/Widget.AppCompat.Button"
                     android:layout_width="130dp"
                     android:layout_height="wrap_content"

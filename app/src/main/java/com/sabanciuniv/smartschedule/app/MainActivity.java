@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -22,15 +23,18 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    private static RecyclerView_Config config;
-    public static RecyclerView_Config getConfig() {
-        return config;
+    private static TaskAdapter adapter;
+    public static TaskAdapter getAdapter() {
+        return adapter;
     }
+    ArrayList<Task> mTasks;
 
     private boolean isNetworkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -38,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable  Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //// Get current date & time//////////////
@@ -60,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 TaskLoader tl = new TaskLoader(new DataStatus() {
                     @Override
                     public void DataIsLoaded(List<Task> tasks, List<String> keys) {
-                        ArrayList<Task> mTasks = new ArrayList<>();
+                        mTasks = new ArrayList<>();
                         for (Task t :tasks) {
                             if(t.getStartTime() != null)
                             {
@@ -73,8 +77,9 @@ public class MainActivity extends AppCompatActivity {
                             else
                                 mTasks.add(t); //free task
                         }
-                        config = new RecyclerView_Config();
-                        config.setConfig(mRecyclerView, MainActivity.this, mTasks);
+                        adapter = new TaskAdapter(MainActivity.this,mTasks,true,true,false);
+                        mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                        mRecyclerView.setAdapter(adapter);
                     }
                 }, mAuth.getUid());
                 pullToRefresh.setRefreshing(false);
@@ -108,12 +113,13 @@ public class MainActivity extends AppCompatActivity {
                 String key = prefs.getString("key" + readId++, "");
                 keys.add(key);
             }
-            config = new RecyclerView_Config();
-            config.setConfig(mRecyclerView, MainActivity.this, tasks);
-            //todo: check if keys are mixed
+            adapter = new TaskAdapter(MainActivity.this,tasks,true,true,false);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            mRecyclerView.setAdapter(adapter);
         }
 
     }
+
 
     private boolean btimeComparator(String s, String s1) //returns 1 if left op is sooner
     {
@@ -129,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createSchedule(View v) {
-        if(config.checkedTasks.size()> 0) {
+        if(adapter.checkedTasks.size()> 0) {
             Intent intent = new Intent(MainActivity.this, ViewSchedule.class);
             startActivity(intent);
         }
