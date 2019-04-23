@@ -22,8 +22,7 @@ public class Scheduler extends Activity {
     private ArrayList<Task> freeTasks = new ArrayList<>(); //selected unscheduled tasks
     private ArrayList<Task> schedTasks = new ArrayList<>(); //selected scheduled tasks
     private Task.Location location; //configuration taken from main act.(chosen tasks)
-    private Task.Location location; //curr location
-
+    TaskAdapter adapter = MainActivity.getAdapter();
 
     private class mixedArray {
         double distance;
@@ -40,7 +39,7 @@ public class Scheduler extends Activity {
     HashMap<Double, Integer> distOrder = new HashMap<>(); //keeps distance matrix
     HashMap<String, Integer> match = new HashMap<>(); //keeps the matched pairs of tid and tasks's order in list
     ArrayList<ViewSchedule.distanceMatrix> dmGlobal = new ArrayList<>(); //global distance matrix (filled by bingmaps)
-    PriorityQueue<Double> minHeap = new PriorityQueue<>(2 * config.checkedTasks.size(), new Comparator<Double>() { //keeps the min distance
+    PriorityQueue<Double> minHeap = new PriorityQueue<>(2 * adapter.checkedTasks.size(), new Comparator<Double>() { //keeps the min distance
         @Override
         public int compare(Double o1, Double o2) {
             return o1.compareTo(o2);

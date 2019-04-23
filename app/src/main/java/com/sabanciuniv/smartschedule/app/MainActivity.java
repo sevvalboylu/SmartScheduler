@@ -153,8 +153,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void createSchedule(View v) {
       
-        if(config.checkedTasks.size()> 0 ) {
-            if(checkclashes(config.checkedTasks)){
+        if(adapter.checkedTasks.size()> 0 ) {
+            if(checkclashes(adapter.checkedTasks)){
                Intent intent = new Intent(MainActivity.this, ViewSchedule.class);
                startActivity(intent);
             }
