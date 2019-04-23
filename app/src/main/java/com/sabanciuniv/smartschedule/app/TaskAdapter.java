@@ -152,7 +152,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
                     + row.getEndHour() + ":" + row. getEndMinute());
         }
         else
-            holder.taskTime.setText("--:-- - --:--");
+            holder.taskTime.setText(row.getDuration() +"mins");
     }
 
     @Override
