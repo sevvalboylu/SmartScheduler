@@ -59,7 +59,7 @@ public class ViewSchedule extends AppCompatActivity {
         private Point dest;
         private int mins;
 
-        public cacheDM(Point curr,Point dest,int mins){
+        public cacheDM(Point curr, Point dest, int mins) {
             this.curr = curr;
             this.dest = dest;
             this.mins = mins;
@@ -84,10 +84,10 @@ public class ViewSchedule extends AppCompatActivity {
         });
         RecyclerView = findViewById(R.id.recyclerview_schedule);
 
-        spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        spinner = (ProgressBar) findViewById(R.id.progressBar1);
 
         // now inflate the recyclerView
-        taskAdapter = new TaskAdapter(ViewSchedule.this,tasks,false,false,false);
+        taskAdapter = new TaskAdapter(ViewSchedule.this, tasks, false, false, false);
         RecyclerView.setLayoutManager(new LinearLayoutManager(this));
         RecyclerView.setAdapter(taskAdapter);
         spinner.setVisibility(View.VISIBLE);
@@ -138,63 +138,63 @@ public class ViewSchedule extends AppCompatActivity {
             SharedPreferences prefs = getSharedPreferences("Distance Matrices", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             Calendar rightNow = Calendar.getInstance();
-            int currentHour= rightNow.get(Calendar.HOUR_OF_DAY);
+            int currentHour = rightNow.get(Calendar.HOUR_OF_DAY);
             for (Task t : arrayLists[0])
                 for (Task m : arrayLists[0]) {
                     if (t.getTid() != m.getTid()) {
-                        if(prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude())+','+ Double.toString(t.getLocation().getCoordinate().getLongitude())+','+Double.toString(t.getLocation().getCoordinate().getLongitude())+ ',' + Double.toString(t.getLocation().getCoordinate().getLongitude())+ classifyHr(currentHour))) {
-                            int mins=0;prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude())+','+ Double.toString(t.getLocation().getCoordinate().getLongitude())+','+Double.toString(t.getLocation().getCoordinate().getLongitude())+ ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()),mins);
-                            dm.add(new distanceMatrix(mins,t.getTid(),m.getTid()));
-                        }
-                        else{
-                        String origin = "origins=" + t.getLocation().getCoordinate().getLatitude() + "," + t.getLocation().getCoordinate().getLongitude();
-                        String destination = "destinations=" + m.getLocation().getCoordinate().getLatitude() + "," + m.getLocation().getCoordinate().getLongitude();
-                        String s_url = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?" + origin + "&" + destination + "&travelMode=driving&&timeUnit=minute&key=AipJt1t0OydHSoksAhHLJE7c25Bvl-ts3J6MQ-CHypr9UdeUSm9eKgoYZVKWl_eH";
+                        if (prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour))) {
+                            int mins = 0;
+                            prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()), mins);
+                            dm.add(new distanceMatrix(mins, t.getTid(), m.getTid()));
+                        } else {
+                            String origin = "origins=" + t.getLocation().getCoordinate().getLatitude() + "," + t.getLocation().getCoordinate().getLongitude();
+                            String destination = "destinations=" + m.getLocation().getCoordinate().getLatitude() + "," + m.getLocation().getCoordinate().getLongitude();
+                            String s_url = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?" + origin + "&" + destination + "&travelMode=driving&&timeUnit=minute&key=AipJt1t0OydHSoksAhHLJE7c25Bvl-ts3J6MQ-CHypr9UdeUSm9eKgoYZVKWl_eH";
 
-                        HttpURLConnection urlConnection = null;
-                        try {
-                            String inline = "";
-                            InputStream in;
-                            URL url = new URL(s_url);
+                            HttpURLConnection urlConnection = null;
+                            try {
+                                String inline = "";
+                                InputStream in;
+                                URL url = new URL(s_url);
 
-                            urlConnection = (HttpURLConnection) url.openConnection();
+                                urlConnection = (HttpURLConnection) url.openConnection();
 
-                            int status = urlConnection.getResponseCode();
-                            if (status != 200)
-                                throw new RuntimeException("HttpResponseCode: " + status);
-                            else {
-                                Scanner sc = new Scanner(url.openStream());
-                                while (sc.hasNext()) {
-                                    inline += sc.nextLine();
+                                int status = urlConnection.getResponseCode();
+                                if (status != 200)
+                                    throw new RuntimeException("HttpResponseCode: " + status);
+                                else {
+                                    Scanner sc = new Scanner(url.openStream());
+                                    while (sc.hasNext()) {
+                                        inline += sc.nextLine();
+                                    }
+                                    System.out.println("\nJSON Response in String format");
+                                    System.out.println(inline);
+                                    sc.close();
                                 }
-                                System.out.println("\nJSON Response in String format");
-                                System.out.println(inline);
-                                sc.close();
-                            }
 
-                            Pattern p = Pattern.compile("\"travelDuration\":(.\\d)+");
-                            Matcher mat = p.matcher(inline);
-                            if (mat.find()) {
-                                final String k = mat.group(0).replaceAll("\"travelDuration\":", "");
-                                Integer mk = Integer.parseInt(k.split("\\.")[0]);
-                                cacheDM cdm = new cacheDM(t.getLocation().getCoordinate(),m.getLocation().getCoordinate(),mk);
-                                Gson gson = new Gson();
-                                String json = gson.toJson(cdm);
-                                editor.putInt(Double.toString(t.getLocation().getCoordinate().getLatitude())+','+ Double.toString(t.getLocation().getCoordinate().getLongitude())+','+Double.toString(t.getLocation().getCoordinate().getLongitude())+ ',' + Double.toString(t.getLocation().getCoordinate().getLongitude())+classifyHr(currentHour), mk);
-                                distanceMatrix d = new distanceMatrix(mk, t.getTid(), m.getTid());
-                                dm.add(d);
-                                if (dm.size() == (listSize * (listSize - 1)) / 2) {
-                                     editor.commit();
-                                    return true;
+                                Pattern p = Pattern.compile("\"travelDuration\":(.\\d)+");
+                                Matcher mat = p.matcher(inline);
+                                if (mat.find()) {
+                                    final String k = mat.group(0).replaceAll("\"travelDuration\":", "");
+                                    Integer mk = Integer.parseInt(k.split("\\.")[0]);
+                                    cacheDM cdm = new cacheDM(t.getLocation().getCoordinate(), m.getLocation().getCoordinate(), mk);
+                                    Gson gson = new Gson();
+                                    String json = gson.toJson(cdm);
+                                    editor.putInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour), mk);
+                                    distanceMatrix d = new distanceMatrix(mk, t.getTid(), m.getTid());
+                                    dm.add(d);
+                                    if (dm.size() == (listSize * (listSize - 1)) / 2) {
+                                        editor.commit();
+                                        return true;
+                                    }
                                 }
-                            }
 
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
                     }
                 }
             return false;
@@ -202,20 +202,26 @@ public class ViewSchedule extends AppCompatActivity {
 
         protected void onPostExecute(Boolean result) {
             scheduleTasks();
-            taskAdapter = new TaskAdapter(ViewSchedule.this,tasks,false,false,false);
+            taskAdapter = new TaskAdapter(ViewSchedule.this, tasks, false, false, false);
             RecyclerView.setLayoutManager(new LinearLayoutManager(ViewSchedule.this));
             RecyclerView.setAdapter(taskAdapter);
             spinner.setVisibility(View.GONE);
         }
     }
 
-public String classifyHr(int hr){
+    public String classifyHr(int hr) {
 
-        if(hr >= 0 && hr <= 10) return "morning";
-        if(hr > 10 && hr <= 16){return "noon";}
-        if(hr > 16 &&  hr <= 20){return "evening";}
-        if(hr > 20){return "night";}
+        if (hr >= 0 && hr <= 10) return "morning";
+        if (hr > 10 && hr <= 16) {
+            return "noon";
+        }
+        if (hr > 16 && hr <= 20) {
+            return "evening";
+        }
+        if (hr > 20) {
+            return "night";
+        }
         return "";
-}
+    }
 
 }

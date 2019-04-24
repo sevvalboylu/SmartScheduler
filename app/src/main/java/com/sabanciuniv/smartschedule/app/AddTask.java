@@ -35,12 +35,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-public class AddTask extends AppCompatActivity  {
+public class AddTask extends AppCompatActivity {
 
     private static final String TAG = "AddTask";
     private static final String REQUIRED = "Required";
     private DatabaseReference mDatabase;
-    private EditText mTitleField,mDurationText;
+    private EditText mTitleField, mDurationText;
     private TextView mLocationField;
     private Spinner spinner1, freqLocationSpinner;
     private Switch mAllDaySwitch;
@@ -48,14 +48,14 @@ public class AddTask extends AppCompatActivity  {
     private TimePicker mStartTimePicker, mEndTimePicker;
     private String lvl, date_n;
     private TextView mStartDateText, mEndDateText, mStartTimeText, mEndTimeText;
-    private ArrayList<Profile.Location> locarr= new ArrayList<>();
-    private int locpos=-1;
+    private ArrayList<Profile.Location> locarr = new ArrayList<>();
+    private int locpos = -1;
     //private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
     private final String location = new String();
     private FirebaseAuth mAuth;
     private int startDateTextClickCount = 0, endDateTextClickCount = 0, startTimeTextClickCount = 0, endTimeTextClickCount = 0;
 
-    double longitude , latitude;
+    double longitude, latitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +102,7 @@ public class AddTask extends AppCompatActivity  {
                     mDurationText.setEnabled(true);
                     mStartTimeText.setVisibility(View.GONE);
                     mEndTimeText.setVisibility(View.GONE);
-                } else if(!mAllDaySwitch.isChecked()) {
+                } else if (!mAllDaySwitch.isChecked()) {
                     mDurationText.setEnabled(false);
                     mStartTimeText.setVisibility(View.VISIBLE);
                     mEndTimeText.setVisibility(View.VISIBLE);
@@ -127,9 +127,9 @@ public class AddTask extends AppCompatActivity  {
         addListenerOnSpinnerLocSelection();
 
         ArrayList<String> locs = new ArrayList<>();
-        SharedPreferences s = getSharedPreferences("locations",MODE_PRIVATE);
-        Map<String,?> keys =s.getAll();
-        for(Map.Entry<String,?> entry : keys.entrySet()){
+        SharedPreferences s = getSharedPreferences("locations", MODE_PRIVATE);
+        Map<String, ?> keys = s.getAll();
+        for (Map.Entry<String, ?> entry : keys.entrySet()) {
             Gson gson = new Gson();
             String json = entry.getValue().toString();
             locarr.add(gson.fromJson(json, Profile.Location.class));
@@ -143,6 +143,7 @@ public class AddTask extends AppCompatActivity  {
     }
 
     public void submitTask(View view) {
+
         final String title = mTitleField.getText().toString();
 
         // Title is required
@@ -151,44 +152,50 @@ public class AddTask extends AppCompatActivity  {
             return;
         }
 
-        // Disable button so there are no multi-posts
-        //setEditingEnabled(false);
-        Toast.makeText(this, "Submitting the task...", Toast.LENGTH_SHORT).show();
-
         // [START single_value_read]
         final String userId = getUid();
         final String address = mLocationField.getText().toString();
-        Point pnt = new Point(latitude,longitude);
+        Point pnt = new Point(latitude, longitude);
         final Task.Location location;
-        if(locpos == -1)
-        location  = new Task.Location(address, pnt);
-        else location= new Task.Location(locarr.get(locpos).getAddress(),locarr.get(locpos).getCoordinate());
+        if (locpos == -1)
+            location = new Task.Location(address, pnt);
+        else
+            location = new Task.Location(locarr.get(locpos).getAddress(), locarr.get(locpos).getCoordinate());
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
-        Task task=null;
+        Task task = null;
 
-        DateTime s = getDateFromDatePicker(mStartDatePicker,mStartTimePicker);
-        DateTime e = getDateFromDatePicker(mEndDatePicker,mEndTimePicker);
+        DateTime s = getDateFromDatePicker(mStartDatePicker, mStartTimePicker);
+        DateTime e = getDateFromDatePicker(mEndDatePicker, mEndTimePicker);
 
-        if(!mAllDaySwitch.isChecked()){
-            task = new com.sabanciuniv.smartschedule.app.Task(userId,taskId,title,location,getDuration(s.toString(),e.toString()),lvl, s.toString(),e.toString());
+        if (!mAllDaySwitch.isChecked()) {
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, title, location, getDuration(s.toString(), e.toString()), lvl, s.toString(), e.toString());
+        } else {
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, Integer.parseInt(mDurationText.getText().toString()), title, location);
         }
-        else{
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl,Integer.parseInt(mDurationText.getText().toString()), title, location);
-        }
-        mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
 
-        Intent intent = new Intent(AddTask.this, BasicActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivityForResult(intent, 1);
+        if (title.equals("") || address.equals(""))
+        {
+            Toast.makeText(this,"Please fill required fields", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            Toast.makeText(this, "Submitting the task...", Toast.LENGTH_SHORT).show();
+
+            mDatabase.child("tasks").child(userId).child(taskId).setValue(task);
+
+            Intent intent = new Intent(AddTask.this, BasicActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivityForResult(intent, 1);
+        }
     }
 
     public void addListenerOnSpinnerItemSelection() {
         spinner1 = findViewById(R.id.importanceSpinner);
-        spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
+        spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener() {
 
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 lvl = parent.getItemAtPosition(pos).toString();
             }
         });
@@ -196,19 +203,18 @@ public class AddTask extends AppCompatActivity  {
 
     public void addListenerOnSpinnerLocSelection() {
         Spinner loc = findViewById(R.id.freqLocationSpinner);
-        loc.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
+        loc.setOnItemSelectedListener(new CustomOnItemSelectedListener() {
 
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
-                locpos=pos;
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                locpos = pos;
             }
         });
     }
 
-    public void goToMap(View view)
-    {
+    public void goToMap(View view) {
         Intent intent = new Intent(AddTask.this, MapViewActivity.class);
-        intent.putExtra("caller","AddTask.class"); //please don't delete
+        intent.putExtra("caller", "AddTask.class"); //please don't delete
         startActivity(intent);
     }
 
@@ -216,8 +222,9 @@ public class AddTask extends AppCompatActivity  {
     public String getUid() {
         return mAuth.getUid();
     }
-    public int getDuration(String s1,String s2){
-       return Integer.parseInt(s2.split("T")[1].split(":")[0])-Integer.parseInt(s1.split("T")[1].split(":")[0]);
+
+    public int getDuration(String s1, String s2) {
+        return Integer.parseInt(s2.split("T")[1].split(":")[0]) - Integer.parseInt(s1.split("T")[1].split(":")[0]);
     }
 
     @Override
@@ -239,48 +246,45 @@ public class AddTask extends AppCompatActivity  {
 
     public void onStartDateTextClick(View view) {
         startDateTextClickCount++;
-        if (startDateTextClickCount%2 == 1) {
+        if (startDateTextClickCount % 2 == 1) {
             mStartDatePicker.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             mStartDatePicker.setVisibility(View.GONE);
         }
     }
 
     public void onEndDateTextClick(View view) {
         endDateTextClickCount++;
-        if (endDateTextClickCount%2 == 1) {
+        if (endDateTextClickCount % 2 == 1) {
             mEndDatePicker.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             mEndDatePicker.setVisibility(View.GONE);
         }
     }
 
     public void onStartTimeTextClick(View view) {
         startTimeTextClickCount++;
-        if (startTimeTextClickCount%2 == 1) {
+        if (startTimeTextClickCount % 2 == 1) {
             mStartTimePicker.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             mStartTimePicker.setVisibility(View.GONE);
         }
     }
 
     public void onEndTimeTextClick(View view) {
         endTimeTextClickCount++;
-        if (endTimeTextClickCount%2 == 1) {
+        if (endTimeTextClickCount % 2 == 1) {
             mEndTimePicker.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             mEndTimePicker.setVisibility(View.GONE);
         }
     }
-    public static DateTime getDateFromDatePicker(DatePicker datePicker,TimePicker timePicker){
-        if(datePicker.getDayOfMonth()==0)
+
+    public static DateTime getDateFromDatePicker(DatePicker datePicker, TimePicker timePicker) {
+        if (datePicker.getDayOfMonth() == 0)
             return null;
         Calendar calendar = Calendar.getInstance();
-        calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), timePicker.getHour(),timePicker.getMinute());
+        calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), timePicker.getHour(), timePicker.getMinute());
         DateTime dt = new DateTime(calendar.getTime());
         return dt;
     }
