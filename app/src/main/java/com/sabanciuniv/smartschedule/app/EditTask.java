@@ -58,6 +58,7 @@ public class EditTask extends AppCompatActivity {
     private int startDateTextClickCount = 0, endDateTextClickCount = 0, startTimeTextClickCount = 0, endTimeTextClickCount = 0;
     double longitude , latitude;
     private int locpos=-1;
+    private boolean reminderEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -243,11 +244,11 @@ public class EditTask extends AppCompatActivity {
 
         Task task=null;
         if(!mAllDaySwitch.isChecked()){
-            task = new com.sabanciuniv.smartschedule.app.Task(userId,tid,title, location, getDuration(s.toString(),e.toString()),lvl, s.toString(),e.toString());
+            task = new com.sabanciuniv.smartschedule.app.Task(userId,tid,title, location, getDuration(s.toString(),e.toString()),lvl, s.toString(),e.toString(), reminderEnabled);
             //todo: duration! it returns wrong and changes end time in the meantime
         }
         else{
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, lvl, Integer.parseInt(mDurationText.getText().toString()), title, location);
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, lvl, Integer.parseInt(mDurationText.getText().toString()), title, location, reminderEnabled);
         }
 
         //Task task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, lvl, title, location);

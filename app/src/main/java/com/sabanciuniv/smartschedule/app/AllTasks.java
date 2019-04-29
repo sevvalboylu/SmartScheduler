@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -21,13 +23,15 @@ public class AllTasks extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     Button scheduleButton;
-    private FirebaseAuth mAuth=FirebaseAuth.getInstance();
+    private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
     private static TaskAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -73,6 +77,12 @@ public class AllTasks extends AppCompatActivity {
 
         }
     }
+
+    /*public void setReminder(boolean value){
+        String userId = mAuth.getUid();
+        String tid =
+        mDatabase.child("tasks").child(userId).child(tid).child("reminderEnabled").setValue(value);
+    }*/
 
     public void createSchedule(View v)
     {

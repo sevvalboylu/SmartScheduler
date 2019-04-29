@@ -54,7 +54,7 @@ public class AddTask extends AppCompatActivity {
     private final String location = new String();
     private FirebaseAuth mAuth;
     private int startDateTextClickCount = 0, endDateTextClickCount = 0, startTimeTextClickCount = 0, endTimeTextClickCount = 0;
-
+    private boolean reminderEnabled = false;
     double longitude, latitude;
 
     @Override
@@ -170,9 +170,9 @@ public class AddTask extends AppCompatActivity {
         DateTime e = getDateFromDatePicker(mEndDatePicker, mEndTimePicker);
 
         if (!mAllDaySwitch.isChecked()) {
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, title, location, getDuration(s.toString(), e.toString()), lvl, s.toString(), e.toString());
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, title, location, getDuration(s.toString(), e.toString()), lvl, s.toString(), e.toString(), reminderEnabled);
         } else {
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, Integer.parseInt(mDurationText.getText().toString()), title, location);
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, Integer.parseInt(mDurationText.getText().toString()), title, location, reminderEnabled);
         }
 
         if (title.equals("") || address.equals(""))

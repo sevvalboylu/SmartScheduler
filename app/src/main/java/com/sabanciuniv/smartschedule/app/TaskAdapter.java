@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.google.gson.Gson;
 
@@ -24,6 +25,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
     boolean checkboxPref;
     boolean onclickEnabled;
     boolean onlongclickEnabled;
+    boolean reminderChecked;
 
 
     private ArrayList<Task> taskArrayList = new ArrayList<Task>();
@@ -44,6 +46,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         TextView taskAddr;
         TextView taskImp;
         CheckBox checkbox;
+        ToggleButton reminder;
 
         ItemLongClickListener itemLongClickListener;
         ItemClickListener itemClickListener;
@@ -55,6 +58,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
             taskAddr = itemView.findViewById(R.id.taskAddress);
             taskImp = itemView.findViewById(R.id.taskImportance);
             checkbox = itemView.findViewById(R.id.checkBox2);
+            reminder = itemView.findViewById(R.id.chkState);
             taskTitle.setOnLongClickListener(this);
             if(!checkboxPref)
                 SetNoCheckBox();
@@ -71,6 +75,36 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
                         }
                     }
                 });
+            reminder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    final Task row = taskArrayList.get(getAdapterPosition());
+                    if(reminder.isChecked()) {
+                        row.setReminderEnabled(true);
+                        reminderChecked = true;
+                    }
+                    else{
+                        row.setReminderEnabled(false);
+                        reminderChecked = false;
+                    }
+                }
+            });
+        }
+
+
+        public void setReminder(boolean value){
+            Bundle extras;
+            extras = new Bundle();
+            Gson gson = new Gson();
+            String json = gson.toJson(taskArrayList.get(getAdapterPosition()));
+            extras.putString("clickedEvent", json);
+
+            //intent degil edittaskte fonksiyon kullan
+            Intent in = new Intent(context, EditTask.class);
+            in.putExtras(extras);
+            context.startActivity(in);
+            //String userId = mAuth.getUid();
+            // tid =mDatabase.child("tasks").child(userId).child(tid).child("reminderEnabled").setValue(value);
         }
 
         @Override
@@ -154,6 +188,13 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         }
         else
             holder.taskTime.setText(row.getDuration() +"mins");
+
+        if(row.isReminderEnabled()){
+            holder.reminder.setChecked(true);
+        }
+        else {
+            holder.reminder.setChecked(false);
+        }
     }
 
 
