@@ -19,8 +19,19 @@
         android:text="Importance"
         android:textAppearance="@style/Toolbar.TitleText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/taskTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/chkState" />
 
+    <ToggleButton
+        android:id="@+id/chkState"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/toggle_selector"
+        android:gravity="center_vertical|center_horizontal"
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="4dp" />
 
     <TextView
         android:id="@+id/taskTitle"
@@ -31,7 +42,7 @@
         android:layout_marginEnd="8dp"
         android:text="Task Title"
         android:textAppearance="@style/Toolbar.TitleText"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/chkState"
         app:layout_constraintStart_toEndOf="@+id/checkBox2"
         app:layout_constraintTop_toTopOf="parent" />
 
