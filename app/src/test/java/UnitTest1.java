@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.sabanciuniv.smartschedule.app.MapKitRouteActivity;
 import com.sabanciuniv.smartschedule.app.Task;
+import com.sabanciuniv.smartschedule.app.ViewSchedule;
 import com.tomtom.online.sdk.common.location.LatLng;
 
 import org.junit.After;
@@ -23,12 +24,14 @@ public class UnitTest1{ public ActivityTestRule<MapKitRouteActivity> activityRul
         //ActivityScenario<MapKitRouteActivity> activityScenario = ActivityScenario.launch(MapKitRouteActivity.class);
         PowerMockito.mockStatic(Log.class);
         activityRule = new ActivityTestRule(MapKitRouteActivity.class, true, false);
+        ArrayList<ViewSchedule.distanceMatrix> dm = new ArrayList<>(); //global distance matrix (filled by bingmaps)
+
     }
 
     @Test
     public void testSortTasks() throws Throwable {
         //all unscheduled 3 tasks
-        Task.Location l1= new Task.Location("Kurna Mahallesi, Unnamed Road, 34916 Pendik/İstanbul, Türkiye", new LatLng(40.9388,29.3519));
+        /*Task.Location l1= new Task.Location("Kurna Mahallesi, Unnamed Road, 34916 Pendik/İstanbul, Türkiye", new LatLng(40.9388,29.3519));
         Task.Location l2 = new Task.Location("Cumhuriyet Mahallesi, Sakıp Sabancı Cd. No:95, 34186 Bahçelievler/İstanbul, Türkiye",new LatLng(41.01535163620698,28.852679113874338));
         Task.Location l3 = new Task.Location("Rumelifeneri Mahallesi, Unnamed Road, 34450 Sarıyer/İstanbul, Türkiye",new LatLng(41.2048,29.0718));
 
@@ -66,12 +69,12 @@ public class UnitTest1{ public ActivityTestRule<MapKitRouteActivity> activityRul
         ArrayList<Task> unsched4_sched1 = new ArrayList<Task>();
 
         //1 unscheduled 4 scheduled tasks
-        ArrayList<Task> unsched1_sched4 = new ArrayList<Task>();
+        ArrayList<Task> unsched1_sched4 = new ArrayList<Task>();*/
 
         activityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                activityRule.getActivity().getDrivingMins();
+               // activityRule.getActivity().getDrivingMins();
             }
         });
     }

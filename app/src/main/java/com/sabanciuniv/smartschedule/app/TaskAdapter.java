@@ -103,7 +103,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
 
         @Override
         public boolean onLongClick(View v) {
-            if (onclickEnabled) {
+            if (onlongclickEnabled) {
                 Bundle extras;
                 extras = new Bundle();
                 Gson gson = new Gson();
@@ -139,7 +139,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
 
         holder.taskTitle.setText(row.getTitle());
         holder.taskAddr.setText(row.getLocation().getAddress());
-        holder.taskImp.setText(row.getLvl());
+        holder.taskImp.setText(row.switchLevelToString());
+        //holder.taskImp.setText(row.getLvl());
         if(row.getLvl().equals("1"))
             holder.taskImp.setTextColor(Color.rgb(58,148,1));
         else if(row.getLvl().equals("2"))
@@ -154,6 +155,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         else
             holder.taskTime.setText(row.getDuration() +"mins");
     }
+
+
 
     @Override
     public int getItemCount() {
