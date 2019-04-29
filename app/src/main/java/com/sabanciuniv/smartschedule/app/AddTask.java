@@ -116,7 +116,8 @@ public class AddTask extends AppCompatActivity {
         //create a list of items for the spinner.
 
         //TODO: make importance levels user-friendly: change from integer to string ("High", "Moderate", "Low")
-        String[] items = new String[]{"1", "2", "3"};
+        String[] items = new String[]{"High", "Medium", "Low"};
+        //{"1", "2", "3"};
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
         //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
@@ -196,7 +197,20 @@ public class AddTask extends AppCompatActivity {
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                lvl = parent.getItemAtPosition(pos).toString();
+                String s = parent.getItemAtPosition(pos).toString();
+                Integer x = 0;
+                switch (s) {
+                    case "High":
+                        x = 3;
+                        break;
+                    case "Medium":
+                        x = 2;
+                        break;
+                    case "Low":
+                        x = 1;
+                        break;
+                }
+                lvl = x.toString();
             }
         });
     }

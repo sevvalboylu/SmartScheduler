@@ -179,5 +179,21 @@ public class Task {
         this.endTime = "";
     }
 
+    public String switchLevelToString(){
+        String s = this.getLvl();
+        String x = "";
+        switch (s) {
+            case "3":
+                x = "High";
+                break;
+            case "2":
+                x = "Medium";
+                break;
+            case "1":
+                x = "Low";
+                break;
+        }
+        return x;
+    }
 
 }

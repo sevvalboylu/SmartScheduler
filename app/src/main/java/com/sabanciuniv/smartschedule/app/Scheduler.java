@@ -500,4 +500,7 @@ public class Scheduler extends Activity {
         return 0;
     }
 
+    public ArrayList<ViewSchedule.distanceMatrix> getDmGlobal() {
+        return dmGlobal;
+    }
 }
