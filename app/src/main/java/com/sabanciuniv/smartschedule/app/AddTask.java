@@ -143,12 +143,18 @@ public class AddTask extends AppCompatActivity {
         //go to map or dropdown list of most frequent places
     }
 
+    public static boolean isNullOrEmpty(String str) {
+        if(str != null && !str.trim().isEmpty())
+            return false;
+        return true;
+    }
+
     public void submitTask(View view) {
 
         final String title = mTitleField.getText().toString();
 
         // Title is required
-        if (TextUtils.isEmpty(title)) {
+        if (isNullOrEmpty(title)) {
             mTitleField.setError(REQUIRED);
             return;
         }

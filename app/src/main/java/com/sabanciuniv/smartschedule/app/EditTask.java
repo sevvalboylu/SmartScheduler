@@ -208,11 +208,18 @@ public class EditTask extends AppCompatActivity {
     public void onStop(){
         super.onStop();
     }
+
+    public static boolean isNullOrEmpty(String str) {
+        if(str != null && !str.trim().isEmpty())
+            return false;
+        return true;
+    }
+
     private void editTask(String tid) {
         final String title = mTitleField.getText().toString();
 
         // Title is required
-        if (TextUtils.isEmpty(title)) {
+        if (isNullOrEmpty(title)) {
             mTitleField.setError(REQUIRED);
             return;
         }
