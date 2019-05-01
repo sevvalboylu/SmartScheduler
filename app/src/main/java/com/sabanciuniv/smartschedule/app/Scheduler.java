@@ -90,7 +90,7 @@ public class Scheduler extends Activity {
             @Override
             public int compare(Map.Entry entry, Map.Entry t1) {
                 Integer i = (Integer) entry.getValue();
-                Integer j = (Integer) entry.getValue();
+                Integer j = (Integer) t1.getValue();
                 return i.compareTo(j);
             }
 
