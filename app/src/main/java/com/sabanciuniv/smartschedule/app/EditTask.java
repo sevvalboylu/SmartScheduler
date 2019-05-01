@@ -211,7 +211,7 @@ public class EditTask extends AppCompatActivity {
     public void onStop(){
         super.onStop();
     }
-    public void editTask(String tid) {
+    private void editTask(String tid) {
         final String title = mTitleField.getText().toString();
 
         // Title is required
