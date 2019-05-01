@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                             else
                                 mTasks.add(t); //free task
                         }
-                        adapter = new TaskAdapter(MainActivity.this,mTasks,true,true,false);
+                        adapter = new TaskAdapter(MainActivity.this,mTasks,true,true,false, false);
                         mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
                         mRecyclerView.setAdapter(adapter);
                     }
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                 String key = prefs.getString("key" + readId++, "");
                 keys.add(key);
             }
-            adapter = new TaskAdapter(MainActivity.this,tasks,true,true,false);
+            adapter = new TaskAdapter(MainActivity.this,tasks,true,true,false,false);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             mRecyclerView.setAdapter(adapter);
         }

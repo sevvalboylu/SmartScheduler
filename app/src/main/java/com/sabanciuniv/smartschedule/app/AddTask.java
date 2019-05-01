@@ -3,6 +3,7 @@ package com.sabanciuniv.smartschedule.app;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -38,7 +39,7 @@ public class AddTask extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private EditText mTitleField, mDurationText;
     private TextView mLocationField;
-    private Spinner spinner1, freqLocationSpinner;
+    private Spinner spinner1;
     private Switch mAllDaySwitch;
     private DatePicker mStartDatePicker, mEndDatePicker;
     private TimePicker mStartTimePicker, mEndTimePicker;
@@ -50,8 +51,9 @@ public class AddTask extends AppCompatActivity {
     private final String location = new String();
     private FirebaseAuth mAuth;
     private int startDateTextClickCount = 0, endDateTextClickCount = 0, startTimeTextClickCount = 0, endTimeTextClickCount = 0;
-
+    private boolean reminderEnabled = false;
     double longitude, latitude;
+    private FloatingActionButton mdeleteButton, mSubmitButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,14 +108,24 @@ public class AddTask extends AppCompatActivity {
             }
         });
 
+        mdeleteButton = findViewById(R.id.floatingActionButton6);
+        mdeleteButton.setVisibility(View.GONE);
+
+
+        mSubmitButton = findViewById(R.id.floatingActionButton5);
+        mSubmitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                submitTask(view);
+            }
+        });
         //get the spinner from the xml.
         Spinner dropdown = findViewById(R.id.importanceSpinner);
         addListenerOnSpinnerItemSelection();
         //create a list of items for the spinner.
 
-        //TODO: make importance levels user-friendly: change from integer to string ("High", "Moderate", "Low")
         String[] items = new String[]{"High", "Medium", "Low"};
-        //{"1", "2", "3"};
+
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
         //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
@@ -172,9 +184,9 @@ public class AddTask extends AppCompatActivity {
         DateTime e = getDateFromDatePicker(mEndDatePicker, mEndTimePicker);
 
         if (!mAllDaySwitch.isChecked()) {
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, title, location, getDuration(s.toString(), e.toString()), lvl, s.toString(), e.toString());
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, title, location, getDuration(s.toString(), e.toString()), lvl, s.toString(), e.toString(), reminderEnabled);
         } else {
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, Integer.parseInt(mDurationText.getText().toString()), title, location);
+            task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, Integer.parseInt(mDurationText.getText().toString()), title, location, reminderEnabled);
         }
 
         if (title.equals("") || address.equals(""))

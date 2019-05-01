@@ -38,4 +38,3 @@ before_install:
  
 script:
  - ./gradlew assembleDebug --stacktrace
-
