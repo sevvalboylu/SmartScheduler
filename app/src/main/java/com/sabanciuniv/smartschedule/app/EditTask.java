@@ -43,7 +43,7 @@ public class EditTask extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private EditText mTitleField, mDurationText;
     private TextView mLocationField;
-    private Spinner spinner1, freqLocationSpinner;
+    private Spinner spinner1;//, freqLocationSpinner;
     private Button mSubmitButton;
     private Button mDeleteButton;
     private Switch mAllDaySwitch;
@@ -53,7 +53,7 @@ public class EditTask extends AppCompatActivity {
     private TextView mStartDateText, mEndDateText, mStartTimeText, mEndTimeText;
     private ArrayList<Profile.Location> locarr= new ArrayList<>();
     //private static final Point location = new Point(41.0082, 28.9784); //should not be static, change later
-    private final String location = new String();
+    //private final String location = new String();
     private FirebaseAuth mAuth;
     private int startDateTextClickCount = 0, endDateTextClickCount = 0, startTimeTextClickCount = 0, endTimeTextClickCount = 0;
     double longitude , latitude;
@@ -263,7 +263,6 @@ public class EditTask extends AppCompatActivity {
         final SharedPreferences.Editor editor = getSharedPreferences("tasks", MODE_PRIVATE).edit();
         editor.remove(tid);
         editor.apply();
-
     }
     public int getDuration(String s1,String s2){
         return Integer.parseInt(s2.split("T")[1].split(":")[0])-Integer.parseInt(s1.split("T")[1].split(":")[0]);
@@ -292,6 +291,29 @@ public class EditTask extends AppCompatActivity {
             }
         });
     }
+
+    //Adapt this to one item
+    /*TaskLoader tl = new TaskLoader(new DataStatus() {
+        @Override
+        public void DataIsLoaded(List<Task> tasks, List<String> keys) {
+            mTasks = new ArrayList<>();
+            for (Task t :tasks) {
+                if(t.getStartTime() != null)
+                {
+                    String startDate = t.getStartTime().split("T")[0];
+                    String startTime = t.getStartTime().split("T")[1];
+                    if (startDate.equals(date_str) && btimeComparator(time_str, startTime)) {
+                        mTasks.add(t);
+                    }
+                }
+                else
+                    mTasks.add(t); //free task
+            }
+            adapter = new TaskAdapter(MainActivity.this,mTasks,true,true,false);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+            mRecyclerView.setAdapter(adapter);
+        }
+    }, mAuth.getUid());*/
 
     public void addListenerOnSpinnerLocSelection() {
         Spinner loc = findViewById(R.id.freqLocationSpinner);

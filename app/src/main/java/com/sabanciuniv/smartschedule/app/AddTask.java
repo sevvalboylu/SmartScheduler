@@ -64,14 +64,12 @@ public class AddTask extends AppCompatActivity {
         setContentView(R.layout.activity_add_task);
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
+        attachViews();
+
         date_n = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
-        mStartDateText = findViewById(R.id.startDateText);
         mStartDateText.setText(date_n);
-        mEndDateText = findViewById(R.id.endDateText);
         mEndDateText.setText(date_n);
 
-        mStartTimeText = findViewById(R.id.startTimeText);
-        mEndTimeText = findViewById(R.id.endTimeText);
         Calendar cal = Calendar.getInstance();
         DateFormat df = new SimpleDateFormat("hh:mm");
         String date_str = df.format(cal.getTime());
@@ -80,20 +78,11 @@ public class AddTask extends AppCompatActivity {
         String date_str2 = df.format(cal.getTime());
         mEndTimeText.setText(date_str2);
 
-        mTitleField = findViewById(R.id.taskTitleText);
-        mLocationField = findViewById(R.id.address);
-        mAllDaySwitch = findViewById(R.id.allDaySwitch);
-
-        mStartDatePicker = findViewById(R.id.datePicker1);
         mStartDatePicker.setVisibility(View.GONE);
-        mEndDatePicker = findViewById(R.id.datePicker2);
         mEndDatePicker.setVisibility(View.GONE);
-
-        mStartTimePicker = findViewById(R.id.timePicker1);
         mStartTimePicker.setVisibility(View.GONE);
-        mEndTimePicker = findViewById(R.id.timePicker2);
         mEndTimePicker.setVisibility(View.GONE);
-        mDurationText = findViewById(R.id.durationText);
+
 
         mAllDaySwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,18 +100,18 @@ public class AddTask extends AppCompatActivity {
         });
 
         //get the spinner from the xml.
-        Spinner dropdown = findViewById(R.id.importanceSpinner);
+        spinner1 = findViewById(R.id.importanceSpinner);
         addListenerOnSpinnerItemSelection();
         //create a list of items for the spinner.
 
         //TODO: make importance levels user-friendly: change from integer to string ("High", "Moderate", "Low")
         String[] items = new String[]{"High", "Medium", "Low"};
-        //{"1", "2", "3"};
+
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
         //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         //set the spinners adapter to the previously created one.
-        dropdown.setAdapter(adapter);
+        spinner1.setAdapter(adapter);
 
         addListenerOnSpinnerItemSelection();
         addListenerOnSpinnerLocSelection();
@@ -142,6 +131,22 @@ public class AddTask extends AppCompatActivity {
         loc.setAdapter(ladapter);
         //go to map or dropdown list of most frequent places
     }
+
+    public void attachViews(){
+        mStartDateText = findViewById(R.id.startDateText);
+        mEndDateText = findViewById(R.id.endDateText);
+        mStartTimeText = findViewById(R.id.startTimeText);
+        mEndTimeText = findViewById(R.id.endTimeText);
+        mTitleField = findViewById(R.id.taskTitleText);
+        mLocationField = findViewById(R.id.address);
+        mAllDaySwitch = findViewById(R.id.allDaySwitch);
+        mStartDatePicker = findViewById(R.id.datePicker1);
+        mEndDatePicker = findViewById(R.id.datePicker2);
+        mStartTimePicker = findViewById(R.id.timePicker1);
+        mEndTimePicker = findViewById(R.id.timePicker2);
+        mDurationText = findViewById(R.id.durationText);
+    }
+
 
     public void submitTask(View view) {
 
@@ -192,7 +197,7 @@ public class AddTask extends AppCompatActivity {
     }
 
     public void addListenerOnSpinnerItemSelection() {
-        spinner1 = findViewById(R.id.importanceSpinner);
+        //spinner1 = findViewById(R.id.importanceSpinner);
         spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener() {
 
             @Override

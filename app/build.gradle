@@ -119,6 +119,8 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
+
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
 }
 apply plugin: 'com.google.gms.google-services'
 com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true

@@ -154,6 +154,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         }
         else
             holder.taskTime.setText(row.getDuration() +"mins");
+
     }
 
 

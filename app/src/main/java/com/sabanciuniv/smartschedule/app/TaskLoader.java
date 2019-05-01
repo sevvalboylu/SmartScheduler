@@ -15,6 +15,7 @@ import java.util.Objects;
 
 public class TaskLoader {
     private ArrayList<com.sabanciuniv.smartschedule.app.Task> tasks = new ArrayList<>();
+    //this is viewModel for firebase database!!!!!!
 
 
     public TaskLoader(final DataStatus dataStatus, String uid) {

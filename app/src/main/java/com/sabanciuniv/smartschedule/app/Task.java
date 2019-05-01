@@ -19,6 +19,7 @@ public class Task {
     private String lvl;
     private String startTime;
     private String endTime;
+    private boolean enabled;
     private ArrayList<String> range = new ArrayList<String>(2);
 
     public void addRange(String start, String end){
@@ -131,17 +132,7 @@ public class Task {
         return duration;
     }
     public Task(){}
-    public Task(String uid, String tid, String lvl, String title, String location) {
 
-    }
-    public Task(String uid, String tid, String lvl, String title, Location location,int duration) {
-        this.uid = uid;
-        this.tid = tid;
-        this.lvl=lvl;
-        this.title = title;
-        this.location = location;
-        this.duration = duration;
-    }
     public Task(String uid, String tid, String lvl ,int duration, String title, Location location) {
         this.uid = uid;
         this.tid = tid;
@@ -159,24 +150,6 @@ public class Task {
         this.lvl = lvl;
         this.startTime = startTime;
         this.endTime = endTime;
-    }
-    public Task(String uid, String tid, String lvl, String title, Location location, DateTime start, DateTime end) {
-        this.uid = uid;
-        this.tid = tid;
-        this.lvl=lvl;
-        this.title = title;
-        this.location = location;
-        this.startTime = start.toString();
-        this.endTime = end.toString();
-    }
-    public Task(String uid, String tid, String lvl, String title, Location location, DateTime start) {
-        this.uid = uid;
-        this.lvl=lvl;
-        this.tid = tid;
-        this.title = title;
-        this.location = location;
-        this.startTime = start.toString();
-        this.endTime = "";
     }
 
     public String switchLevelToString(){
