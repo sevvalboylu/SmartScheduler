@@ -3,6 +3,7 @@ package com.sabanciuniv.smartschedule.app;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -44,8 +45,8 @@ public class EditTask extends AppCompatActivity {
     private EditText mTitleField, mDurationText;
     private TextView mLocationField;
     private Spinner spinner1;
-    private Button mSubmitButton;
-    private Button mDeleteButton;
+    private FloatingActionButton mSubmitButton;
+    private FloatingActionButton mDeleteButton;
     private Switch mAllDaySwitch;
     private DatePicker mStartDatePicker, mEndDatePicker;
     private TimePicker mStartTimePicker, mEndTimePicker;
@@ -75,7 +76,7 @@ public class EditTask extends AppCompatActivity {
         }
 
         DateFormat df = new SimpleDateFormat("hh:mm");
-        setContentView(R.layout.activity_edittask);
+        setContentView(R.layout.activity_add_task);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         if(edit.getEndTime()!=null){
         Date e = new GregorianCalendar(
@@ -127,8 +128,9 @@ public class EditTask extends AppCompatActivity {
         mTitleField.setText(edit.getTitle());
         mLocationField = findViewById(R.id.address);
         mLocationField.setText(edit.getLocation().getAddress());
-        mSubmitButton = findViewById(R.id.editTask);
-        mDeleteButton = findViewById(R.id.deleteTask);
+        mSubmitButton = findViewById(R.id.floatingActionButton5);
+        mDeleteButton = findViewById(R.id.floatingActionButton6);
+        mDeleteButton.setVisibility(View.VISIBLE);
         mAllDaySwitch = findViewById(R.id.allDaySwitch);
         mDurationText = findViewById(R.id.durationText);
 
@@ -162,14 +164,14 @@ public class EditTask extends AppCompatActivity {
         //get the spinner from the xml.
         final Task finalEdit = edit;
         Spinner dropdown = findViewById(R.id.importanceSpinner);
-        String[] items = new String[]{"High", "Medium", "Low"};//{"1", "2", "3"};
+        String[] items = new String[]{"Low", "Medium", "High"};
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
         //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         //set the spinners adapter to the previously created one.
         dropdown.setAdapter(adapter);
         dropdown.setSelection(Integer.valueOf(Integer.parseInt(finalEdit.getLvl())-1));
-        addListenerOnSpinnerItemSelection();
+        addListenerOnSpinnerItemSelection(dropdown);
         addListenerOnSpinnerLocSelection();
 
         ArrayList<String> locs = new ArrayList<>();
@@ -251,10 +253,13 @@ public class EditTask extends AppCompatActivity {
             task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, lvl, Integer.parseInt(mDurationText.getText().toString()), title, location, reminderEnabled);
         }
 
-        //Task task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, lvl, title, location);
-
         deleteTask(tid);
         mDatabase.child("tasks").child(userId).child(tid).setValue(task);
+
+        //return to previous actiivty page
+        Intent intent = new Intent(EditTask.this, AllTasks.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivityForResult(intent, 1);
     }
     private void deleteTask(String tid) {
         Toast.makeText(this, "Deleting the task...", Toast.LENGTH_SHORT).show();
@@ -263,15 +268,17 @@ public class EditTask extends AppCompatActivity {
         editor.remove(tid);
         editor.apply();
 
+        //return to previous actiivty page
+        Intent intent = new Intent(EditTask.this, AllTasks.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivityForResult(intent, 1);
     }
     public int getDuration(String s1,String s2){
         return Integer.parseInt(s2.split("T")[1].split(":")[0])-Integer.parseInt(s1.split("T")[1].split(":")[0]);
     }
 
-    public void addListenerOnSpinnerItemSelection() {
-        spinner1 = (Spinner) findViewById(R.id.importanceSpinner);
-        spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
-
+    public void addListenerOnSpinnerItemSelection(Spinner spin) {
+        spin.setOnItemSelectedListener(new CustomOnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 String s = parent.getItemAtPosition(pos).toString();

@@ -3,6 +3,7 @@ package com.sabanciuniv.smartschedule.app;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -56,6 +57,7 @@ public class AddTask extends AppCompatActivity {
     private int startDateTextClickCount = 0, endDateTextClickCount = 0, startTimeTextClickCount = 0, endTimeTextClickCount = 0;
     private boolean reminderEnabled = false;
     double longitude, latitude;
+    private FloatingActionButton mdeleteButton, mSubmitButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,12 +112,22 @@ public class AddTask extends AppCompatActivity {
             }
         });
 
+        mdeleteButton = findViewById(R.id.floatingActionButton6);
+        mdeleteButton.setVisibility(View.GONE);
+
+
+        mSubmitButton = findViewById(R.id.floatingActionButton5);
+        mSubmitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                submitTask(view);
+            }
+        });
         //get the spinner from the xml.
         Spinner dropdown = findViewById(R.id.importanceSpinner);
         addListenerOnSpinnerItemSelection();
         //create a list of items for the spinner.
 
-        //TODO: make importance levels user-friendly: change from integer to string ("High", "Moderate", "Low")
         String[] items = new String[]{"High", "Medium", "Low"};
 
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
