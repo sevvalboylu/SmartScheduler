@@ -14,6 +14,9 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -25,18 +28,19 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
     boolean checkboxPref;
     boolean onclickEnabled;
     boolean onlongclickEnabled;
-    boolean reminderChecked;
+    boolean reminderEnabled;
 
 
     private ArrayList<Task> taskArrayList = new ArrayList<Task>();
-    public ArrayList<Task> checkedTasks = new ArrayList<Task>();
+    public ArrayList<Task> checkedTasks = new ArrayList<>();
 
-    public TaskAdapter(Context context, ArrayList<Task> taskList,boolean check, boolean onclick, boolean onlongclick) {
+    public TaskAdapter(Context context, ArrayList<Task> taskList,boolean check, boolean onclick, boolean onlongclick, boolean reminderEnable) {
         this.context = context;
         this.taskArrayList = taskList;
         this.checkboxPref = check;
         this.onclickEnabled = onclick;
         this.onlongclickEnabled = onlongclick;
+        this.reminderEnabled = reminderEnable;
 
     }
 
@@ -60,51 +64,50 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
             checkbox = itemView.findViewById(R.id.checkBox2);
             reminder = itemView.findViewById(R.id.chkState);
             taskTitle.setOnLongClickListener(this);
-            if(!checkboxPref)
+            if (!checkboxPref)
                 SetNoCheckBox();
             else
+            {
                 checkbox.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         final Task row = taskArrayList.get(getAdapterPosition());
-                        if(checkbox.isChecked()){
+                        if (checkbox.isChecked()) {
                             checkedTasks.add(row);
-                        }
-                        else{
+                        } else {
                             checkedTasks.remove(row);
                         }
                     }
                 });
-            reminder.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final Task row = taskArrayList.get(getAdapterPosition());
-                    if(reminder.isChecked()) {
-                        row.setReminderEnabled(true);
-                        reminderChecked = true;
+            }
+            if(!reminderEnabled){
+                setNoReminder();
+            }
+            else{
+                reminder.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        final Task row = taskArrayList.get(getAdapterPosition());
+                        if(reminder.isChecked()) {
+                            row.setReminderEnabled(true);
+                            setReminder(row, true);
+                        }
+                        else{
+                            row.setReminderEnabled(false);
+                            setReminder(row, false);
+                        }
                     }
-                    else{
-                        row.setReminderEnabled(false);
-                        reminderChecked = false;
-                    }
-                }
-            });
+                });
+            }
         }
 
 
-        public void setReminder(boolean value){
-            Bundle extras;
-            extras = new Bundle();
-            Gson gson = new Gson();
-            String json = gson.toJson(taskArrayList.get(getAdapterPosition()));
-            extras.putString("clickedEvent", json);
-
-            //intent degil edittaskte fonksiyon kullan
-            Intent in = new Intent(context, EditTask.class);
-            in.putExtras(extras);
-            context.startActivity(in);
-            //String userId = mAuth.getUid();
-            // tid =mDatabase.child("tasks").child(userId).child(tid).child("reminderEnabled").setValue(value);
+        public void setReminder(Task t, boolean value){
+            String tid = t.getTid();
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+            String userId = mAuth.getUid();
+            mDatabase.child("tasks").child(userId).child(tid).child("reminderEnabled").setValue(value);
         }
 
         @Override
@@ -157,6 +160,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         public void SetNoCheckBox() {
             checkbox.setVisibility(itemView.GONE);
         }
+
+        public void setNoReminder(){
+            reminder.setVisibility(itemView.GONE);
+        }
     }
 
 
@@ -174,7 +181,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         holder.taskTitle.setText(row.getTitle());
         holder.taskAddr.setText(row.getLocation().getAddress());
         holder.taskImp.setText(row.switchLevelToString());
-        //holder.taskImp.setText(row.getLvl());
         if(row.getLvl().equals("1"))
             holder.taskImp.setTextColor(Color.rgb(58,148,1));
         else if(row.getLvl().equals("2"))
@@ -196,8 +202,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
             holder.reminder.setChecked(false);
         }
     }
-
-
 
     @Override
     public int getItemCount() {

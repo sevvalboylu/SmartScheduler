@@ -42,7 +42,7 @@ public class AddTask extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private EditText mTitleField, mDurationText;
     private TextView mLocationField;
-    private Spinner spinner1, freqLocationSpinner;
+    private Spinner spinner1;
     private Switch mAllDaySwitch;
     private DatePicker mStartDatePicker, mEndDatePicker;
     private TimePicker mStartTimePicker, mEndTimePicker;
@@ -117,7 +117,7 @@ public class AddTask extends AppCompatActivity {
 
         //TODO: make importance levels user-friendly: change from integer to string ("High", "Moderate", "Low")
         String[] items = new String[]{"High", "Medium", "Low"};
-        //{"1", "2", "3"};
+
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
         //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);

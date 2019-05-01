@@ -43,7 +43,7 @@ public class EditTask extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private EditText mTitleField, mDurationText;
     private TextView mLocationField;
-    private Spinner spinner1, freqLocationSpinner;
+    private Spinner spinner1;
     private Button mSubmitButton;
     private Button mDeleteButton;
     private Switch mAllDaySwitch;
@@ -209,7 +209,7 @@ public class EditTask extends AppCompatActivity {
     public void onStop(){
         super.onStop();
     }
-    private void editTask(String tid) {
+    public void editTask(String tid) {
         final String title = mTitleField.getText().toString();
 
         // Title is required
@@ -255,8 +255,6 @@ public class EditTask extends AppCompatActivity {
 
         deleteTask(tid);
         mDatabase.child("tasks").child(userId).child(tid).setValue(task);
-
-
     }
     private void deleteTask(String tid) {
         Toast.makeText(this, "Deleting the task...", Toast.LENGTH_SHORT).show();

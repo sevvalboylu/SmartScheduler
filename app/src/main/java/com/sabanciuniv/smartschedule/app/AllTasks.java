@@ -31,7 +31,7 @@ public class AllTasks extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        //mDatabase = FirebaseDatabase.getInstance().getReference();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -42,9 +42,10 @@ public class AllTasks extends AppCompatActivity {
                 TaskLoader tl = new TaskLoader(new DataStatus() {
                     @Override
                     public void DataIsLoaded(List<Task> tasks, List<String> keys) {
-                        adapter = new TaskAdapter(AllTasks.this,(ArrayList<Task>) tasks,false,false,true);
+                        adapter = new TaskAdapter(AllTasks.this,(ArrayList<Task>) tasks,false,false,true,true);
                         mRecyclerView.setLayoutManager(new LinearLayoutManager(AllTasks.this));
                         mRecyclerView.setAdapter(adapter);
+                        adapter.notifyDataSetChanged();
                     }
                 }, mAuth.getUid());
                 pullToRefresh.setRefreshing(false);
@@ -70,19 +71,13 @@ public class AllTasks extends AppCompatActivity {
                 String key = prefs.getString("key" + readId++, "");
                 keys.add(key);
             }
-            adapter = new TaskAdapter(AllTasks.this,tasks,false,false,true);
+            adapter = new TaskAdapter(AllTasks.this,tasks,false,false,true, true);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             mRecyclerView.setAdapter(adapter);
 
-
+            adapter.notifyDataSetChanged();
         }
     }
-
-    /*public void setReminder(boolean value){
-        String userId = mAuth.getUid();
-        String tid =
-        mDatabase.child("tasks").child(userId).child(tid).child("reminderEnabled").setValue(value);
-    }*/
 
     public void createSchedule(View v)
     {

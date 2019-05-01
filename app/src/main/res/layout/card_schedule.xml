@@ -25,13 +25,16 @@
         android:id="@+id/chkState"
         android:layout_width="34dp"
         android:layout_height="34dp"
+        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:background="@drawable/toggle_selector"
         android:gravity="center_vertical|center_horizontal"
         android:textOff=""
         android:textOn=""
+        app:layout_constraintBottom_toTopOf="@+id/taskImportance"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteY="4dp" />
+        app:layout_constraintStart_toEndOf="@+id/taskTitle"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/taskTitle"

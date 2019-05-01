@@ -134,9 +134,6 @@ public class Task {
 
     public Task(){}
 
-    /*public Task(String uid, String tid, String lvl, String title, String location) {
-    }*/
-
     //used
     public Task(String uid, String tid, String lvl ,int duration, String title, Location location, boolean reminderEnabled) {
         this.uid = uid;
@@ -161,26 +158,6 @@ public class Task {
         this.reminderEnabled = reminderEnabled;
     }
 
-    /*public Task(String uid, String tid, String lvl, String title, Location location, DateTime start, DateTime end) {
-        this.uid = uid;
-        this.tid = tid;
-        this.lvl=lvl;
-        this.title = title;
-        this.location = location;
-        this.startTime = start.toString();
-        this.endTime = end.toString();
-
-    }
-    public Task(String uid, String tid, String lvl, String title, Location location, DateTime start, boolean reminderEnabled) {
-        this.uid = uid;
-        this.lvl=lvl;
-        this.tid = tid;
-        this.title = title;
-        this.location = location;
-        this.startTime = start.toString();
-        this.endTime = "";
-        this.reminderEnabled = reminderEnabled;
-    }*/
 
     public boolean isReminderEnabled() {
         return reminderEnabled;
