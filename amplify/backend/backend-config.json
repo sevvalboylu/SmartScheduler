@@ -1,0 +1,17 @@
+{
+	"api": {
+		"smartscheduler": {
+			"service": "AppSync",
+			"providerPlugin": "awscloudformation",
+			"output": {
+				"securityType": "API_KEY"
+			}
+		}
+	},
+	"auth": {
+		"cognitobc5c8c15": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation"
+		}
+	}
+}

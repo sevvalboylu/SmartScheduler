@@ -32,6 +32,14 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.amazonaws.amplify.generated.graphql.CreateTodoMutation;
+import com.amazonaws.amplify.generated.graphql.ListTodosQuery;
+import com.amazonaws.amplify.generated.graphql.OnCreateTodoSubscription;
+import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
+import com.amazonaws.mobileconnectors.appsync.AppSyncSubscriptionCall;
+import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
+
 
 public class ViewSchedule extends AppCompatActivity {
 
@@ -54,6 +62,8 @@ public class ViewSchedule extends AppCompatActivity {
 
     private ProgressBar spinner;
 
+    private AWSAppSyncClient mAWSAppSyncClient;
+
     protected class cacheDM {
         private Point curr;
         private Point dest;
@@ -70,6 +80,11 @@ public class ViewSchedule extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mAWSAppSyncClient = AWSAppSyncClient.builder()
+                .context(getApplicationContext())
+                .awsConfiguration(new AWSConfiguration(getApplicationContext()))
+                .build();
 
         adapter = MainActivity.getAdapter();
         listSize = adapter.checkedTasks.size();
