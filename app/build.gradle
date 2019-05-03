@@ -54,6 +54,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.4.0'
         classpath 'com.google.gms:google-services:4.0.1'
 
+
     }
 }
 
@@ -63,11 +64,19 @@ repositories {
     }
 
 
+apply plugin: 'com.amazonaws.appsync'
 
 
 dependencies {
     implementation project(':start')
     implementation project(':base')
+
+    implementation 'com.amazonaws:aws-android-sdk-core:2.13.+'
+    //AppSync SDK
+    implementation 'com.amazonaws:aws-android-sdk-appsync:2.8.+'
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+
     implementation files('../firebase-client-android-2.5.2.jar')
     implementation 'com.github.alamkanak:android-week-view:1.2.6'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
