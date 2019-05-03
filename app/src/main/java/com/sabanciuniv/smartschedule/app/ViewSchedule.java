@@ -13,9 +13,18 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.amazonaws.http.HttpMethodName;
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
+import com.amazonaws.mobileconnectors.apigateway.ApiRequest;
+import com.amazonaws.mobileconnectors.apigateway.ApiResponse;
+import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
+import com.amazonaws.util.IOUtils;
 import com.google.gson.Gson;
 import com.yandex.mapkit.geometry.Point;
 
@@ -26,25 +35,29 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.amazonaws.amplify.generated.graphql.CreateTodoMutation;
-import com.amazonaws.amplify.generated.graphql.ListTodosQuery;
-import com.amazonaws.amplify.generated.graphql.OnCreateTodoSubscription;
-import com.amazonaws.mobile.config.AWSConfiguration;
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
-import com.amazonaws.mobileconnectors.appsync.AppSyncSubscriptionCall;
-import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
-
+import schedulerbackend.SchedulerbackendClient;
 
 public class ViewSchedule extends AppCompatActivity {
 
+    private class Scheduler{
+        private Task.Location location; //configuration taken from main act.(chosen tasks)
+        public Scheduler(Task.Location loc) {
+            this.location = loc;
+        }
+
+    }
     protected Location location;
     private static int listSize;
+    private schedulerbackend.SchedulerbackendClient apiClient;
+
     private static ArrayList<Task> tasks = new ArrayList<>();
     private Object lock = new Object();
 
@@ -131,14 +144,84 @@ public class ViewSchedule extends AppCompatActivity {
         Task.Location current = new Task.Location(addressLine, c);
 
         Scheduler sc = new Scheduler(current);
-        tasks = sc.sortTasks(dm);
+
+        apiClient = new ApiClientFactory()
+                        .credentialsProvider(AWSMobileClient.getInstance().getCredentialsProvider())
+                        .build(SchedulerbackendClient.class);
+
+
+        doInvokeAPI();
 
     }
 
+
+    public void doInvokeAPI() {
+        // Create components of api request
+        final String method = "GET";
+        final String path = "/items";
+
+        final ArrayList<Task> t_req = adapter.checkedTasks;
+
+        final ArrayList<distanceMatrix> dm_req = dm;
+        Gson gson = new Gson();
+        String json_t = gson.toJson(t_req);
+        Gson gson_ = new Gson();
+        String json_dm = gson_.toJson(dm);
+        final String content = json_t + ',' + json_dm;
+
+        final Map parameters = new HashMap<>();
+
+        parameters.put("lang", "en_US");
+
+        final Map headers = new HashMap<>();
+
+        // Use components to create the api request
+        ApiRequest localRequest =
+                new ApiRequest(apiClient.getClass().getSimpleName())
+                        .withPath(path)
+                        .withHttpMethod(HttpMethodName.valueOf(method))
+                        .withHeaders(headers)
+                        .addHeader("Content-Type", "application/json")
+                        .withParameters(parameters);
+
+
+            localRequest = localRequest
+                    .withBody(content);
+
+        final ApiRequest request = localRequest;
+
+        // Make network call on background thread
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.d("",
+                            "Invoking API w/ Request : " +
+                                    request.getHttpMethod() + ":" +
+                                    request.getPath());
+
+                    final ApiResponse response = apiClient.execute(request);
+
+                    final InputStream responseContentStream = response.getContent();
+
+                    if (responseContentStream != null) {
+                        final String responseData = IOUtils.toString(responseContentStream);
+                        Log.d("", "Response : " + responseData);
+                    }
+
+                    Log.d("", response.getStatusCode() + " " + response.getStatusText());
+
+                } catch (final Exception exception) {
+                    Log.e("", exception.getMessage(), exception);
+                    exception.printStackTrace();
+                }
+            }
+        }).start();
+    }
     public static class distanceMatrix {
-        int duration;
-        String tid2;
-        String tid1;
+        public int duration;
+        public String tid2;
+        public String tid1;
 
         protected distanceMatrix(int duration, String tid1, String tid2) {
             this.duration = duration;

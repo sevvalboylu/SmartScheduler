@@ -1,6 +1,5 @@
 package com.sabanciuniv.smartschedule.app;
 
-import com.google.api.client.util.DateTime;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.tomtom.online.sdk.common.location.LatLng;
 import com.yandex.mapkit.geometry.Point;
@@ -68,7 +67,7 @@ public class Task {
     public static class Location {
 
         String address;
-        Point coordinate;
+        public Point coordinate;
 
         public Location(String address, Point coordinate) {
             this.address = address;

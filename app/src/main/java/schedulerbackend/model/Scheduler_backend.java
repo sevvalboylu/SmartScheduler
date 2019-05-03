@@ -1,7 +1,9 @@
-package com.sabanciuniv.smartschedule.app;
+package schedulerbackend.model;
 
-import android.app.Activity;
-
+import com.sabanciuniv.smartschedule.app.MainActivity;
+import com.sabanciuniv.smartschedule.app.Task;
+import com.sabanciuniv.smartschedule.app.TaskAdapter;
+import com.sabanciuniv.smartschedule.app.ViewSchedule;
 import com.yandex.mapkit.geometry.Point;
 
 import java.text.DateFormat;
@@ -16,13 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+public class Scheduler_backend {
 
-public class Scheduler extends Activity {
-
-    private ArrayList<Task> freeTasks = new ArrayList<>(); //selected unscheduled tasks
-    private ArrayList<Task> schedTasks = new ArrayList<>(); //selected scheduled tasks
-    private Task.Location location; //configuration taken from main act.(chosen tasks)
-    TaskAdapter adapter = MainActivity.getAdapter();
 
     private class mixedArray {
         double distance;
@@ -35,7 +32,14 @@ public class Scheduler extends Activity {
             this.tid = tid;
         }
     }
-  
+
+
+    private ArrayList<Task> freeTasks = new ArrayList<>(); //selected unscheduled tasks
+    private ArrayList<Task> schedTasks = new ArrayList<>(); //selected scheduled tasks
+    private Task.Location location; //configuration taken from main act.(chosen tasks)
+    TaskAdapter adapter = MainActivity.getAdapter();
+
+
     HashMap<Double, Integer> distOrder = new HashMap<>(); //keeps distance matrix
     HashMap<String, Integer> match = new HashMap<>(); //keeps the matched pairs of tid and tasks's order in list
     ArrayList<ViewSchedule.distanceMatrix> dmGlobal = new ArrayList<>(); //global distance matrix (filled by bingmaps)
@@ -106,19 +110,14 @@ public class Scheduler extends Activity {
         return null;
     }
 
-
-    public Scheduler(Task.Location loc) {
-        this.location = loc;
-    }
-
-    public ArrayList<Task> sortTasks(ArrayList<ViewSchedule.distanceMatrix> dm) {//todo:get driving time as list
+    public ArrayList<Task> sortTasks(ArrayList<Task> tasks, ArrayList<ViewSchedule.distanceMatrix> dm) {//todo:get driving time as list
         //tasks with given time are already assigned
         //others can not overlap
         //eliminate the ones with fixed slot
         dmGlobal = dm;
-        for (Task t : adapter.checkedTasks)
+        for (Task t : tasks)
             if (t.getStartTime() == null && t.getEndTime() == null) freeTasks.add(t);
-        for (Task t : adapter.checkedTasks)
+        for (Task t : tasks)
             if (t.getStartTime() != null && t.getEndTime() != null) schedTasks.add(t);
 
 
@@ -187,16 +186,16 @@ public class Scheduler extends Activity {
         } else if (schedTasks.size() == 1) {
 
             Point p = location.coordinate;
-            ArrayList<mixedArray> mArray = new ArrayList<>();
+            ArrayList<Scheduler_backend.mixedArray> mArray = new ArrayList<>();
             for (Task t : freeTasks) {
                 double d = findDist(p, t.getLocation().coordinate);
-                mixedArray m = new mixedArray(d, t.getLvl(), t.getTid());
+                Scheduler_backend.mixedArray m = new Scheduler_backend.mixedArray(d, t.getLvl(), t.getTid());
                 mArray.add(m);
             }
 
-            Collections.sort(mArray, new Comparator<mixedArray>() {
+            Collections.sort(mArray, new Comparator<Scheduler_backend.mixedArray>() {
                 @Override
-                public int compare(mixedArray m1, mixedArray m2) {
+                public int compare(Scheduler_backend.mixedArray m1, Scheduler_backend.mixedArray m2) {
                     if (Integer.parseInt(m1.importance) > Integer.parseInt(m2.importance)) {
                         if (m1.distance < m2.distance) return 1;
                         else if (m1.distance == m2.distance) return 0;
@@ -287,16 +286,16 @@ public class Scheduler extends Activity {
         {
             // use location = current location
             Point p = location.coordinate;
-            ArrayList<mixedArray> mArray = new ArrayList<>();
+            ArrayList<Scheduler_backend.mixedArray> mArray = new ArrayList<>();
             for (Task t : freeTasks) {
                 double d = findDist(p, t.getLocation().coordinate);
-                mixedArray m = new mixedArray(d, t.getLvl(), t.getTid());
+                Scheduler_backend.mixedArray m = new Scheduler_backend.mixedArray(d, t.getLvl(), t.getTid());
                 mArray.add(m);
             }
 
-            Collections.sort(mArray, new Comparator<mixedArray>() {
+            Collections.sort(mArray, new Comparator<Scheduler_backend.mixedArray>() {
                 @Override
-                public int compare(mixedArray m1, mixedArray m2) {
+                public int compare(Scheduler_backend.mixedArray m1, Scheduler_backend.mixedArray m2) {
                     if (Integer.parseInt(m1.importance) > Integer.parseInt(m2.importance))
                         if (m1.distance < m2.distance) return 1;
                         else if (m1.distance == m2.distance) return 0;
@@ -494,8 +493,8 @@ public class Scheduler extends Activity {
 
     private int getDistMins(String id1, String id2) {
         for (ViewSchedule.distanceMatrix d:dmGlobal) {
-          if(d.tid1==id1 && d.tid2==id2)
-              return d.duration;
+            if(d.tid1==id1 && d.tid2==id2)
+                return d.duration;
         }
         return 0;
     }
