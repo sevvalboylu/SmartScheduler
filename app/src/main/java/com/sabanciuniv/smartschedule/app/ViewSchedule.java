@@ -17,14 +17,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.http.HttpMethodName;
-import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobile.api.idwlmmr9yhm9.SmartSchedulerMobileHubClient;
+import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
 import com.amazonaws.mobileconnectors.apigateway.ApiRequest;
 import com.amazonaws.mobileconnectors.apigateway.ApiResponse;
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.util.IOUtils;
+import com.amazonaws.util.StringUtils;
 import com.google.gson.Gson;
 import com.yandex.mapkit.geometry.Point;
 
@@ -43,7 +43,6 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import api712071be.SchedulerbackendClient;
 
 public class ViewSchedule extends AppCompatActivity {
 
@@ -56,10 +55,7 @@ public class ViewSchedule extends AppCompatActivity {
     }
     protected Location location;
     private static int listSize;
-    private AWSCredentialsProvider credentialsProvider;
-    private AWSConfiguration configuration;
-
-    private SchedulerbackendClient apiClient=null;
+    private SmartSchedulerMobileHubClient  apiClient=null;
 
     private static ArrayList<Task> tasks = new ArrayList<>();
     private Object lock = new Object();
@@ -77,8 +73,6 @@ public class ViewSchedule extends AppCompatActivity {
     public static ArrayList<distanceMatrix> dm = new ArrayList<>();
 
     private ProgressBar spinner;
-
-    private AWSAppSyncClient mAWSAppSyncClient=null;
 
     protected class cacheDM {
         private Point curr;
@@ -149,18 +143,14 @@ public class ViewSchedule extends AppCompatActivity {
         Scheduler sc = new Scheduler(current);
 
 
+        // Create the client
+       apiClient = new ApiClientFactory()
+               .credentialsProvider(AWSMobileClient.getInstance().getCredentialsProvider())
+               .apiKey("Agr5aS9Zsh2Lm5TxiBA0Sa7p2zpLuGBo4urXSQKI")
+               .endpoint("https://zr8mijb5wi.execute-api.eu-central-1.amazonaws.com/backend/SmartScheduler-sortTasks-mobilehub-1951459660")
+               .build(SmartSchedulerMobileHubClient.class);
 
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                ApiClientFactory factory = new ApiClientFactory()
-                        .endpoint(" https://zr8mijb5wi.execute-api.eu-central-1.amazonaws.com/backend/SmartScheduler-sortTasks-mobilehub-1951459660")
-                .apiKey("Agr5aS9Zsh2Lm5TxiBA0Sa7p2zpLuGBo4urXSQKI");
-                return null;
-            }
-        }.execute();
-
-        doInvokeAPI();
+     doInvokeAPI();
 
     }
 
@@ -168,27 +158,19 @@ public class ViewSchedule extends AppCompatActivity {
     public void doInvokeAPI() {
         // Create components of api request
         final String method = "GET";
-        final String path = "/";
 
-        final ArrayList<Task> t_req = adapter.checkedTasks;
+        final String path = "/tasks";
 
-        final ArrayList<distanceMatrix> dm_req = dm;
-        Gson gson = new Gson();
-        String json_t = gson.toJson(t_req);
-        Gson gson_ = new Gson();
-        String json_dm = gson_.toJson(dm);
-        final String content = json_t + ',' + json_dm;
+        final String body = "";
+        final byte[] content = body.getBytes(StringUtils.UTF8);
 
         final Map parameters = new HashMap<>();
-
         parameters.put("lang", "en_US");
 
         final Map headers = new HashMap<>();
 
         // Use components to create the api request
         ApiRequest localRequest =
-
-
                 new ApiRequest(apiClient.getClass().getSimpleName())
                         .withPath(path)
                         .withHttpMethod(HttpMethodName.valueOf(method))
@@ -196,9 +178,12 @@ public class ViewSchedule extends AppCompatActivity {
                         .addHeader("Content-Type", "application/json")
                         .withParameters(parameters);
 
-
+        // Only set body if it has content.
+        if (body.length() > 0) {
             localRequest = localRequest
+                    .addHeader("Content-Length", String.valueOf(content.length))
                     .withBody(content);
+        }
 
         final ApiRequest request = localRequest;
 
@@ -218,18 +203,19 @@ public class ViewSchedule extends AppCompatActivity {
 
                     if (responseContentStream != null) {
                         final String responseData = IOUtils.toString(responseContentStream);
-                        Log.d("", "Response : " + responseData);
+                        //Log.d(LOG_TAG, "Response : " + responseData);
                     }
 
-                    Log.d("", response.getStatusCode() + " " + response.getStatusText());
+                   // Log.d(LOG_TAG, response.getStatusCode() + " " + response.getStatusText());
 
                 } catch (final Exception exception) {
-                    Log.e("", exception.getMessage(), exception);
+                   // Log.e(LOG_TAG, exception.getMessage(), exception);
                     exception.printStackTrace();
                 }
             }
         }).start();
     }
+
     public static class distanceMatrix {
         public int duration;
         public String tid2;
