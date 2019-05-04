@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package schedulerbackend.model;
+package api712071be.model;
 
 
 public class RequestSchema {

@@ -13,12 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package schedulerbackend;
-
-import com.sabanciuniv.smartschedule.app.Task;
-import com.sabanciuniv.smartschedule.app.ViewSchedule;
-
-import java.util.ArrayList;
+package api712071be;
 
 @com.amazonaws.mobileconnectors.apigateway.annotation.Service(endpoint = "https://ehhupl1lh5.execute-api.eu-central-1.amazonaws.com/backend")
 public interface SchedulerbackendClient {
@@ -30,9 +25,6 @@ public interface SchedulerbackendClient {
      * @return ApiResponse
      */
     com.amazonaws.mobileconnectors.apigateway.ApiResponse execute(com.amazonaws.mobileconnectors.apigateway.ApiRequest request);
-
-    @com.amazonaws.mobileconnectors.apigateway.annotation.Operation(path = "", method = "GET")
-    ArrayList<Task> sortTask(ArrayList<Task> st, ViewSchedule.distanceMatrix dm);
 
     /**
      * 

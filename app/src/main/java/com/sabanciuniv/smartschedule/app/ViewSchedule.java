@@ -17,8 +17,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.http.HttpMethodName;
-import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
 import com.amazonaws.mobileconnectors.apigateway.ApiRequest;
@@ -43,7 +43,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import schedulerbackend.SchedulerbackendClient;
+import api712071be.SchedulerbackendClient;
 
 public class ViewSchedule extends AppCompatActivity {
 
@@ -56,7 +56,10 @@ public class ViewSchedule extends AppCompatActivity {
     }
     protected Location location;
     private static int listSize;
-    private schedulerbackend.SchedulerbackendClient apiClient;
+    private AWSCredentialsProvider credentialsProvider;
+    private AWSConfiguration configuration;
+
+    private SchedulerbackendClient apiClient=null;
 
     private static ArrayList<Task> tasks = new ArrayList<>();
     private Object lock = new Object();
@@ -75,7 +78,7 @@ public class ViewSchedule extends AppCompatActivity {
 
     private ProgressBar spinner;
 
-    private AWSAppSyncClient mAWSAppSyncClient;
+    private AWSAppSyncClient mAWSAppSyncClient=null;
 
     protected class cacheDM {
         private Point curr;
@@ -94,10 +97,10 @@ public class ViewSchedule extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAWSAppSyncClient = AWSAppSyncClient.builder()
-                .context(getApplicationContext())
-                .awsConfiguration(new AWSConfiguration(getApplicationContext()))
-                .build();
+        ///mAWSAppSyncClient = AWSAppSyncClient.builder()
+           ///     .context(getApplicationContext())
+              //  .awsConfiguration(new AWSConfiguration(getApplicationContext()))
+               // .build();
 
         adapter = MainActivity.getAdapter();
         listSize = adapter.checkedTasks.size();
@@ -145,10 +148,17 @@ public class ViewSchedule extends AppCompatActivity {
 
         Scheduler sc = new Scheduler(current);
 
-        apiClient = new ApiClientFactory()
-                        .credentialsProvider(AWSMobileClient.getInstance().getCredentialsProvider())
-                        .build(SchedulerbackendClient.class);
 
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                ApiClientFactory factory = new ApiClientFactory()
+                        .endpoint(" https://zr8mijb5wi.execute-api.eu-central-1.amazonaws.com/backend/SmartScheduler-sortTasks-mobilehub-1951459660")
+                .apiKey("Agr5aS9Zsh2Lm5TxiBA0Sa7p2zpLuGBo4urXSQKI");
+                return null;
+            }
+        }.execute();
 
         doInvokeAPI();
 
@@ -158,7 +168,7 @@ public class ViewSchedule extends AppCompatActivity {
     public void doInvokeAPI() {
         // Create components of api request
         final String method = "GET";
-        final String path = "/items";
+        final String path = "/";
 
         final ArrayList<Task> t_req = adapter.checkedTasks;
 
@@ -177,6 +187,8 @@ public class ViewSchedule extends AppCompatActivity {
 
         // Use components to create the api request
         ApiRequest localRequest =
+
+
                 new ApiRequest(apiClient.getClass().getSimpleName())
                         .withPath(path)
                         .withHttpMethod(HttpMethodName.valueOf(method))

@@ -1,0 +1,14 @@
+{
+    "backend": {
+        "awscloudformation": {
+            "AuthRoleName": "smartscheduler-backend-20190504102159-authRole",
+            "UnauthRoleArn": "arn:aws:iam::419392608062:role/smartscheduler-backend-20190504102159-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::419392608062:role/smartscheduler-backend-20190504102159-authRole",
+            "Region": "eu-central-1",
+            "DeploymentBucketName": "smartscheduler-backend-20190504102159-deployment",
+            "UnauthRoleName": "smartscheduler-backend-20190504102159-unauthRole",
+            "StackName": "smartscheduler-backend-20190504102159",
+            "StackId": "arn:aws:cloudformation:eu-central-1:419392608062:stack/smartscheduler-backend-20190504102159/4eeaec70-6e3d-11e9-9068-02998deedf64"
+        }
+    }
+}
