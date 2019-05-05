@@ -281,8 +281,6 @@ public class Scheduler extends Activity {
 
             }
 
-            schedTasks.remove(0);
-
         } else //all of them are unscheduled, schedule nearest & treat as other case
         {
             // use location = current location
@@ -332,7 +330,13 @@ public class Scheduler extends Activity {
             schedTasks.add(tmp);
 
             attachTasks(0, schedTasks.get(0), schedTasks.get(1), freeTasks);
-            schedTasks.remove(0);
+        }
+
+        for (Task t :schedTasks) {
+            if(t.getTitle() == null){
+                schedTasks.remove(t);
+                break;
+            }
         }
         return schedTasks;
     }
