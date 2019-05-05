@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         });
         mRecyclerView = findViewById(R.id.recyclerview_tasks);
 
-        final SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
+        final SharedPreferences prefs = getSharedPreferences("fbEvents", MODE_PRIVATE);
         int readId = 1;
         List<String> keys = new ArrayList<>();
         ArrayList<Task> tasks = new ArrayList<Task>();
