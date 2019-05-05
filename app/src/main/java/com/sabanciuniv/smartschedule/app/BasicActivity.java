@@ -37,8 +37,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -68,7 +71,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
         mAuth = FirebaseAuth.getInstance();
 
         if(!isNetworkConnected()) {
-            SharedPreferences prefs = getSharedPreferences("tasks", MODE_PRIVATE);
+            SharedPreferences prefs = getSharedPreferences("fbEvents", MODE_PRIVATE);
             int readId = 1;
             while (prefs.contains("task" + readId)) {
                     Gson gson = new Gson();
@@ -77,7 +80,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
                 }
             tLoaded=true;
             } else {
-                final SharedPreferences.Editor editor = getSharedPreferences("tasks", MODE_PRIVATE).edit();
+                final SharedPreferences.Editor editor = getSharedPreferences("fbEvents", MODE_PRIVATE).edit();
                 TaskLoader tl = new TaskLoader(new DataStatus() {
                     @Override
                     public void DataIsLoaded(List<Task> tasks, List<String> keys) {
@@ -137,8 +140,13 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
 
     @Override
     public List<? extends WeekViewEvent> onMonthChange(final int newYear, final int newMonth) {
-        if(teventloaded!=true)
-        loadFireBaseTasks(newYear,newMonth);
+        if(teventloaded!=true) {
+            try {
+                loadFireBaseTasks(newYear,newMonth);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
         if(gLoaded!=true && mAuth.getCurrentUser().getProviders().get(0).equals("google.com"))
         loadGoogleEvents(newYear,newMonth);
         List<WeekViewEvent> matchedEvents = new ArrayList<>();
@@ -234,16 +242,25 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
     }
 
 
-  private void loadFireBaseTasks(int newYear,int newMonth)
-{
+  private void loadFireBaseTasks(int newYear,int newMonth) throws ParseException {
     SharedPreferences prefs = getSharedPreferences("fbEvents", MODE_PRIVATE);
     int readId=1;int writeId = 1;
-    if(prefs.contains("event1") && prefs.getString("event1","")!=""){
-        while(prefs.contains("event"+ readId))
+    if(prefs.contains("task1") && prefs.getString("task1","")!=""){
+        while(prefs.contains("task"+ readId))
         {
             Gson gson = new Gson();
-            String json = prefs.getString("event"+ readId++, "");
-            mEvents.add(gson.fromJson(json, WeekViewEvent.class));
+            String json = prefs.getString("task"+ readId++, "");
+            Task t = gson.fromJson(json, Task.class);
+            if(t.getStartTime()!=null)
+            { SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+            Date date = d.parse(t.getStartTime());
+            java.util.Calendar cl = java.util.Calendar.getInstance();
+            cl.setTime(date);
+            Date date_ = d.parse(t.getEndTime());
+            java.util.Calendar cl_ = java.util.Calendar.getInstance();
+            cl_.setTime(date_);
+            WeekViewEvent e = new WeekViewEvent(readId,t.getTitle(),cl,cl_);
+            mEvents.add(e);}
         }
     }
     else {
@@ -272,7 +289,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
             mEvents.add(event);
             Gson gson = new Gson();
             String json = gson.toJson(event);
-            editor.putString("event"+ writeId++,json);
+            editor.putString("task"+ writeId++,json);
         }
         editor.apply();
     }
