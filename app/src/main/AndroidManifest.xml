@@ -84,6 +84,9 @@
             android:label="SmartScheduler"></activity>
         <activity android:name=".ViewSchedule"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".SavedSchedule"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
 
     </application>
 

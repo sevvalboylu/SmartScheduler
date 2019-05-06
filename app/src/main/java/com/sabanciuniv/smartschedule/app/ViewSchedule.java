@@ -118,6 +118,16 @@ public class ViewSchedule extends AppCompatActivity {
         Scheduler sc = new Scheduler(current);
         tasks = sc.sortTasks(dm);
 
+        //write to sharedPrefs,
+        final SharedPreferences.Editor editor = getSharedPreferences("lastschedule", MODE_PRIVATE).edit();
+        editor.clear();
+        int writeId = 1;
+        for (Task t : tasks) {
+            Gson gson = new Gson();
+            String json = gson.toJson(t);
+            editor.putString("scheduledtask" + writeId++, json);
+        }
+        editor.commit();
     }
 
     public static class distanceMatrix {
@@ -171,7 +181,7 @@ public class ViewSchedule extends AppCompatActivity {
                                     while (sc.hasNext()) {
                                         inline += sc.nextLine();
                                     }
-                                    System.out.println("\nJSON Response in String format");
+                                    System.out.println("\nJSONt Response in String format");
                                     System.out.println(inline);
                                     sc.close();
                                 }

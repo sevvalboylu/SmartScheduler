@@ -10,6 +10,10 @@
         android:enabled="true"
         android:visible="true">
         <item
+            android:id="@+id/nav_schedule"
+            android:icon="@android:drawable/ic_menu_agenda"
+            android:title="My Schedule" />
+        <item
             android:id="@+id/nav_tasks"
             android:icon="@drawable/mark"
             android:title="Tasks" />
@@ -17,10 +21,7 @@
             android:id="@+id/nav_all_tasks"
             android:icon="@android:drawable/ic_menu_agenda"
             android:title="All Tasks" />
-        <item
-            android:id="@+id/nav_appointments"
-            android:icon="@android:drawable/ic_menu_my_calendar"
-            android:title="Appointments" />
+
         <item
             android:id="@+id/nav_reminders"
             android:icon="@android:drawable/ic_lock_idle_alarm"

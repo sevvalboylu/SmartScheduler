@@ -101,7 +101,9 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
                             intent.putExtra("signedOut",true);
                             startActivity(intent);
 
-                        } else if (id == R.id.nav_share) {
+                        } else if (id == R.id.nav_schedule) {
+                            Intent intent = new Intent(BaseActivity.this, SavedSchedule.class);
+                            startActivity(intent);
 
                         } else if(id == R.id.nav_feedback){
                             Intent intent = new Intent(BaseActivity.this, FeedbackActivity.class);
