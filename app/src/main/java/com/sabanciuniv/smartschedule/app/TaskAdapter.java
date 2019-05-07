@@ -207,8 +207,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
 
         if(done)
         {
-            holder.taskTitle.setTextColor(Color.rgb(192,192,192));
             holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.taskTitle.setTextColor(Color.rgb(192,192,192));
             holder.taskImp.setTextColor(Color.rgb(192,192,192));
             holder.taskAddr.setTextColor(Color.rgb(192,192,192));
             holder.taskTime.setTextColor(Color.rgb(192,192,192));
