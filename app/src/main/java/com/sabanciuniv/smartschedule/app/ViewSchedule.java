@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 
 import com.google.gson.Gson;
@@ -49,6 +50,7 @@ public class ViewSchedule extends AppCompatActivity {
     private RecyclerView RecyclerView;
     FloatingActionButton mapBtn;
     private TaskAdapter taskAdapter;
+    private Button markAsDone;
 
     public static ArrayList<distanceMatrix> dm = new ArrayList<>();
 
@@ -79,6 +81,7 @@ public class ViewSchedule extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ViewSchedule.this, MapKitRouteActivity.class);
+                intent.putExtra("Caller", "ViewSchedule");
                 startActivity(intent);
             }
         });
@@ -91,6 +94,9 @@ public class ViewSchedule extends AppCompatActivity {
         RecyclerView.setLayoutManager(new LinearLayoutManager(this));
         RecyclerView.setAdapter(taskAdapter);
         spinner.setVisibility(View.VISIBLE);
+
+        markAsDone = findViewById(R.id.markasdoneBtn);
+        markAsDone.setVisibility(View.GONE);
 
         getDrivingMins();
     }
