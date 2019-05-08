@@ -83,8 +83,6 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
                         } else if (id == R.id.nav_all_tasks) {
                             Intent intent = new Intent(BaseActivity.this, AllTasks.class);
                             startActivity(intent);
-
-
                         } else if (id == R.id.nav_settings) {
 
                         } else if (id == R.id.nav_profile) {
@@ -99,6 +97,7 @@ public abstract class BaseActivity extends AppCompatActivity implements WeekView
                             SharedPreferences settings = getSharedPreferences("loginData", Context.MODE_PRIVATE);
                             settings.edit().clear().commit();
                             intent.putExtra("signedOut",true);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
 
                         } else if (id == R.id.nav_schedule) {
