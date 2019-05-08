@@ -83,9 +83,15 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         drivingRouter = factory.createDrivingRouter();
         mapObjects = mapView.getMap().getMapObjects().addCollection();
 
+        String caller = getIntent().getStringExtra("Caller");
+
         do {
-            tasks = ViewSchedule.getTasks();
-        }while(tasks == null);
+            if(caller.equals("ViewSchedule"))
+                tasks = ViewSchedule.getTasks();
+            else
+                tasks = SavedSchedule.getTasks();
+        } while (tasks == null);
+        //todo: does not seem so safe.
 
         drawRoutes();
     }
@@ -97,7 +103,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         }
     }
 
-    protected void drawRoutes(){
+    protected void drawRoutes() {
 
         DrivingOptions options = new DrivingOptions();
         options.setAlternativeCount(1); // todo: somehow we may reach the fastest route possible.

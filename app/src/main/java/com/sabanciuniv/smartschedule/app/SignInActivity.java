@@ -103,26 +103,32 @@ public class SignInActivity  extends AppCompatActivity {
                 mAuth = FirebaseAuth.getInstance();
                 password_text = password.getText().toString();
                 email_text = email.getText().toString();
-                mAuth.signInWithEmailAndPassword(email_text, password_text).addOnCompleteListener(SignInActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
-                            SharedPreferences sharedPref = SignInActivity.this.getSharedPreferences("loginData", Context.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString("lastEmail", String.valueOf(user.getEmail()));
-                            editor.putString("lastPassword", String.valueOf(password_text));
-                            editor.commit();
-                            startActivity(intent);
+                if(!email_text.equals("") && !password_text.equals("")) {
+                    mAuth.signInWithEmailAndPassword(email_text, password_text).addOnCompleteListener(SignInActivity.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d(TAG, "signInWithEmail:success");
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                Intent intent = new Intent(SignInActivity.this, BasicActivity.class);
+                                SharedPreferences sharedPref = SignInActivity.this.getSharedPreferences("loginData", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString("lastEmail", String.valueOf(user.getEmail()));
+                                editor.putString("lastPassword", String.valueOf(password_text));
+                                editor.commit();
+                                startActivity(intent);
 
-                        } else {
-                            Toast.makeText(SignInActivity.this, "Login failed!", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(SignInActivity.this, "Login failed!", Toast.LENGTH_LONG).show();
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                else
+                {
+                    Toast.makeText(SignInActivity.this,"Please provide email and password!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
