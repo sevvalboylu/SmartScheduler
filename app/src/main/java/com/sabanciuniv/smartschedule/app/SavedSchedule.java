@@ -74,22 +74,24 @@ public class SavedSchedule extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //delete from database OR keep a separate list
-                for (Task temp :taskAdapter.checkedTasks) {
+                listSize = taskAdapter.checkedTasks.size();
+                for (int i =0; i< listSize; i++) {
+                    Task temp = taskAdapter.checkedTasks.get(i);
+                    tasks.remove(temp);
                     temp.setDone(true);
+                    tasks.add(temp);
                     //todo: Also maybe update in firebase(might be a bad idea, just asking)???
-                    //todo: UPDATE IN SHAREDPREFERENCES TOO!!!
                 }
-                taskAdapter.checkedTasks.sort(new Comparator<Task>() {
-                    @Override
-                    public int compare(Task task, Task t1) {
-                        if(task.isDone() && t1.isDone())
-                            return 0;
-                        else if(task.isDone() && !t1.isDone())
-                            return 1;
-                        else
-                            return -1;
-                    }
-                });
+
+                final SharedPreferences.Editor editor = getSharedPreferences("lastschedule", MODE_PRIVATE).edit();
+                editor.clear();
+                int writeId = 1;
+                for (Task t : tasks) {
+                    Gson gson = new Gson();
+                    String json = gson.toJson(t);
+                    editor.putString("scheduledtask" + writeId++, json);
+                }
+                editor.commit();
                 taskAdapter.notifyDataSetChanged();
             }
         });

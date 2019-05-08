@@ -30,8 +30,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
     boolean onlongclickEnabled;
     boolean reminderEnabled;
 
-
-    private ArrayList<Task> taskArrayList = new ArrayList<Task>();
+    private ArrayList<Task> taskArrayList;
     public ArrayList<Task> checkedTasks = new ArrayList<>();
 
     public TaskAdapter(Context context, ArrayList<Task> taskList,boolean check, boolean onclick, boolean onlongclick, boolean reminderEnable) {
@@ -166,7 +165,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         }
     }
 
-
     @NonNull
     @Override
     public TaskView onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -220,5 +218,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
     public int getItemCount() {
         return taskArrayList.size();
     }
+
 
 }
