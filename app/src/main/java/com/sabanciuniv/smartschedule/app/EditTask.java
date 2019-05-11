@@ -2,6 +2,7 @@ package com.sabanciuniv.smartschedule.app;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -78,17 +79,22 @@ public class EditTask extends AppCompatActivity {
         DateFormat df = new SimpleDateFormat("hh:mm");
         setContentView(R.layout.activity_add_task);
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        //set text view of end
         if (edit.getEndTime() != null) {
+            int year = Integer.parseInt(edit.getEndTime().split("T")[0].split("-")[0]);
+            int month = Integer.parseInt(edit.getEndTime().split("T")[0].split("-")[1])-1;
+            int day = Integer.parseInt(edit.getEndTime().split("T")[0].split("-")[2]);
             Date e = new GregorianCalendar(
-                    Integer.parseInt(edit.getEndTime().split("T")[0].split("-")[0]),
-                    Integer.parseInt(edit.getEndTime().split("T")[0].split("-")[1]),
-                    Integer.parseInt(edit.getEndTime().split("T")[0].split("-")[2])).getTime();
+                    year,
+                    month,
+                    day).getTime();
             date_e = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(e);
             mEndDateText = findViewById(R.id.endDateText);
             mEndDateText.setText(date_e);
-
             mEndTimeText = findViewById(R.id.endTimeText);
-            String et = edit.getEndTime().split("T")[1].split(":")[0] + ":" + edit.getEndTime().split("T")[1].split(":")[1];
+            String et1 = edit.getEndTime().split("T")[1].split(":")[0];
+            String et2 = edit.getEndTime().split("T")[1].split(":")[1];
+            String et = et1 + ":" + et2;
             Date etd = null;
             try {
                 etd = df.parse(et);
@@ -98,19 +104,59 @@ public class EditTask extends AppCompatActivity {
             String date_str2 = df.format(etd);
             mEndTimeText.setText(date_str2);
 
-        }
+            mEndDatePicker = findViewById(R.id.datePicker2);
+            mEndTimePicker = findViewById(R.id.timePicker2);
 
+            mEndTimePicker.setHour(Integer.parseInt(et1));
+            mEndTimePicker.setMinute(Integer.parseInt(et2));
+            mEndTimePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+                @Override
+                public void onTimeChanged(TimePicker timePicker, int i, int i1) {
+                    int minute = timePicker.getMinute();
+                    int hour = timePicker.getHour();
+                    String et_upd = hour + ":" + minute;
+                    Date eee = null;
+                    try {
+                        eee = df.parse(et_upd);
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
+                    String endTimeInp = df.format(eee);
+                    mEndTimeText.setText(endTimeInp);
+                }
+            });
+            mEndDatePicker.updateDate(year, month, day);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                mEndDatePicker.setOnDateChangedListener(new DatePicker.OnDateChangedListener() {
+                    @Override
+                    public void onDateChanged(DatePicker datePicker, int i, int i1, int i2) {
+                        int year_dp = datePicker.getYear();
+                        int month_dp = datePicker.getMonth();
+                        int day_dp = datePicker.getDayOfMonth();
+                        Date e_dp = new GregorianCalendar(
+                                year_dp, month_dp, day_dp).getTime();
+                        String date_e_dp = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(e_dp);
+                        mEndDateText.setText(date_e_dp);
+                    }
+                });
+            }
+        }
+        //set text view of start
         if (edit.getStartTime() != null) {
+            int year = Integer.parseInt(edit.getStartTime().split("T")[0].split("-")[0]);
+            int month = Integer.parseInt(edit.getStartTime().split("T")[0].split("-")[1])-1;
+            int day = Integer.parseInt(edit.getStartTime().split("T")[0].split("-")[2]);
             Date s = new GregorianCalendar(
-                    Integer.parseInt(edit.getStartTime().split("T")[0].split("-")[0]),
-                    Integer.parseInt(edit.getStartTime().split("T")[0].split("-")[1]),
-                    Integer.parseInt(edit.getStartTime().split("T")[0].split("-")[2])).getTime();
+                    year, month, day).getTime();
             date_s = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(s);
             mStartDateText = findViewById(R.id.startDateText);
             mStartDateText.setText(date_s);
             mStartTimeText = findViewById(R.id.startTimeText);
             Calendar cal = Calendar.getInstance();
-            String st = edit.getStartTime().split("T")[1].split(":")[0] + ":" + edit.getStartTime().split("T")[1].split(":")[1];
+            String st1 = edit.getStartTime().split("T")[1].split(":")[0];
+            String st2 = edit.getStartTime().split("T")[1].split(":")[1];
+            String st = st1 + ":" + st2;
 
             Date std = null;
             try {
@@ -122,7 +168,48 @@ public class EditTask extends AppCompatActivity {
             String date_str = df.format(std);
             mStartTimeText.setText(date_str);
             cal.add(Calendar.HOUR_OF_DAY, 1);
+
+            mStartTimePicker = findViewById(R.id.timePicker1);
+            mStartDatePicker = findViewById(R.id.datePicker1);
+
+            mStartTimePicker.setHour(Integer.parseInt(st1));
+            mStartTimePicker.setMinute(Integer.parseInt(st2));
+            mStartTimePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+                @Override
+                public void onTimeChanged(TimePicker timePicker, int i, int i1) {
+                    int minute = timePicker.getMinute();
+                    int hour = timePicker.getHour();
+                    String et_upd = hour + ":" + minute;
+                    Date eee = null;
+                    try {
+                        eee = df.parse(et_upd);
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
+                    String endTimeInp = df.format(eee);
+                    mStartTimeText.setText(endTimeInp);
+                }
+            });
+
+            mStartDatePicker.init(year, month, day, null);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                mStartDatePicker.setOnDateChangedListener(new DatePicker.OnDateChangedListener() {
+                    @Override
+                    public void onDateChanged(DatePicker datePicker, int i, int i1, int i2) {
+                        int year_dp = datePicker.getYear();
+                        int month_dp = datePicker.getMonth();
+                        int day_dp = datePicker.getDayOfMonth();
+                        Date s_dp = new GregorianCalendar(
+                                year_dp, month_dp, day_dp).getTime();
+                        String date_s_dp = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(s_dp);
+                        mStartDateText.setText(date_s_dp);
+                    }
+                });
+            }
+
         }
+
 
         mTitleField = findViewById(R.id.taskTitleText);
         mTitleField.setText(edit.getTitle());
@@ -133,25 +220,21 @@ public class EditTask extends AppCompatActivity {
         mDeleteButton.setVisibility(View.VISIBLE);
         mAllDaySwitch = findViewById(R.id.allDaySwitch);
         mDurationText = findViewById(R.id.durationText);
+        // todo: setting the duration to database value
 
-        mStartDatePicker = findViewById(R.id.datePicker1);
+      //  if(edit.getDuration() != null)
+       //     mDurationText.setText(edit.getDuration());
+
         mStartDatePicker.setVisibility(View.GONE);
-        mEndDatePicker = findViewById(R.id.datePicker2);
         mEndDatePicker.setVisibility(View.GONE);
-
-        mStartTimePicker = findViewById(R.id.timePicker1);
         mStartTimePicker.setVisibility(View.GONE);
-        mEndTimePicker = findViewById(R.id.timePicker2);
         mEndTimePicker.setVisibility(View.GONE);
-
-        latitude = edit.getLocation().getCoordinate().getLatitude();
-        longitude = edit.getLocation().getCoordinate().getLongitude();
-
 
         mAllDaySwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mAllDaySwitch.isChecked()) {
+                    //mDurationText.setText(edit.getDuration());
                     mStartTimeText.setVisibility(View.GONE);
                     mEndTimeText.setVisibility(View.GONE);
                 } else if (!mAllDaySwitch.isChecked()) {
@@ -161,10 +244,14 @@ public class EditTask extends AppCompatActivity {
             }
         });
 
+        latitude = edit.getLocation().getCoordinate().getLatitude();
+        longitude = edit.getLocation().getCoordinate().getLongitude();
+
         //get the spinner from the xml.
         final Task finalEdit = edit;
         Spinner dropdown = findViewById(R.id.importanceSpinner);
         String[] items = new String[]{"Low", "Medium", "High"};
+
         //create an adapter to describe how the items are displayed, adapters are used in several places in android.
         //There are multiple variations of this, but this is the basic variant.
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
@@ -192,14 +279,14 @@ public class EditTask extends AppCompatActivity {
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editTask(finalEdit.getTid()); //change task
+                editTask(finalEdit.getTid(), "Editing the task..."); //change task
             }
         });
 
         mDeleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteTask(finalEdit.getTid()); //change task
+                deleteTask(finalEdit.getTid(), "Deleting the task..."); //change task
             }
         });
     }
@@ -218,7 +305,7 @@ public class EditTask extends AppCompatActivity {
         return true;
     }
 
-    private void editTask(String tid) {
+    private void editTask(String tid, String message) {
         final String title = mTitleField.getText().toString();
 
         // Title is required
@@ -229,7 +316,7 @@ public class EditTask extends AppCompatActivity {
 
         // Disable button so there are no multi-posts
         //setEditingEnabled(false);9
-        Toast.makeText(this, "Editing the task...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
 
         // [START single_value_read]
         final String userId = getUid();
@@ -255,12 +342,17 @@ public class EditTask extends AppCompatActivity {
         Task task = null;
         if (!mAllDaySwitch.isChecked()) {
             task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, title, location, getDuration(s.toString(), e.toString()), lvl, s.toString(), e.toString(), reminderEnabled);
-            //todo: duration! it returns wrong and changes end time in the meantime
         } else {
-            task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, lvl, Integer.parseInt(mDurationText.getText().toString()), title, location, reminderEnabled);
+            String dur = mDurationText.getText().toString();
+            if (isNullOrEmpty(dur)) {
+                mDurationText.setError(REQUIRED);
+                return;
+            }
+            else
+                task = new com.sabanciuniv.smartschedule.app.Task(userId, tid, lvl, Integer.parseInt(dur), title, location, reminderEnabled);
         }
 
-        deleteTask(tid);
+        deleteTask(tid, message);
         mDatabase.child("tasks").child(userId).child(tid).setValue(task);
 
         //return to previous actiivty page
@@ -269,8 +361,8 @@ public class EditTask extends AppCompatActivity {
         startActivityForResult(intent, 1);
     }
 
-    private void deleteTask(String tid) {
-        Toast.makeText(this, "Deleting the task...", Toast.LENGTH_SHORT).show();
+    private void deleteTask(String tid, String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         mDatabase.child("tasks").child(mAuth.getCurrentUser().getUid()).child(tid).removeValue();
         final SharedPreferences.Editor editor = getSharedPreferences("tasks", MODE_PRIVATE).edit();
         editor.remove(tid);
@@ -321,6 +413,7 @@ public class EditTask extends AppCompatActivity {
 
     public void goToMap(View view) {
         Intent intent = new Intent(EditTask.this, MapViewActivity.class);
+        intent.putExtra("caller", "EditTask.class"); //please don't delete
         startActivity(intent);
     }
 
