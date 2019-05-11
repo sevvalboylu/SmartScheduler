@@ -185,6 +185,7 @@ class RecyclerView_Loc {
         checkedlocs = new ArrayList<>(Collections.nCopies(locations.size(), false));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(mLocAdapter);
+        mLocAdapter.notifyDataSetChanged();
     }
 
     class LocView extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -243,7 +244,6 @@ class RecyclerView_Loc {
                     }
                 }
             });
-
         }
 
         @Override
