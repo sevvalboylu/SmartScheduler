@@ -54,7 +54,7 @@
         android:layout_marginBottom="10sp"
         android:background="@color/blue"
         android:onClick="createSchedule"
-        android:text="Create New Schedule"
+        android:text="@string/create_new_schedule"
         android:textAllCaps="true"
         android:textColor="@color/colorPrimaryDark" />
 
