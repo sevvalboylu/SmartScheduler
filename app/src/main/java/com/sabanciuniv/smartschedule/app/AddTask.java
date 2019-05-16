@@ -136,6 +136,8 @@ public class AddTask extends AppCompatActivity {
         addListenerOnSpinnerLocSelection();
 
         ArrayList<String> locs = new ArrayList<>();
+        locs.add(0,"Your Places");
+
         SharedPreferences s = getSharedPreferences("locations", MODE_PRIVATE);
         Map<String, ?> keys = s.getAll();
         for (Map.Entry<String, ?> entry : keys.entrySet()) {
@@ -189,7 +191,7 @@ public class AddTask extends AppCompatActivity {
             task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, Integer.parseInt(mDurationText.getText().toString()), title, location, reminderEnabled);
         }
 
-        if (title.equals("") || address.equals(""))
+        if (title.equals("") || address.equals("") || address.equals("Address should appear here"))
         {
             Toast.makeText(this,"Please fill required fields", Toast.LENGTH_SHORT).show();
         }
