@@ -83,7 +83,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
                 final SharedPreferences.Editor editor = getSharedPreferences("fbEvents", MODE_PRIVATE).edit();
                 TaskLoader tl = new TaskLoader(new DataStatus() {
                     @Override
-                    public void DataIsLoaded(List<Task> tasks, List<String> keys) {
+                    public void TasksLoaded(List<Task> tasks, List<String> keys) {
                         mTasks = tasks;
                         int writeId = 1;
                         for (Task t : mTasks) {
@@ -98,6 +98,11 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
                         getWeekView().notifyDatasetChanged();
                         tLoaded=true;
                         editor.apply();
+                    }
+
+                    @Override
+                    public void LocsLoaded(ArrayList<Profile.Location> locs, List<String> keys) {
+
                     }
                 }, mAuth.getUid());
             }
