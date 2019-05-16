@@ -16,5 +16,7 @@
     <string name="feedback_headline">Let us know what you think!</string>
     <string name="send_button">SEND</string>
     <string name="header_feedback">Please give us feedback!</string>
+    <string name="mark_as_done">Mark as done</string>
+    <string name="create_new_schedule">Create New Schedule</string>
 </resources>
 

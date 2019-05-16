@@ -16,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.yandex.mapkit.geometry.Point;
@@ -123,6 +124,12 @@ public class ViewSchedule extends AppCompatActivity {
 
         Scheduler sc = new Scheduler(current);
         tasks = sc.sortTasks(dm);
+
+        if(!sc.scheduledAll())
+        {
+            // Some tasks could not be scheduled.
+            Toast.makeText(this, "Some tasks could not be scheduled.", Toast.LENGTH_LONG).show();
+        }
 
         //write to sharedPrefs,
         final SharedPreferences.Editor editor = getSharedPreferences("lastschedule", MODE_PRIVATE).edit();

@@ -22,6 +22,13 @@ public class Scheduler extends Activity {
     private ArrayList<Task> freeTasks = new ArrayList<>(); //selected unscheduled tasks
     private ArrayList<Task> schedTasks = new ArrayList<>(); //selected scheduled tasks
     private Task.Location location; //configuration taken from main act.(chosen tasks)
+    private boolean isAllDone = false;
+
+    private int listSize;
+
+    public boolean scheduledAll(){
+        return isAllDone;
+    }
     TaskAdapter adapter = MainActivity.getAdapter();
 
     private class mixedArray {
@@ -116,11 +123,12 @@ public class Scheduler extends Activity {
         //others can not overlap
         //eliminate the ones with fixed slot
         dmGlobal = dm;
+        listSize = adapter.checkedTasks.size();
+
         for (Task t : adapter.checkedTasks)
             if (t.getStartTime() == null && t.getEndTime() == null) freeTasks.add(t);
         for (Task t : adapter.checkedTasks)
             if (t.getStartTime() != null && t.getEndTime() != null) schedTasks.add(t);
-
 
         Collections.sort(schedTasks, TaskComparator);
 
@@ -276,7 +284,6 @@ public class Scheduler extends Activity {
                     Double distLast = findDist(last.getLocation().coordinate, fr.getLocation().coordinate);
                     if (distFirst > distLast) schedTasks.add(fr);
                     else schedTasks.add(0, fr);
-                    //todo: may need to check our logic
                 }
 
             }
@@ -338,6 +345,9 @@ public class Scheduler extends Activity {
                 break;
             }
         }
+
+        if(listSize == schedTasks.size())
+            isAllDone = true;
         return schedTasks;
     }
 
