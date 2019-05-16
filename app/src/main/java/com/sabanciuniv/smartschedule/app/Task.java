@@ -20,6 +20,7 @@ public class Task {
     private String startTime;
     private String endTime;
     private boolean reminderEnabled;
+    private boolean done = false; //False by default, only set to true by editing
 
     private ArrayList<String> range = new ArrayList<String>(2);
 
@@ -58,6 +59,7 @@ public class Task {
                     split("T")[1].split(":")[0];
         else return null;
     }
+
     public String getEndMinute() {
         if(getEndTime()!=null)
             return getEndTime().
@@ -101,6 +103,7 @@ public class Task {
         //return Integer.toString(lvl);
         return lvl;
     }
+
     public String getTid() {
         //return Integer.toString(lvl);
         return tid;
@@ -110,6 +113,7 @@ public class Task {
 
         return endTime;
     }
+
     public String getStartTime() {
 
         return startTime;
@@ -121,6 +125,7 @@ public class Task {
                 split("T")[1].split(":")[0];
         else return null;
     }
+
     public String getStartMinute() {
         if(getStartTime()!=null)
         return getStartTime().
@@ -165,6 +170,14 @@ public class Task {
 
     public void setReminderEnabled(boolean reminderEnabled) {
         this.reminderEnabled = reminderEnabled;
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
     }
 
     public String switchLevelToString(){

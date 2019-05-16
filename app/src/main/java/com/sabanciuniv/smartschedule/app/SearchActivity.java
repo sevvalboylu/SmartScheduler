@@ -223,6 +223,14 @@ public class SearchActivity extends Activity implements Session.SearchListener, 
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivityForResult(intent, 1);
         }
+        else if(current.getStringExtra("caller").equals("EditTask.class")){
+            intent = new Intent( SearchActivity.this, EditTask.class);
+            intent.putExtra("Address",addressLine);
+            intent.putExtra("Longitude", selectedPoint[0].getLongitude());
+            intent.putExtra("Latitude", selectedPoint[0].getLatitude());
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivityForResult(intent, 1);
+        }
         else     //let's hope we never enter this else here but need to be safe xx
         {
             //todo: if you need any more callers you may add them in else-if's

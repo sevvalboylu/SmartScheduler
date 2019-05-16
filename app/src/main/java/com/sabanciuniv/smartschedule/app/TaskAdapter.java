@@ -3,6 +3,7 @@ package com.sabanciuniv.smartschedule.app;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -29,8 +30,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
     boolean onlongclickEnabled;
     boolean reminderEnabled;
 
-
-    private ArrayList<Task> taskArrayList = new ArrayList<Task>();
+    private ArrayList<Task> taskArrayList;
     public ArrayList<Task> checkedTasks = new ArrayList<>();
 
     public TaskAdapter(Context context, ArrayList<Task> taskList,boolean check, boolean onclick, boolean onlongclick, boolean reminderEnable) {
@@ -165,7 +165,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         }
     }
 
-
     @NonNull
     @Override
     public TaskView onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -176,6 +175,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
     @Override
     public void onBindViewHolder(@NonNull TaskView holder, int position) {
         final Task row = taskArrayList.get(holder.getAdapterPosition());
+
+        boolean done = row.isDone(); //If done, show it as faded
 
         holder.taskTitle.setText(row.getTitle());
         holder.taskAddr.setText(row.getLocation().getAddress());
@@ -188,23 +189,35 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
             holder.taskImp.setTextColor(Color.rgb(182,1,59));
 
         if(row.getStartTime() != null){
-            holder.taskTime.setText(""+ row.getStartHour()+":"+row.getStartMinute() + " - "
-                    + row.getEndHour() + ":" + row. getEndMinute());
+            String interval = ""+ row.getStartHour()+":"+row.getStartMinute() + " - " + row.getEndHour() + ":" + row. getEndMinute();
+            holder.taskTime.setText(interval);
         }
-        else
-            holder.taskTime.setText(row.getDuration() +"mins");
-
+        else {
+            String duration = row.getDuration() + "mins";
+            holder.taskTime.setText(duration);
+        }
         if(row.isReminderEnabled()){
             holder.reminder.setChecked(true);
         }
         else {
             holder.reminder.setChecked(false);
         }
+
+        if(done)
+        {
+            holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.taskTitle.setTextColor(Color.rgb(192,192,192));
+            holder.taskImp.setTextColor(Color.rgb(192,192,192));
+            holder.taskAddr.setTextColor(Color.rgb(192,192,192));
+            holder.taskTime.setTextColor(Color.rgb(192,192,192));
+        }
+
     }
 
     @Override
     public int getItemCount() {
         return taskArrayList.size();
     }
+
 
 }

@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="event_color_01">#59dbe0</color>
-    <color name="event_color_02">#f57f68</color>
-    <color name="event_color_03">#87d288</color>
-    <color name="event_color_04">#f8b552</color>
     <color name="toolbar">#e18181</color>
     <color name="toolbar_text">#8f0a0000</color>
     <color name="accent">#54a5ef</color>
     <color name="cursorAccent">#2789e4</color>
     <color name="controlNormal">#5782ab</color>
-    <color name="controlActivated">#d6baf7</color><item name="blue" type="color">#FF33B5E5</item>
+    <color name="controlActivated">#d6baf7</color><item name="blue" type="color">#33B5E5</item>
 
+    <item name="white" type="color">#FFFFFF</item>
     <item name="purple" type="color">#FFBF00</item>
     <item name="green" type="color">#FF99CC00</item>
     <item name= "pblue" type="color">#A9D0F5</item>
