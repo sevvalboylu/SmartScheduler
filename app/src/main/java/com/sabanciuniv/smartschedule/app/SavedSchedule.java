@@ -23,7 +23,6 @@ public class SavedSchedule extends AppCompatActivity {
     private RecyclerView RecyclerView;
     FloatingActionButton mapBtn;
     private TaskAdapter taskAdapter;
-    private static int listSize;
     private static ArrayList<Task> tasks = new ArrayList<>();
 
     @Override
@@ -58,6 +57,8 @@ public class SavedSchedule extends AppCompatActivity {
         taskAdapter = new TaskAdapter(SavedSchedule.this, tasks, true, false, false, false);
         RecyclerView.setLayoutManager(new LinearLayoutManager(this));
         RecyclerView.setAdapter(taskAdapter);
+
+
     }
 }
 
