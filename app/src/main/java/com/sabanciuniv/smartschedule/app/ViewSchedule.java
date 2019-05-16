@@ -140,7 +140,7 @@ public class ViewSchedule extends AppCompatActivity {
             String json = gson.toJson(t);
             editor.putString("scheduledtask" + writeId++, json);
         }
-        editor.commit();
+        editor.apply();
     }
 
     public static class distanceMatrix {
@@ -148,7 +148,7 @@ public class ViewSchedule extends AppCompatActivity {
         String tid2;
         String tid1;
 
-        protected distanceMatrix(int duration, String tid1, String tid2) {
+        distanceMatrix(int duration, String tid1, String tid2) {
             this.duration = duration;
             this.tid2 = tid2;
             this.tid1 = tid1;
@@ -164,7 +164,7 @@ public class ViewSchedule extends AppCompatActivity {
             int currentHour = rightNow.get(Calendar.HOUR_OF_DAY);
             for (Task t : arrayLists[0])
                 for (Task m : arrayLists[0]) {
-                    if (t.getTid() != m.getTid()) {
+                    if (!t.getTid().equals(m.getTid())) {
                         if (prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour))) {
                             int mins = 0;
                             prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()), mins);
@@ -180,7 +180,7 @@ public class ViewSchedule extends AppCompatActivity {
 
                             HttpURLConnection urlConnection = null;
                             try {
-                                String inline = "";
+                                StringBuilder inline = new StringBuilder();
                                 InputStream in;
                                 URL url = new URL(s_url);
 
@@ -192,7 +192,7 @@ public class ViewSchedule extends AppCompatActivity {
                                 else {
                                     Scanner sc = new Scanner(url.openStream());
                                     while (sc.hasNext()) {
-                                        inline += sc.nextLine();
+                                        inline.append(sc.nextLine());
                                     }
                                     System.out.println("\nJSONt Response in String format");
                                     System.out.println(inline);
@@ -200,10 +200,10 @@ public class ViewSchedule extends AppCompatActivity {
                                 }
 
                                 Pattern p = Pattern.compile("\"travelDuration\":(.\\d)+");
-                                Matcher mat = p.matcher(inline);
+                                Matcher mat = p.matcher(inline.toString());
                                 if (mat.find()) {
                                     final String k = mat.group(0).replaceAll("\"travelDuration\":", "");
-                                    Integer mk = Integer.parseInt(k.split("\\.")[0]);
+                                    int mk = Integer.parseInt(k.split("\\.")[0]);
                                     cacheDM cdm = new cacheDM(t.getLocation().getCoordinate(), m.getLocation().getCoordinate(), mk);
                                     Gson gson = new Gson();
                                     String json = gson.toJson(cdm);
@@ -211,7 +211,7 @@ public class ViewSchedule extends AppCompatActivity {
                                     distanceMatrix d = new distanceMatrix(mk, t.getTid(), m.getTid());
                                     dm.add(d);
                                     if (dm.size() == (listSize * (listSize - 1)) / 2) {
-                                        editor.commit();
+                                        editor.apply();
                                         return true;
                                     }
                                 }

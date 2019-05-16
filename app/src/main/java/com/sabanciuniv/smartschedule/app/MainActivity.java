@@ -1,6 +1,9 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.app.AlertDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -11,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,9 +34,11 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private static TaskAdapter adapter;
+
     public static TaskAdapter getAdapter() {
         return adapter;
     }
+
     ArrayList<Task> mTasks;
 
     private boolean isNetworkConnected() {
@@ -41,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onCreate(@Nullable  Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //// Get current date & time//////////////
@@ -64,19 +70,17 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void DataIsLoaded(List<Task> tasks, List<String> keys) {
                         mTasks = new ArrayList<>();
-                        for (Task t :tasks) {
-                            if(t.getStartTime() != null)
-                            {
+                        for (Task t : tasks) {
+                            if (t.getStartTime() != null) {
                                 String startDate = t.getStartTime().split("T")[0];
                                 String startTime = t.getStartTime().split("T")[1];
                                 if (startDate.equals(date_str) && btimeComparator(time_str, startTime)) {
                                     mTasks.add(t);
                                 }
-                            }
-                            else
+                            } else
                                 mTasks.add(t); //free task
                         }
-                        adapter = new TaskAdapter(MainActivity.this,mTasks,true,true,false, false);
+                        adapter = new TaskAdapter(MainActivity.this, mTasks, true, true, false, false);
                         mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
                         mRecyclerView.setAdapter(adapter);
                     }
@@ -96,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                 Gson gson = new Gson();
                 String json = prefs.getString("task" + readId++, "");
                 Task temp = gson.fromJson(json, Task.class);
-                if(temp.getStartTime() == null)
+                if (temp.getStartTime() == null)
                     tasks.add(temp);
                 else {
                     String startDate = temp.getStartTime().split("T")[0];
@@ -112,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 String key = prefs.getString("key" + readId++, "");
                 keys.add(key);
             }
-            adapter = new TaskAdapter(MainActivity.this,tasks,true,true,false,false);
+            adapter = new TaskAdapter(MainActivity.this, tasks, true, true, false, false);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             mRecyclerView.setAdapter(adapter);
         }
@@ -133,36 +137,43 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public boolean checkclashes(ArrayList<Task> ct){
-        for(Task t1: ct)
-            for (Task t2:ct){
-            if(t1!=t2)
-            if(t1.getStartTime() !=null && t2.getStartTime()!=null)
-            {
-                if(t2.getStartTime().compareTo(t1.getStartTime())>=0 && t2.getStartTime().compareTo(t1.getEndTime())<=0)
-                    return false;
-                if(t2.getStartTime().compareTo(t1.getStartTime())<=0 && t1.getStartTime().compareTo(t2.getEndTime())<=0)
-                    return false;
+    public boolean checkclashes(ArrayList<Task> ct) {
+        for (Task t1 : ct)
+            for (Task t2 : ct) {
+                if (t1 != t2)
+                    if (t1.getStartTime() != null && t2.getStartTime() != null) {
+                        if (t2.getStartTime().compareTo(t1.getStartTime()) >= 0 && t2.getStartTime().compareTo(t1.getEndTime()) <= 0)
+                            return false;
+                        if (t2.getStartTime().compareTo(t1.getStartTime()) <= 0 && t1.getStartTime().compareTo(t2.getEndTime()) <= 0)
+                            return false;
+
+                    }
 
             }
-
-        }
         return true;
     }
 
     public void createSchedule(View v) {
-      
-        if(adapter.checkedTasks.size()> 0 ) {
-            if(checkclashes(adapter.checkedTasks)){
-               Intent intent = new Intent(MainActivity.this, ViewSchedule.class);
-               startActivity(intent);
-            }
-            else
-            {
+
+        if (adapter.checkedTasks.size() > 0) {
+            if (checkclashes(adapter.checkedTasks)) {
+                //Prompt user for the latest ending time
+                TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int i, int i1) {
+                        String endTime = timePicker.getHour() + ":" + timePicker.getMinute();
+                        Intent intent = new Intent(MainActivity.this, ViewSchedule.class);
+                        intent.putExtra("endTime", endTime);
+                        startActivity(intent);
+                    }
+                },12,0,true);
+                timePickerDialog.setMessage("Select ending time for schedule");
+                timePickerDialog.show();
+
+            } else {
                 Toast.makeText(this, "Some of the tasks overlap!", Toast.LENGTH_SHORT).show();
             }
-        }
-        else
+        } else
             Toast.makeText(this, "Please select tasks!", Toast.LENGTH_SHORT).show();
     }
 }
