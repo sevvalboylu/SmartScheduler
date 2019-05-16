@@ -71,7 +71,8 @@
 
         <activity
             android:name=".AddTask"
-            android:label="Add New Task"/>
+            android:label="Add New Task"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".MapViewActivity"
             android:label="@string/title_activity_map_view"
