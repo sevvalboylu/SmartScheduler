@@ -6,6 +6,7 @@ import com.tomtom.online.sdk.common.location.LatLng;
 import com.yandex.mapkit.geometry.Point;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 // [START post_class]
 @IgnoreExtraProperties

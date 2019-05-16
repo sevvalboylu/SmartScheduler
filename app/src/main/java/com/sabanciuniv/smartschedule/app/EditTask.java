@@ -222,8 +222,8 @@ public class EditTask extends AppCompatActivity {
         mDurationText = findViewById(R.id.durationText);
         // todo: setting the duration to database value
 
-      //  if(edit.getDuration() != null)
-       //     mDurationText.setText(edit.getDuration());
+        //  if(edit.getDuration() != null)
+        //     mDurationText.setText(edit.getDuration());
 
         mStartDatePicker.setVisibility(View.GONE);
         mEndDatePicker.setVisibility(View.GONE);

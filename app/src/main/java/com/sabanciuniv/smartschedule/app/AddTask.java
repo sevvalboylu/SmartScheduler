@@ -279,6 +279,11 @@ public class AddTask extends AppCompatActivity {
         if (startDateTextClickCount % 2 == 1) {
             mStartDatePicker.setVisibility(View.VISIBLE);
         } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(mStartDatePicker.getYear(), mStartDatePicker.getMonth(), mStartDatePicker.getDayOfMonth());
+            Date date = calendar.getTime();
+            date_n = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date);
+            mStartDateText.setText(date_n);
             mStartDatePicker.setVisibility(View.GONE);
         }
     }
@@ -288,6 +293,11 @@ public class AddTask extends AppCompatActivity {
         if (endDateTextClickCount % 2 == 1) {
             mEndDatePicker.setVisibility(View.VISIBLE);
         } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(mEndDatePicker.getYear(), mEndDatePicker.getMonth(), mEndDatePicker.getDayOfMonth());
+            Date date = calendar.getTime();
+            date_n = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date);
+            mEndDateText.setText(date_n);
             mEndDatePicker.setVisibility(View.GONE);
         }
     }
@@ -297,6 +307,12 @@ public class AddTask extends AppCompatActivity {
         if (startTimeTextClickCount % 2 == 1) {
             mStartTimePicker.setVisibility(View.VISIBLE);
         } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(mStartDatePicker.getYear(), mStartDatePicker.getMonth(), mStartDatePicker.getDayOfMonth(),
+                    mStartTimePicker.getHour(), mStartTimePicker.getMinute());
+            DateFormat df = new SimpleDateFormat("hh:mm");
+            String date_str = df.format(calendar.getTime());
+            mStartTimeText.setText(date_str);
             mStartTimePicker.setVisibility(View.GONE);
         }
     }
@@ -306,6 +322,12 @@ public class AddTask extends AppCompatActivity {
         if (endTimeTextClickCount % 2 == 1) {
             mEndTimePicker.setVisibility(View.VISIBLE);
         } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(mEndDatePicker.getYear(), mEndDatePicker.getMonth(), mEndDatePicker.getDayOfMonth(),
+                    mEndTimePicker.getHour(), mEndTimePicker.getMinute());
+            DateFormat df = new SimpleDateFormat("hh:mm");
+            String date_str = df.format(calendar.getTime());
+            mEndTimeText.setText(date_str);
             mEndTimePicker.setVisibility(View.GONE);
         }
     }
