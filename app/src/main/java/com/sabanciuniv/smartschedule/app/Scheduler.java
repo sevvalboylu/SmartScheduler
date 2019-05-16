@@ -15,6 +15,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+/*
+* TODO: en sona eklediğimiz free task'lerde optimality tamamen kayıp,
+* birbirlerine göre distance bulunmalı.
+* */
 
 
 public class Scheduler extends Activity {
@@ -182,11 +186,47 @@ public class Scheduler extends Activity {
                 Task first = schedTasks.get(0);
                 Task last = schedTasks.get(schedTasks.size() - 1);
 
+                Calendar cal = Calendar.getInstance(); //today - now
+                DateFormat dt = new SimpleDateFormat("H:mm:ss");
+                String time_str = dt.format(cal.getTime());
+
                 for (Task fr : freeTasks) {
                     Double distFirst = findDist(first.getLocation().coordinate, fr.getLocation().coordinate);
                     Double distLast = findDist(last.getLocation().coordinate, fr.getLocation().coordinate);
-                    if (distFirst > distLast) schedTasks.add(fr);
-                    else schedTasks.add(0, fr);
+                    if (distFirst > distLast)
+                        schedTasks.add(fr);
+                    else
+                    {
+                        ArrayList<String> timerange1 = null;
+                        if (first.getStartTime() == null) timerange1 = first.getRange();
+                        int driving = getDistMins(first.getTid(),fr.getTid());
+
+                        if(timerange1 == null) // first is scheduled
+                        {
+                            // current time + driving + duration < first's start time, then schedule, otherwise add to end OR don't schedule.
+                            int index = time_str.indexOf(":");
+                            int startHr = Integer.parseInt(time_str.substring(0, index));
+                            int startMin = Integer.parseInt(time_str.substring(index+1))+ driving + fr.getDuration();
+                            String newTime = timeFormatter(startHr,startMin);
+                            if(btimeComparator(newTime,first.getStartTime()))
+                                schedTasks.add(0, fr);
+                            else
+                                schedTasks.add(fr);
+                        }
+                        else
+                        {
+                            int index = time_str.indexOf(":");
+                            int startHr = Integer.parseInt(time_str.substring(0, index));
+                            int startMin = Integer.parseInt(time_str.substring(index+1))+ driving + fr.getDuration() + first.getDuration();
+                            String newTime = timeFormatter(startHr,startMin);
+                            String latestEnd = timerange1.get(1);
+                            if(btimeComparator(newTime,latestEnd))
+                                schedTasks.add(0, fr);
+                            else
+                                schedTasks.add(fr);
+                        }
+
+                    }
                     //todo: may need to check our logic
                 }
 
@@ -267,8 +307,38 @@ public class Scheduler extends Activity {
                         for (Task fr : freeTasks) {
                             Double distFirst = findDist(first.getLocation().coordinate, fr.getLocation().coordinate);
                             Double distLast = findDist(last.getLocation().coordinate, fr.getLocation().coordinate);
+                            ArrayList<String> timerange1 = null;
                             if (distFirst > distLast) schedTasks.add(fr);
-                            else schedTasks.add(0, fr);
+                            else{
+                                if (first.getStartTime() == null) timerange1 = first.getRange();
+                                int driving = getDistMins(first.getTid(),fr.getTid());
+
+                                if(timerange1 == null) // first is scheduled
+                                {
+                                    // current time + driving + duration < first's start time, then schedule, otherwise add to end OR don't schedule.
+                                    int index = time_str.indexOf(":");
+                                    int startHr = Integer.parseInt(time_str.substring(0, index));
+                                    int startMin = Integer.parseInt(time_str.substring(index+1))+ driving + fr.getDuration();
+                                    String newTime = timeFormatter(startHr,startMin);
+                                    if(btimeComparator(newTime,first.getStartTime()))
+                                        schedTasks.add(0, fr);
+                                    else
+                                        schedTasks.add(fr);
+                                }
+                                else
+                                {
+                                    int index = time_str.indexOf(":");
+                                    int startHr = Integer.parseInt(time_str.substring(0, index));
+                                    int startMin = Integer.parseInt(time_str.substring(index+1))+ driving + fr.getDuration() + first.getDuration();
+                                    String newTime = timeFormatter(startHr,startMin);
+                                    String latestEnd = timerange1.get(1);
+                                    if(btimeComparator(newTime,latestEnd))
+                                        schedTasks.add(0, fr);
+                                    else
+                                        schedTasks.add(fr);
+                                }
+                            }
+
                             //todo: may need to check our logic
                         }
 
@@ -282,8 +352,39 @@ public class Scheduler extends Activity {
                 for (Task fr : freeTasks) {
                     Double distFirst = findDist(first.getLocation().coordinate, fr.getLocation().coordinate);
                     Double distLast = findDist(last.getLocation().coordinate, fr.getLocation().coordinate);
-                    if (distFirst > distLast) schedTasks.add(fr);
-                    else schedTasks.add(0, fr);
+                    ArrayList<String> timerange1 = null;
+                    if (distFirst > distLast)
+                        schedTasks.add(fr);
+                    else{
+                        if (first.getStartTime() == null) timerange1 = first.getRange();
+                        int driving = getDistMins(first.getTid(),fr.getTid());
+
+                        if(timerange1 == null) // first is scheduled
+                        {
+                            // current time + driving + duration < first's start time, then schedule, otherwise add to end OR don't schedule.
+                            String[] index = time_str.split(":");
+                            int startHr = Integer.parseInt(index[0]);
+                            int startMin = Integer.parseInt(index[1])+ driving + fr.getDuration();
+                            String newTime = timeFormatter(startHr,startMin);
+                            String starttime = first.getStartTime().split("T")[1];
+                            if(btimeComparator(newTime,starttime))
+                                schedTasks.add(0, fr);
+                            else
+                                schedTasks.add(fr);
+                        }
+                        else
+                        {
+                            int index = time_str.indexOf(":");
+                            int startHr = Integer.parseInt(time_str.substring(0, index));
+                            int startMin = Integer.parseInt(time_str.substring(index+1))+ driving + fr.getDuration() + first.getDuration();
+                            String newTime = timeFormatter(startHr,startMin);
+                            String latestEnd = timerange1.get(1);
+                            if(btimeComparator(newTime,latestEnd))
+                                schedTasks.add(0, fr);
+                            else
+                                schedTasks.add(fr);
+                        }
+                    }
                 }
 
             }
@@ -396,8 +497,8 @@ public class Scheduler extends Activity {
                 schedTasks.add(index + 1, tmp);
                 candidateTasks.remove(tmp);
             }
-
-        } else if (timerange1 != null && timerange2 == null) {
+        }
+        else if (timerange1 != null && timerange2 == null) {
             //t1 free, t2 scheduled
             //todo: here
             hr = Integer.parseInt(timerange1.get(0).split(":")[0]);
@@ -484,6 +585,8 @@ public class Scheduler extends Activity {
                 mm1 = 60 + mm1;
             }
         }
+        if(mm1<10)
+            return String.valueOf(hr1) + ":0" + String.valueOf(mm1);
         return String.valueOf(hr1) + ":" + String.valueOf(mm1);
     }
 

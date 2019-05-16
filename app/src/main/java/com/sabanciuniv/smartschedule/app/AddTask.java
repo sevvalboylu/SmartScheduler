@@ -91,6 +91,7 @@ public class AddTask extends AppCompatActivity {
         mStartTimePicker.setVisibility(View.GONE);
         mEndTimePicker = findViewById(R.id.timePicker2);
         mEndTimePicker.setVisibility(View.GONE);
+        mEndTimePicker.setHour(mStartTimePicker.getHour()+1);
         mDurationText = findViewById(R.id.durationText);
 
         mAllDaySwitch.setOnClickListener(new View.OnClickListener() {
@@ -171,13 +172,16 @@ public class AddTask extends AppCompatActivity {
 
         // [START single_value_read]
         final String userId = getUid();
-        final String address = mLocationField.getText().toString();
+        String address = mLocationField.getText().toString();
         Point pnt = new Point(latitude, longitude);
         final Task.Location location;
         if (locpos == -1)
             location = new Task.Location(address, pnt);
-        else
-            location = new Task.Location(locarr.get(locpos).getAddress(), locarr.get(locpos).getCoordinate());
+        else {
+            location = new Task.Location(locarr.get(locpos-1).getAddress(), locarr.get(locpos-1).getCoordinate());
+            address = locarr.get(locpos-1).getAddress();
+            mLocationField.setText(address);
+        }
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
         Task task = null;
