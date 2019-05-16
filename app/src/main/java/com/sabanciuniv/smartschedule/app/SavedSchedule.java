@@ -2,7 +2,6 @@ package com.sabanciuniv.smartschedule.app;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -16,7 +15,6 @@ import android.widget.ProgressBar;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class SavedSchedule extends AppCompatActivity {
 
@@ -68,6 +66,7 @@ public class SavedSchedule extends AppCompatActivity {
         taskAdapter = new TaskAdapter(SavedSchedule.this, tasks, true, false, false, false);
         RecyclerView.setLayoutManager(new LinearLayoutManager(this));
         RecyclerView.setAdapter(taskAdapter);
+
         markasDone = findViewById(R.id.markasdoneBtn);
         markasDone.setVisibility(View.VISIBLE);
         markasDone.setOnClickListener(new View.OnClickListener() {

@@ -260,6 +260,7 @@ public class BasicActivity extends BaseActivity implements WeekView.EventLongPre
             java.util.Calendar cl_ = java.util.Calendar.getInstance();
             cl_.setTime(date_);
             WeekViewEvent e = new WeekViewEvent(readId,t.getTitle(),cl,cl_);
+            e.setColor(randColor());
             mEvents.add(e);}
         }
     }
