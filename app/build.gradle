@@ -13,7 +13,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.sabanciuniv.smartschedule.app"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 27
         testInstrumentationRunner "android.test.runner.AndroidJUnitRunner"
         versionCode 1

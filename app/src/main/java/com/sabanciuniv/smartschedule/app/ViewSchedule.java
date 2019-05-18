@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 
 public class ViewSchedule extends AppCompatActivity {
 
+    private String scheduleEnd;
     protected Location location;
     private static int listSize;
     private static ArrayList<Task> tasks = new ArrayList<>();
@@ -56,19 +57,6 @@ public class ViewSchedule extends AppCompatActivity {
     public static ArrayList<distanceMatrix> dm = new ArrayList<>();
 
     private ProgressBar spinner;
-
-    protected class cacheDM {
-        private Point curr;
-        private Point dest;
-        private int mins;
-
-        public cacheDM(Point curr, Point dest, int mins) {
-            this.curr = curr;
-            this.dest = dest;
-            this.mins = mins;
-        }
-    }
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -99,6 +87,8 @@ public class ViewSchedule extends AppCompatActivity {
         markAsDone = findViewById(R.id.markasdoneBtn);
         markAsDone.setVisibility(View.GONE);
 
+        scheduleEnd = getIntent().getStringExtra("endTime"); //ending time will be used in scheduler
+
         getDrivingMins();
     }
 
@@ -123,7 +113,7 @@ public class ViewSchedule extends AppCompatActivity {
         Task.Location current = new Task.Location(addressLine, c);
 
         Scheduler sc = new Scheduler(current);
-        tasks = sc.sortTasks(dm);
+        tasks = sc.sortTasks(dm, scheduleEnd);
 
         if(!sc.scheduledAll())
         {
@@ -166,8 +156,7 @@ public class ViewSchedule extends AppCompatActivity {
                 for (Task m : arrayLists[0]) {
                     if (!t.getTid().equals(m.getTid())) {
                         if (prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour))) {
-                            int mins = 0;
-                            prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()), mins);
+                            int mins = prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude())+ classifyHr(currentHour), 0);
                             dm.add(new distanceMatrix(mins, t.getTid(), m.getTid()));
                         }
                         else if (t.getLocation().getAddress().equals(m.getLocation().getAddress())) {
@@ -204,9 +193,6 @@ public class ViewSchedule extends AppCompatActivity {
                                 if (mat.find()) {
                                     final String k = mat.group(0).replaceAll("\"travelDuration\":", "");
                                     int mk = Integer.parseInt(k.split("\\.")[0]);
-                                    cacheDM cdm = new cacheDM(t.getLocation().getCoordinate(), m.getLocation().getCoordinate(), mk);
-                                    Gson gson = new Gson();
-                                    String json = gson.toJson(cdm);
                                     editor.putInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour), mk);
                                     distanceMatrix d = new distanceMatrix(mk, t.getTid(), m.getTid());
                                     dm.add(d);
