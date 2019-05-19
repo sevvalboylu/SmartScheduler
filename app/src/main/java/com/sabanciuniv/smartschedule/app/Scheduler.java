@@ -142,7 +142,7 @@ public class Scheduler extends Activity {
 
         Collections.sort(schedTasks, TaskComparator);
 
-        if (schedTasks.size() > 1) {
+        if (schedTasks.size() > 1) { //TODO: NOT OPTIMAL SCHEDULE WITH 2 SCHEDULED TASKS
             List<HashMap.Entry> temp = matchTasks();
             //now evaluate the candidate tasks in match
 
@@ -322,9 +322,9 @@ public class Scheduler extends Activity {
             for (Task fr : freeTasks) {
                 int minF = getDistMins(first.getTid(), fr.getTid());
                 int minL = getDistMins(last.getTid(), fr.getTid()); ArrayList<String> timerange1 = null;
-                if (minF > minL) {
+                if (minF >= minL) {
                     Task lastTask = schedTasks.get(schedTasks.size()-1);
-                    if(lastTask.getRange() == null)
+                    if(lastTask.getRange().size() == 0)
                     {
                         String end = lastTask.getEndTime();
                         end = end.split("T")[1];
@@ -351,10 +351,11 @@ public class Scheduler extends Activity {
                         if(btimeComparator(timeFormatter(Integer.parseInt(endSplit[0]),
                                 Integer.parseInt(endSplit[1])+minL + fr.getDuration()),scheduleEnd))
                         {
-                            String start = timeFormatter(Integer.parseInt(lastTask.getEndHour()),
-                                    Integer.parseInt(lastTask.getEndMinute())+minL);
-                            String end2 = timeFormatter(Integer.parseInt(start.split(":")[0]),
-                                    Integer.parseInt(start.split(":")[1])+ fr.getDuration());
+                            String endSch = lastTask.getRange().get(1);
+                            String start = timeFormatter(Integer.parseInt(endSch.split(":")[0]),
+                                    Integer.parseInt(endSch.split(":")[1])+minL);
+                            String end2 = timeFormatter(Integer.parseInt(endSch.split(":")[0]),
+                                    Integer.parseInt((endSch.split(":")[1])) + minL + fr.getDuration());
                             fr.addRange(start,end2);
                             schedTasks.add(fr);
                         }
@@ -403,10 +404,11 @@ public class Scheduler extends Activity {
                                 if(btimeComparator(timeFormatter(Integer.parseInt(endSplit[0]),
                                         Integer.parseInt(endSplit[1])+minL + fr.getDuration()),scheduleEnd))
                                 {
-                                    String start = timeFormatter(Integer.parseInt(lastTask.getEndHour()),
-                                            Integer.parseInt(lastTask.getEndMinute())+minL);
-                                    String end2 = timeFormatter(Integer.parseInt(start.split(":")[0]),
-                                            Integer.parseInt(start.split(":")[1])+ fr.getDuration());
+                                    String endSch = lastTask.getRange().get(1);
+                                    String start = timeFormatter(Integer.parseInt(endSch.split(":")[0]),
+                                            Integer.parseInt(endSch.split(":")[1])+minL);
+                                    String end2 = timeFormatter(Integer.parseInt(endSch.split(":")[0]),
+                                            Integer.parseInt((endSch.split(":")[1])) + minL + fr.getDuration());
                                     fr.addRange(start,end2);
                                     schedTasks.add(fr);
                                 }
@@ -424,7 +426,7 @@ public class Scheduler extends Activity {
                             schedTasks.add(0, fr);
                         else {
                             Task lastTask = schedTasks.get(schedTasks.size()-1);
-                            if(lastTask.getRange().size() == 0)
+                            if(lastTask.getRange().size() == 0) //scheduled task
                             {
                                 String end = lastTask.getEndTime();
                                 end = end.split("T")[1];
@@ -446,6 +448,12 @@ public class Scheduler extends Activity {
                                 if(btimeComparator(timeFormatter(Integer.parseInt(endSplit[0]),
                                         Integer.parseInt(endSplit[1])+minL + fr.getDuration()),scheduleEnd))
                                 {
+                                    String endSch = lastTask.getRange().get(1);
+                                    String start = timeFormatter(Integer.parseInt(endSch.split(":")[0]),
+                                            Integer.parseInt(endSch.split(":")[1])+minL);
+                                    String end2 = timeFormatter(Integer.parseInt(endSch.split(":")[0]),
+                                            Integer.parseInt((endSch.split(":")[1])) + minL + fr.getDuration());
+                                    fr.addRange(start,end2);
                                     schedTasks.add(fr);
                                 }
                             }
@@ -474,7 +482,7 @@ public class Scheduler extends Activity {
         PriorityQueue<Double> minHeap = new PriorityQueue<>();
         HashMap<Double, String> distOrder = new HashMap<>();
 
-        for (Task t : candidateTasks) {
+        for (Task t : candidateTasks) { //TODO: middle distance thing is not so optimal I guess.
             double d = findDistMid(t1.getLocation().coordinate, t2.getLocation().coordinate, t.getLocation().coordinate);
             minHeap.add(d);
             distOrder.put(d, t.getTid());
