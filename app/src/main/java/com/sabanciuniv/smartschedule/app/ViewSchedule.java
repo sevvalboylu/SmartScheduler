@@ -158,7 +158,7 @@ public class ViewSchedule extends AppCompatActivity {
         Scheduler sc = new Scheduler(location, scheduleEnd);
         tasks = sc.sortTasks(dm, scheduleEnd);
 
-        if(!sc.scheduledAll())
+        if(!sc.isScheduledAll())
         {
             // Some tasks could not be scheduled.
             Toast.makeText(this, "Some tasks could not be scheduled.", Toast.LENGTH_LONG).show();
