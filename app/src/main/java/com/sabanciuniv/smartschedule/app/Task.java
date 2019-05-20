@@ -136,7 +136,10 @@ public class Task {
         return duration;
     }
 
-    public Task(){}
+    public Task(){
+        tid = "";
+        lvl = "0";
+    }
 
     //used
     public Task(String uid, String tid, String lvl ,int duration, String title, Location location, boolean reminderEnabled) {

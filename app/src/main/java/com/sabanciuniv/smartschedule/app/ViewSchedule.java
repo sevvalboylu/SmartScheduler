@@ -1,15 +1,20 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,11 +43,10 @@ import java.util.regex.Pattern;
 public class ViewSchedule extends AppCompatActivity {
 
     private String scheduleEnd;
-    protected Location location;
+    protected Task.Location location;
     private static int listSize;
     private static ArrayList<Task> tasks = new ArrayList<>();
     private Object lock = new Object();
-
     public static ArrayList<Task> getTasks() {
         return tasks;
     }
@@ -75,9 +79,7 @@ public class ViewSchedule extends AppCompatActivity {
             }
         });
         RecyclerView = findViewById(R.id.recyclerview_schedule);
-
         spinner = (ProgressBar) findViewById(R.id.progressBar1);
-
         // now inflate the recyclerView
         taskAdapter = new TaskAdapter(ViewSchedule.this, tasks, false, false, false, false);
         RecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -89,20 +91,11 @@ public class ViewSchedule extends AppCompatActivity {
 
         scheduleEnd = getIntent().getStringExtra("endTime"); //ending time will be used in scheduler
 
-        getDrivingMins();
-    }
-
-
-    public void getDrivingMins() {
-        ArrayList<Task> cTasks = adapter.checkedTasks;
-        new GetDrivingMinsTask().execute(cTasks);
-    }
-
-    public void scheduleTasks() {
-
+        //todo: dummy location??? not safe.
+        /*
         List<Address> address;
         String addressLine = "";
-        Point c = new Point(41.0082, 28.9784); //location.getLatitude(),location.getLongitude()
+        Point c = new Point(40.892152, 29.378957); //location.getLatitude(),location.getLongitude()
         final Geocoder geocoder = new Geocoder(ViewSchedule.this, Locale.getDefault());
         try {
             address = geocoder.getFromLocation(c.getLatitude(), c.getLongitude(), 1);
@@ -110,12 +103,62 @@ public class ViewSchedule extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Task.Location current = new Task.Location(addressLine, c);
+        location = new Task.Location(addressLine, c);*/
+        final Location[] curr = new Location[1];
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
-        Scheduler sc = new Scheduler(current);
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location loc) {
+                // Called when a new location is found by the network location provider.
+                if(curr[0]==null) {
+                    curr[0] = loc;
+                    location = new Task.Location("", new Point(curr[0].getLatitude(), curr[0].getLongitude()));
+                    getDrivingMins();
+                }
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            public void onProviderEnabled(String provider) {
+            }
+
+            public void onProviderDisabled(String provider) {
+            }
+        };
+
+        // Register the listener with the Location Manager to receive location updates
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+    }
+
+
+    public void getDrivingMins() {
+        ArrayList<Task> cTasks = new ArrayList<>(adapter.checkedTasks);
+        Task.Location xd = new Task.Location("", new Point(location.coordinate.getLatitude(),location.coordinate.getLongitude()));
+        Task dummy = new Task();
+        dummy.setLocation(xd);
+        cTasks.add(dummy);
+        dm.clear();
+        new GetDrivingMinsTask().execute(cTasks);
+    }
+
+    public void scheduleTasks() {
+        Scheduler sc = new Scheduler(location, scheduleEnd);
         tasks = sc.sortTasks(dm, scheduleEnd);
 
-        if(!sc.scheduledAll())
+        if(!sc.isScheduledAll())
         {
             // Some tasks could not be scheduled.
             Toast.makeText(this, "Some tasks could not be scheduled.", Toast.LENGTH_LONG).show();
@@ -162,6 +205,7 @@ public class ViewSchedule extends AppCompatActivity {
                         }
                         else if (t.getLocation().getAddress().equals(m.getLocation().getAddress())) {
                             int mins = 0;
+                            dm.add(new distanceMatrix(mins, t.getTid(), m.getTid()));
                         }
                         else {
                             String origin = "origins=" + t.getLocation().getCoordinate().getLatitude() + "," + t.getLocation().getCoordinate().getLongitude();
