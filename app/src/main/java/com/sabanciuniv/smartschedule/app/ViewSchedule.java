@@ -158,6 +158,7 @@ public class ViewSchedule extends AppCompatActivity {
                         if (prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour))) {
                             int mins = prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude())+ classifyHr(currentHour), 0);
                             dm.add(new distanceMatrix(mins, t.getTid(), m.getTid()));
+
                         }
                         else if (t.getLocation().getAddress().equals(m.getLocation().getAddress())) {
                             int mins = 0;
