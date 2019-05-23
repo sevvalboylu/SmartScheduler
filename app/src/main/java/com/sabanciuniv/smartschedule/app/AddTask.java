@@ -1,7 +1,9 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
@@ -136,21 +139,54 @@ public class AddTask extends AppCompatActivity {
         addListenerOnSpinnerItemSelection();
         addListenerOnSpinnerLocSelection();
 
-        ArrayList<String> locs = new ArrayList<>();
-        locs.add(0,"Your Places");
+        final ArrayList<String>[] locs = new ArrayList[]{new ArrayList<>()};
+        locs[0].add(0,"Your Places");
+        if (isNetworkConnected()) {
+            final SharedPreferences.Editor editor = getSharedPreferences("addresses", MODE_PRIVATE).edit();
+            Profile.LocLoader tl = new Profile.LocLoader(new DataStatus() {
+                @Override
+                public void TasksLoaded(List<Task> tasks, List<String> keys) {
 
-        SharedPreferences s = getSharedPreferences("locations", MODE_PRIVATE);
-        Map<String, ?> keys = s.getAll();
-        for (Map.Entry<String, ?> entry : keys.entrySet()) {
-            Gson gson = new Gson();
-            String json = entry.getValue().toString();
-            locarr.add(gson.fromJson(json, Profile.Location.class));
-            locs.add(gson.fromJson(json, Profile.Location.class).getTitle());
+                }
+                @Override
+                public void LocsLoaded(ArrayList<Profile.Location> locations, List<String> keys) {
+
+                    int writeId = 1;
+                    for (Profile.Location t : locations) {
+                        locarr.add(t);
+                        locs[0].add(t.getTitle());
+                        Gson gson = new Gson();
+                        String json = gson.toJson(t);
+                        editor.putString("address" + writeId++, json);
+                    }
+                    Spinner loc = findViewById(R.id.freqLocationSpinner);
+                    ArrayAdapter ladapter = new ArrayAdapter<>(AddTask.this, android.R.layout.simple_spinner_dropdown_item, locs[0]);
+                    loc.setAdapter(ladapter);
+                    writeId = 1;
+                    for (String k : keys) {
+                        editor.putString("key" + writeId++, k);
+                    }
+                    editor.apply();
+                }
+
+
+            }, mAuth.getUid());
+
+        }
+        else {
+            SharedPreferences s = getSharedPreferences("locations", MODE_PRIVATE);
+            Map<String, ?> keys = s.getAll();
+            for (Map.Entry<String, ?> entry : keys.entrySet()) {
+                Gson gson = new Gson();
+                String json = entry.getValue().toString();
+                locarr.add(gson.fromJson(json, Profile.Location.class));
+                locs[0].add(gson.fromJson(json, Profile.Location.class).getTitle());
+            }
+            Spinner loc = findViewById(R.id.freqLocationSpinner);
+            ArrayAdapter<String> ladapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, locs[0]);
+            loc.setAdapter(ladapter);
         }
 
-        Spinner loc = findViewById(R.id.freqLocationSpinner);
-        ArrayAdapter<String> ladapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, locs);
-        loc.setAdapter(ladapter);
         //go to map or dropdown list of most frequent places
     }
 
@@ -190,7 +226,11 @@ public class AddTask extends AppCompatActivity {
         DateTime e = getDateFromDatePicker(mEndDatePicker, mEndTimePicker);
 
         if (!mAllDaySwitch.isChecked()) {
+            if( btimeComparator(mStartTimePicker.getHour() + ":" +mStartTimePicker.getMinute() , mEndTimePicker.getHour() + ":" +mEndTimePicker.getMinute()))
             task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, title, location, getDuration(s.toString(), e.toString()), lvl, s.toString(), e.toString(), reminderEnabled);
+            else
+            { Toast.makeText(this,"Start and end times are not consistent!",Toast.LENGTH_LONG).show();
+             return;}
         } else {
             task = new com.sabanciuniv.smartschedule.app.Task(userId, taskId, lvl, Integer.parseInt(mDurationText.getText().toString()), title, location, reminderEnabled);
         }
@@ -343,5 +383,20 @@ public class AddTask extends AppCompatActivity {
         calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), timePicker.getHour(), timePicker.getMinute());
         DateTime dt = new DateTime(calendar.getTime());
         return dt;
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
+    }
+
+    public boolean btimeComparator(String s, String s1) //returns 1 if left op is sooner
+    {
+        if (Integer.parseInt(s.split(":")[0]) > Integer.parseInt(s1.split(":")[0])) return false;
+        else if (Integer.parseInt(s.split(":")[0]) == Integer.parseInt(s1.split(":")[0]))
+            if (Integer.parseInt(s.split(":")[1]) < Integer.parseInt(s1.split(":")[1])) return true;
+            else return false;
+        else return true;
+
     }
 }

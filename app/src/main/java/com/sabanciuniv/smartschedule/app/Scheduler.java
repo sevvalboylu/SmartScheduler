@@ -11,9 +11,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.PriorityQueue;
 
 public class Scheduler extends Activity {
@@ -584,7 +582,7 @@ public class Scheduler extends Activity {
         }
     };
 
-    private boolean btimeComparator(String s, String s1) //returns 1 if left op is sooner
+    public boolean btimeComparator(String s, String s1) //returns 1 if left op is sooner
     {
         if (Integer.parseInt(s.split(":")[0]) > Integer.parseInt(s1.split(":")[0])) return false;
         else if (Integer.parseInt(s.split(":")[0]) == Integer.parseInt(s1.split(":")[0]))

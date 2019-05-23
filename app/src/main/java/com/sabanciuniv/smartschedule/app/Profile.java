@@ -38,7 +38,7 @@ import java.util.Objects;
 public class Profile extends AppCompatActivity {
 
 
-    public class LocLoader {
+    public static class LocLoader {
         private ArrayList<Profile.Location> locs = new ArrayList<>();
 
         public LocLoader(final DataStatus dataStatus, String uid) {
