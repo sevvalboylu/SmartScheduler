@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -67,7 +68,7 @@ public class ViewSchedule extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         adapter = MainActivity.getAdapter();
-        listSize = adapter.checkedTasks.size();
+        listSize = adapter.checkedTasks.size() +1;
         setContentView(R.layout.activity_viewschedule);
         mapBtn = findViewById(R.id.map_fob);
         mapBtn.setOnClickListener(new View.OnClickListener() {
@@ -198,8 +199,8 @@ public class ViewSchedule extends AppCompatActivity {
             for (Task t : arrayLists[0])
                 for (Task m : arrayLists[0]) {
                     if (!t.getTid().equals(m.getTid())) {
-                        if (prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour))) {
-                            int mins = prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude())+ classifyHr(currentHour), 0);
+                        if (prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour))) {
+                            int mins = prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLongitude())+ classifyHr(currentHour), 0);
                             dm.add(new distanceMatrix(mins, t.getTid(), m.getTid()));
                         }
                         else if (t.getLocation().getAddress().equals(m.getLocation().getAddress())) {
@@ -232,24 +233,32 @@ public class ViewSchedule extends AppCompatActivity {
                                     sc.close();
                                 }
 
-                                Pattern p = Pattern.compile("\"travelDuration\":(.\\d)+");
+                                Pattern p = Pattern.compile("\"travelDuration\":[0-9]*\\.?[0-9]*");
                                 Matcher mat = p.matcher(inline.toString());
                                 if (mat.find()) {
                                     final String k = mat.group(0).replaceAll("\"travelDuration\":", "");
                                     int mk = Integer.parseInt(k.split("\\.")[0]);
-                                    editor.putInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour), mk);
+                                    editor.putInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour), mk);
                                     distanceMatrix d = new distanceMatrix(mk, t.getTid(), m.getTid());
                                     dm.add(d);
-                                    if (dm.size() == (listSize * (listSize - 1)) / 2) {
+                                    if (dm.size() == (listSize * (listSize - 1))) {
                                         editor.apply();
                                         return true;
                                     }
+                                }
+                                else
+                                {
+                                    Log.d("what","in tarnation");
                                 }
 
                             } catch (MalformedURLException e) {
                                 e.printStackTrace();
                             } catch (IOException e) {
                                 e.printStackTrace();
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
+                                Log.d("err", "doInBackground: EROOROOOR");
                             }
                         }
                     }

@@ -96,7 +96,7 @@ public class Scheduler extends Activity {
                     int j;
                     for(j = lastIndex; j< temp.size(); j++) {
                         if((int) temp.get(j).getValue() == i)
-                            candidates.add(temp.get(j));
+                            candidates.add(temp.get(j));  //not needed
                     }
                     lastIndex = j;
 
@@ -109,7 +109,7 @@ public class Scheduler extends Activity {
 
                     Collections.sort(candTasks, (task1, task2) -> {
                         return -1 * task1.getLvl().compareTo(task2.getLvl());
-                    });
+                    }); //not needed
                     if(candTasks.size()>0)
                         attachTasks(i, schedTasks.get(i), schedTasks.get(i + 1), candTasks);
 
@@ -185,10 +185,15 @@ public class Scheduler extends Activity {
 
             Collections.sort(mArray, (mixedArray m1, mixedArray m2)-> {
                 if (Integer.parseInt(m1.importance) > Integer.parseInt(m2.importance))
-                    if (m1.distance < m2.distance) return 1;
+                    return 1;
+                else if(Integer.parseInt(m1.importance) == Integer.parseInt(m2.importance))
+                {
+                    if (m1.distance < m2.distance) return -1;
                     else if (m1.distance == m2.distance) return 0;
-                    else return -1;
-                else return -1;
+                    else return 1;
+                }
+                else
+                    return -1;
             });
 
 
@@ -397,7 +402,7 @@ public class Scheduler extends Activity {
         PriorityQueue<Double> minHeap = new PriorityQueue<>();
         HashMap<Double, String> distOrder = new HashMap<>();
 
-        for (Task t : candidates) { //TODO: middle distance thing is not so optimal I guess.
+        for (Task t : candidates) {
             double d = findLeastDriving(t1, t2, t);
             minHeap.add(d);
             distOrder.put(d, t.getTid());
@@ -503,8 +508,8 @@ public class Scheduler extends Activity {
         }
 
         if (candidates.size() > 0) {
-            if (schedTasks.size() > index + 1)
-                attachTasks(index, schedTasks.get(index), schedTasks.get(index + 1), candidates); //recursive call to next interval
+            //if (schedTasks.size() > index + 1)
+              //  attachTasks(index, schedTasks.get(index), schedTasks.get(index + 1), candidates); //recursive call to next interval
             if (schedTasks.size() > index + 2)
                 attachTasks(index + 1, schedTasks.get(index + 1), schedTasks.get(index + 2), candidates);
         }
