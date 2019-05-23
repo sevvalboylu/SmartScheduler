@@ -1,6 +1,5 @@
 package com.sabanciuniv.smartschedule.app;
 
-import com.google.api.client.util.DateTime;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.tomtom.online.sdk.common.location.LatLng;
 import com.yandex.mapkit.geometry.Point;
@@ -137,7 +136,10 @@ public class Task {
         return duration;
     }
 
-    public Task(){}
+    public Task(){
+        tid = "";
+        lvl = "0";
+    }
 
     //used
     public Task(String uid, String tid, String lvl ,int duration, String title, Location location, boolean reminderEnabled) {
@@ -154,6 +156,7 @@ public class Task {
     public Task(String uid, String tid, String title, Location location, int duration, String lvl, String startTime, String endTime, boolean reminderEnabled) {
         this.uid = uid;
         this.tid = tid;
+        this.done= false;
         this.title = title;
         this.location = location;
         this.duration = duration;

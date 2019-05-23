@@ -20,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
 
@@ -189,7 +190,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
             holder.taskImp.setTextColor(Color.rgb(182,1,59));
 
         if(row.getStartTime() != null){
-            String interval = ""+ row.getStartHour()+":"+row.getStartMinute() + " - " + row.getEndHour() + ":" + row. getEndMinute();
+            String taskDate = row.getStartTime();
+            int index = taskDate.indexOf("T");
+            taskDate = taskDate.substring(0,index);
+
+            String interval = taskDate.substring(8) +"/"+taskDate.substring(5,7) + "/" + taskDate.substring(0,4) + " | " + row.getStartHour()+":"+row.getStartMinute() + " - " + row.getEndHour() + ":" + row. getEndMinute();
             holder.taskTime.setText(interval);
         }
         else {

@@ -106,7 +106,7 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
     protected void drawRoutes() {
 
         DrivingOptions options = new DrivingOptions();
-        options.setAlternativeCount(1); // todo: somehow we may reach the fastest route possible.
+        options.setAlternativeCount(1);
         ArrayList<RequestPoint> requestPoints = new ArrayList<>();
 
         List<Point> wayPoints = new ArrayList<>();

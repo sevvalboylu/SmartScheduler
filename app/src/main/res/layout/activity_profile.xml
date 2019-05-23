@@ -36,7 +36,7 @@
 
             <ImageView
                 android:id="@+id/profilepicture"
-                android:layout_width="152dp"
+                android:layout_width="151dp"
                 android:layout_height="108dp"
                 android:layout_marginStart="8sp"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
@@ -94,7 +94,7 @@
                         android:layout_weight="1"
                         android:onClick="checkName"
                         app:srcCompat="@drawable/ic_baseline_check_green"
-                        tools:visibility="gone" />
+                        tools:visibility="visible" />
 
                     <ImageView
                         android:id="@+id/imgCancel"
@@ -125,7 +125,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/nameText"
-                        android:layout_margin="16dp"
+                        android:layout_margin="4dp"
                         android:ems="10"
                         android:inputType="textEmailAddress"
                         android:text="Email" />

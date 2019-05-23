@@ -1,18 +1,24 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -37,11 +43,11 @@ import java.util.regex.Pattern;
 
 public class ViewSchedule extends AppCompatActivity {
 
-    protected Location location;
+    private String scheduleEnd;
+    protected Task.Location location;
     private static int listSize;
     private static ArrayList<Task> tasks = new ArrayList<>();
     private Object lock = new Object();
-
     public static ArrayList<Task> getTasks() {
         return tasks;
     }
@@ -57,25 +63,12 @@ public class ViewSchedule extends AppCompatActivity {
 
     private ProgressBar spinner;
 
-    protected class cacheDM {
-        private Point curr;
-        private Point dest;
-        private int mins;
-
-        public cacheDM(Point curr, Point dest, int mins) {
-            this.curr = curr;
-            this.dest = dest;
-            this.mins = mins;
-        }
-    }
-
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         adapter = MainActivity.getAdapter();
-        listSize = adapter.checkedTasks.size();
+        listSize = adapter.checkedTasks.size() +1;
         setContentView(R.layout.activity_viewschedule);
         mapBtn = findViewById(R.id.map_fob);
         mapBtn.setOnClickListener(new View.OnClickListener() {
@@ -87,9 +80,7 @@ public class ViewSchedule extends AppCompatActivity {
             }
         });
         RecyclerView = findViewById(R.id.recyclerview_schedule);
-
         spinner = (ProgressBar) findViewById(R.id.progressBar1);
-
         // now inflate the recyclerView
         taskAdapter = new TaskAdapter(ViewSchedule.this, tasks, false, false, false, false);
         RecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -99,20 +90,13 @@ public class ViewSchedule extends AppCompatActivity {
         markAsDone = findViewById(R.id.markasdoneBtn);
         markAsDone.setVisibility(View.GONE);
 
-        getDrivingMins();
-    }
+        scheduleEnd = getIntent().getStringExtra("endTime"); //ending time will be used in scheduler
 
-
-    public void getDrivingMins() {
-        ArrayList<Task> cTasks = adapter.checkedTasks;
-        new GetDrivingMinsTask().execute(cTasks);
-    }
-
-    public void scheduleTasks() {
-
+        //todo: dummy location??? not safe.
+        /*
         List<Address> address;
         String addressLine = "";
-        Point c = new Point(41.0082, 28.9784); //location.getLatitude(),location.getLongitude()
+        Point c = new Point(40.892152, 29.378957); //location.getLatitude(),location.getLongitude()
         final Geocoder geocoder = new Geocoder(ViewSchedule.this, Locale.getDefault());
         try {
             address = geocoder.getFromLocation(c.getLatitude(), c.getLongitude(), 1);
@@ -120,12 +104,62 @@ public class ViewSchedule extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Task.Location current = new Task.Location(addressLine, c);
+        location = new Task.Location(addressLine, c);*/
+        final Location[] curr = new Location[1];
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
-        Scheduler sc = new Scheduler(current);
-        tasks = sc.sortTasks(dm);
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location loc) {
+                // Called when a new location is found by the network location provider.
+                if(curr[0]==null) {
+                    curr[0] = loc;
+                    location = new Task.Location("", new Point(curr[0].getLatitude(), curr[0].getLongitude()));
+                    getDrivingMins();
+                }
+            }
 
-        if(!sc.scheduledAll())
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            public void onProviderEnabled(String provider) {
+            }
+
+            public void onProviderDisabled(String provider) {
+            }
+        };
+
+        // Register the listener with the Location Manager to receive location updates
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+    }
+
+
+    public void getDrivingMins() {
+        ArrayList<Task> cTasks = new ArrayList<>(adapter.checkedTasks);
+        Task.Location xd = new Task.Location("", new Point(location.coordinate.getLatitude(),location.coordinate.getLongitude()));
+        Task dummy = new Task();
+        dummy.setLocation(xd);
+        cTasks.add(dummy);
+        dm.clear();
+        new GetDrivingMinsTask().execute(cTasks);
+    }
+
+    public void scheduleTasks() {
+        Scheduler sc = new Scheduler(location, scheduleEnd);
+        tasks = sc.sortTasks(dm, scheduleEnd);
+
+        if(!sc.isScheduledAll())
         {
             // Some tasks could not be scheduled.
             Toast.makeText(this, "Some tasks could not be scheduled.", Toast.LENGTH_LONG).show();
@@ -140,7 +174,7 @@ public class ViewSchedule extends AppCompatActivity {
             String json = gson.toJson(t);
             editor.putString("scheduledtask" + writeId++, json);
         }
-        editor.commit();
+        editor.apply();
     }
 
     public static class distanceMatrix {
@@ -148,7 +182,7 @@ public class ViewSchedule extends AppCompatActivity {
         String tid2;
         String tid1;
 
-        protected distanceMatrix(int duration, String tid1, String tid2) {
+        distanceMatrix(int duration, String tid1, String tid2) {
             this.duration = duration;
             this.tid2 = tid2;
             this.tid1 = tid1;
@@ -164,14 +198,15 @@ public class ViewSchedule extends AppCompatActivity {
             int currentHour = rightNow.get(Calendar.HOUR_OF_DAY);
             for (Task t : arrayLists[0])
                 for (Task m : arrayLists[0]) {
-                    if (t.getTid() != m.getTid()) {
-                        if (prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour))) {
-                            int mins = 0;
-                            prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()), mins);
+                    if (!t.getTid().equals(m.getTid())) {
+                        if (prefs.contains(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour))) {
+                            int mins = prefs.getInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLongitude())+ classifyHr(currentHour), 0);
                             dm.add(new distanceMatrix(mins, t.getTid(), m.getTid()));
+
                         }
                         else if (t.getLocation().getAddress().equals(m.getLocation().getAddress())) {
                             int mins = 0;
+                            dm.add(new distanceMatrix(mins, t.getTid(), m.getTid()));
                         }
                         else {
                             String origin = "origins=" + t.getLocation().getCoordinate().getLatitude() + "," + t.getLocation().getCoordinate().getLongitude();
@@ -180,7 +215,7 @@ public class ViewSchedule extends AppCompatActivity {
 
                             HttpURLConnection urlConnection = null;
                             try {
-                                String inline = "";
+                                StringBuilder inline = new StringBuilder();
                                 InputStream in;
                                 URL url = new URL(s_url);
 
@@ -192,34 +227,39 @@ public class ViewSchedule extends AppCompatActivity {
                                 else {
                                     Scanner sc = new Scanner(url.openStream());
                                     while (sc.hasNext()) {
-                                        inline += sc.nextLine();
+                                        inline.append(sc.nextLine());
                                     }
                                     System.out.println("\nJSONt Response in String format");
                                     System.out.println(inline);
                                     sc.close();
                                 }
 
-                                Pattern p = Pattern.compile("\"travelDuration\":(.\\d)+");
-                                Matcher mat = p.matcher(inline);
+                                Pattern p = Pattern.compile("\"travelDuration\":[0-9]*\\.?[0-9]*");
+                                Matcher mat = p.matcher(inline.toString());
                                 if (mat.find()) {
                                     final String k = mat.group(0).replaceAll("\"travelDuration\":", "");
-                                    Integer mk = Integer.parseInt(k.split("\\.")[0]);
-                                    cacheDM cdm = new cacheDM(t.getLocation().getCoordinate(), m.getLocation().getCoordinate(), mk);
-                                    Gson gson = new Gson();
-                                    String json = gson.toJson(cdm);
-                                    editor.putInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour), mk);
+                                    int mk = Integer.parseInt(k.split("\\.")[0]);
+                                    editor.putInt(Double.toString(t.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(t.getLocation().getCoordinate().getLongitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLatitude()) + ',' + Double.toString(m.getLocation().getCoordinate().getLongitude()) + classifyHr(currentHour), mk);
                                     distanceMatrix d = new distanceMatrix(mk, t.getTid(), m.getTid());
                                     dm.add(d);
-                                    if (dm.size() == (listSize * (listSize - 1)) / 2) {
-                                        editor.commit();
+                                    if (dm.size() == (listSize * (listSize - 1))) {
+                                        editor.apply();
                                         return true;
                                     }
+                                }
+                                else
+                                {
+                                    Log.d("what","in tarnation");
                                 }
 
                             } catch (MalformedURLException e) {
                                 e.printStackTrace();
                             } catch (IOException e) {
                                 e.printStackTrace();
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
+                                Log.d("err", "doInBackground: EROOROOOR");
                             }
                         }
                     }

@@ -91,6 +91,7 @@ public class AddTask extends AppCompatActivity {
         mStartTimePicker.setVisibility(View.GONE);
         mEndTimePicker = findViewById(R.id.timePicker2);
         mEndTimePicker.setVisibility(View.GONE);
+        mEndTimePicker.setHour(mStartTimePicker.getHour()+1);
         mDurationText = findViewById(R.id.durationText);
 
         mAllDaySwitch.setOnClickListener(new View.OnClickListener() {
@@ -171,13 +172,16 @@ public class AddTask extends AppCompatActivity {
 
         // [START single_value_read]
         final String userId = getUid();
-        final String address = mLocationField.getText().toString();
+        String address = mLocationField.getText().toString();
         Point pnt = new Point(latitude, longitude);
         final Task.Location location;
         if (locpos == -1)
             location = new Task.Location(address, pnt);
-        else
-            location = new Task.Location(locarr.get(locpos).getAddress(), locarr.get(locpos).getCoordinate());
+        else {
+            location = new Task.Location(locarr.get(locpos-1).getAddress(), locarr.get(locpos-1).getCoordinate());
+            address = locarr.get(locpos-1).getAddress();
+            mLocationField.setText(address);
+        }
         Random rand = new Random();
         String taskId = String.valueOf(rand.nextInt(100));
         Task task = null;
@@ -279,6 +283,11 @@ public class AddTask extends AppCompatActivity {
         if (startDateTextClickCount % 2 == 1) {
             mStartDatePicker.setVisibility(View.VISIBLE);
         } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(mStartDatePicker.getYear(), mStartDatePicker.getMonth(), mStartDatePicker.getDayOfMonth());
+            Date date = calendar.getTime();
+            date_n = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date);
+            mStartDateText.setText(date_n);
             mStartDatePicker.setVisibility(View.GONE);
         }
     }
@@ -288,6 +297,11 @@ public class AddTask extends AppCompatActivity {
         if (endDateTextClickCount % 2 == 1) {
             mEndDatePicker.setVisibility(View.VISIBLE);
         } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(mEndDatePicker.getYear(), mEndDatePicker.getMonth(), mEndDatePicker.getDayOfMonth());
+            Date date = calendar.getTime();
+            date_n = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date);
+            mEndDateText.setText(date_n);
             mEndDatePicker.setVisibility(View.GONE);
         }
     }
@@ -297,6 +311,12 @@ public class AddTask extends AppCompatActivity {
         if (startTimeTextClickCount % 2 == 1) {
             mStartTimePicker.setVisibility(View.VISIBLE);
         } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(mStartDatePicker.getYear(), mStartDatePicker.getMonth(), mStartDatePicker.getDayOfMonth(),
+                    mStartTimePicker.getHour(), mStartTimePicker.getMinute());
+            DateFormat df = new SimpleDateFormat("hh:mm");
+            String date_str = df.format(calendar.getTime());
+            mStartTimeText.setText(date_str);
             mStartTimePicker.setVisibility(View.GONE);
         }
     }
@@ -306,6 +326,12 @@ public class AddTask extends AppCompatActivity {
         if (endTimeTextClickCount % 2 == 1) {
             mEndTimePicker.setVisibility(View.VISIBLE);
         } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(mEndDatePicker.getYear(), mEndDatePicker.getMonth(), mEndDatePicker.getDayOfMonth(),
+                    mEndTimePicker.getHour(), mEndTimePicker.getMinute());
+            DateFormat df = new SimpleDateFormat("hh:mm");
+            String date_str = df.format(calendar.getTime());
+            mEndTimeText.setText(date_str);
             mEndTimePicker.setVisibility(View.GONE);
         }
     }

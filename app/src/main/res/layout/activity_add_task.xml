@@ -291,7 +291,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="40dp"
                 android:layout_marginTop="4sp"
-                android:text="Estimated duration:"
+                android:text="Estimated duration:(minutes)"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
             <EditText
