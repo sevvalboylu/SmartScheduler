@@ -14,7 +14,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 
-import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.Credential;
@@ -110,28 +109,7 @@ public class BasicActivity extends BaseActivity {
 
             }
             tLoaded = true;
-        } else {
-            final SharedPreferences.Editor editor = getSharedPreferences("fbEvents", MODE_PRIVATE).edit();
-            TaskLoader tl = new TaskLoader(new DataStatus() {
-                @Override
-                public void DataIsLoaded(List<Task> tasks, List<String> keys) {
-                    mTasks = tasks;
-                    int writeId = 1;
-                    for (Task t : mTasks) {
-                        Gson gson = new Gson();
-                        String json = gson.toJson(t);
-                        editor.putString("task" + writeId++, json);
-                    }
-                    writeId = 1;
-                    for (String k : keys) {
-                        editor.putString("key" + writeId++, k);
-                    }
-                    getWeekView().notifyDatasetChanged();
-                    tLoaded = true;
-                    editor.apply();
-                }
-            }, mAuth.getUid());
-        }
+
 
         final int callbackId = 42;
         checkPermissions(callbackId, Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR, Manifest.permission.ACCESS_FINE_LOCATION);
