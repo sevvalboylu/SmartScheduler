@@ -12,6 +12,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ public class SavedSchedule extends AppCompatActivity {
     private ProgressBar spinner;
     private RecyclerView RecyclerView;
     private  FloatingActionButton mapBtn;
+    private DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
     private Button markasDone;
     private TaskAdapter taskAdapter;
     private static int listSize;
@@ -78,8 +82,12 @@ public class SavedSchedule extends AppCompatActivity {
                     Task temp = taskAdapter.checkedTasks.get(i);
                     tasks.remove(temp);
                     temp.setDone(true);
+                    try {
+                        ref.child("tasks").child(FirebaseAuth.getInstance().getUid()).child(temp.getTid()).setValue(temp);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     tasks.add(temp);
-                    //todo: Also maybe update in firebase(might be a bad idea, just asking)???
                 }
 
                 final SharedPreferences.Editor editor = getSharedPreferences("lastschedule", MODE_PRIVATE).edit();

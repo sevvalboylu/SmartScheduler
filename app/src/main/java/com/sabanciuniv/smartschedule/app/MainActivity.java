@@ -1,9 +1,7 @@
 package com.sabanciuniv.smartschedule.app;
 
-import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -74,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                             if (t.getStartTime() != null) {
                                 String startDate = t.getStartTime().split("T")[0];
                                 String startTime = t.getStartTime().split("T")[1];
-                                if (startDate.equals(date_str) && btimeComparator(time_str, startTime)) {
+                                if (startDate.equals(date_str) && btimeComparator(time_str, startTime) && !t.isDone() ) {
                                     mTasks.add(t);
                                 }
                             } else
