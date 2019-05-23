@@ -3,6 +3,7 @@ package com.sabanciuniv.smartschedule.app;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +21,11 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.yandex.mapkit.geometry.Point;
 
@@ -27,10 +33,44 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.Objects;
 
 public class Profile extends AppCompatActivity {
 
+
+    public class LocLoader {
+        private ArrayList<Profile.Location> locs = new ArrayList<>();
+
+        public LocLoader(final DataStatus dataStatus, String uid) {
+            DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+            DatabaseReference ref = database.child("addresses").child(uid);
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    locs.clear();
+                    if (dataSnapshot.exists()) {
+                        List<String> keys = new ArrayList<>();
+                        for (DataSnapshot keyNode : dataSnapshot.getChildren()) {
+                            keys.add(keyNode.getKey());
+                            Profile.Location temp = keyNode.getValue(com.sabanciuniv.smartschedule.app.Profile.Location.class);
+                            locs.add(temp);
+                        }
+                        List<Objects> s = new ArrayList<Objects>();
+                        dataStatus.LocsLoaded(locs, keys);
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+
+            });
+
+        }
+
+    }
     private ArrayList<Location> mLocations = new ArrayList<Location>();
     private SharedPreferences s, userdata;
     private RecyclerView mRecyclerView;
@@ -43,6 +83,7 @@ public class Profile extends AppCompatActivity {
     private ImageView checkBtn;
     private ImageView cancelBtn;
     private EditText editname;
+    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
     private double lon, lat;
 
@@ -53,7 +94,10 @@ public class Profile extends AppCompatActivity {
         checkBtn.setVisibility(View.VISIBLE);
         cancelBtn.setVisibility(View.VISIBLE);
     }
-
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
+    }
     public void checkName(View view) {
         String name = editname.getText().toString();
         if(name.equals(""))
@@ -83,6 +127,7 @@ public class Profile extends AppCompatActivity {
     protected static class Location extends Task.Location {
         private String title;
 
+        public Location (){}
         public String getTitle() {
             return title;
         }
@@ -111,6 +156,45 @@ public class Profile extends AppCompatActivity {
         checkBtn.setVisibility(View.GONE);
         cancelBtn = findViewById(R.id.imgCancel);
         ////////////
+
+        if(!isNetworkConnected()) {
+            SharedPreferences prefs = getSharedPreferences("addresses", MODE_PRIVATE);
+            int readId = 1;
+            while (prefs.contains("address" + readId)) {
+                Gson gson = new Gson();
+                String json = prefs.getString("address" + readId++, "");
+                mLocations.add(gson.fromJson(json, Profile.Location.class));
+            }
+        } else {
+            final SharedPreferences.Editor editor = getSharedPreferences("addresses", MODE_PRIVATE).edit();
+            LocLoader tl = new LocLoader(new DataStatus() {
+                @Override
+                public void TasksLoaded(List<Task> tasks, List<String> keys) {
+
+                }
+
+                @Override
+                public void LocsLoaded(ArrayList<Location> locs, List<String> keys) {
+                    mLocations = locs;
+                    int writeId = 1;
+                    for (Profile.Location t : mLocations) {
+                        Gson gson = new Gson();
+                        String json = gson.toJson(t);
+                        editor.putString("address" + writeId++, json);
+                    }
+                    writeId = 1;
+                    for (String k : keys) {
+                        editor.putString("key" + writeId++, k);
+                    }
+                    editor.apply();
+                    config.setConfig(mRecyclerView, Profile.this, mLocations);
+                }
+            }, FirebaseAuth.getInstance().getUid());
+        }
+
+
+
+        //////////
         String name = userdata.getString("userName","Your Name");
         nameText.setText(name);
 
@@ -145,7 +229,7 @@ public class Profile extends AppCompatActivity {
                 tv1.setText(name);
             String email = user.getEmail();
             tv2.setText(email);
-            config.setConfig(mRecyclerView, Profile.this, mLocations);
+
         }
     }
 
@@ -167,10 +251,8 @@ public class Profile extends AppCompatActivity {
 
     public void addLoc(View view) {
         EditText ed = findViewById(R.id.editTitle);
-        Gson gson = new Gson();
-        String json = gson.toJson(new Location(adr, ed.getText().toString(), lon, lat));
-        Random rand = new Random();
-        s.edit().putString(String.valueOf(rand.nextInt(100)), json).commit();
+        Profile.Location pl = new Profile.Location(adr,ed.getText().toString(),lon,lat);
+        mDatabase.child("addresses").child(FirebaseAuth.getInstance().getUid()).child(ed.getText().toString()).setValue(pl);
     }
 }
 
@@ -252,5 +334,7 @@ class RecyclerView_Loc {
         }
 
     }
+
+
 
 }

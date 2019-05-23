@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             public void onRefresh() {
                 TaskLoader tl = new TaskLoader(new DataStatus() {
                     @Override
-                    public void DataIsLoaded(List<Task> tasks, List<String> keys) {
+                    public void TasksLoaded(List<Task> tasks, List<String> keys) {
                         mTasks = new ArrayList<>();
                         for (Task t : tasks) {
                             if (t.getStartTime() != null) {
@@ -81,6 +81,11 @@ public class MainActivity extends AppCompatActivity {
                         adapter = new TaskAdapter(MainActivity.this, mTasks, true, true, false, false);
                         mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
                         mRecyclerView.setAdapter(adapter);
+                    }
+
+                    @Override
+                    public void LocsLoaded(ArrayList<Profile.Location> locs, List<String> keys) {
+
                     }
                 }, mAuth.getUid());
                 pullToRefresh.setRefreshing(false);

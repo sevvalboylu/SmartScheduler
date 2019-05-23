@@ -31,7 +31,7 @@ public class TaskLoader {
                         tasks.add(temp);
                     }
                     List<Objects> s = new ArrayList<Objects>();
-                    dataStatus.DataIsLoaded(tasks, keys);
+                    dataStatus.TasksLoaded(tasks, keys);
                 }
             }
 

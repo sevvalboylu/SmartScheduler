@@ -13,7 +13,6 @@ import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -41,11 +40,15 @@ public class AllTasks extends AppCompatActivity {
             public void onRefresh() {
                 TaskLoader tl = new TaskLoader(new DataStatus() {
                     @Override
-                    public void DataIsLoaded(List<Task> tasks, List<String> keys) {
+                    public void TasksLoaded(List<Task> tasks, List<String> keys) {
                         adapter = new TaskAdapter(AllTasks.this,(ArrayList<Task>) tasks,false,false,true,true);
                         mRecyclerView.setLayoutManager(new LinearLayoutManager(AllTasks.this));
                         mRecyclerView.setAdapter(adapter);
                         adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void LocsLoaded(ArrayList<Profile.Location> locs, List<String> keys) {
                     }
                 }, mAuth.getUid());
                 pullToRefresh.setRefreshing(false);

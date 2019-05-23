@@ -76,9 +76,38 @@ public class BasicActivity extends BaseActivity {
             SharedPreferences prefs = getSharedPreferences("fbEvents", MODE_PRIVATE);
             int readId = 1;
             while (prefs.contains("task" + readId)) {
-                Gson gson = new Gson();
-                String json = prefs.getString("task" + readId++, "");
-                mTasks.add(gson.fromJson(json, Task.class));
+                    Gson gson = new Gson();
+                    String json = prefs.getString("task" + readId++, "");
+                    mTasks.add(gson.fromJson(json, Task.class));
+                }
+            tLoaded=true;
+            } else {
+                final SharedPreferences.Editor editor = getSharedPreferences("fbEvents", MODE_PRIVATE).edit();
+                TaskLoader tl = new TaskLoader(new DataStatus() {
+                    @Override
+                    public void TasksLoaded(List<Task> tasks, List<String> keys) {
+                        mTasks = tasks;
+                        int writeId = 1;
+                        for (Task t : mTasks) {
+                            Gson gson = new Gson();
+                            String json = gson.toJson(t);
+                            editor.putString("task" + writeId++, json);
+                        }
+                        writeId = 1;
+                        for (String k : keys) {
+                            editor.putString("key" + writeId++, k);
+                        }
+                        getWeekView().notifyDatasetChanged();
+                        tLoaded=true;
+                        editor.apply();
+                    }
+
+                    @Override
+                    public void LocsLoaded(ArrayList<Profile.Location> locs, List<String> keys) {
+
+                    }
+                }, mAuth.getUid());
+
             }
             tLoaded = true;
         } else {
