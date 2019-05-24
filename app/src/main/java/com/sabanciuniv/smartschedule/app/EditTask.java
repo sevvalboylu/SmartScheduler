@@ -89,14 +89,16 @@ public class EditTask extends AppCompatActivity {
         mEndDatePicker = findViewById(R.id.datePicker2);
         mEndTimePicker = findViewById(R.id.timePicker2);
         mEndDateText = findViewById(R.id.endDateText);
+        mEndDateText.setVisibility(View.VISIBLE);
         mStartDateText = findViewById(R.id.startDateText);
+        mStartDateText.setVisibility(View.VISIBLE);
         mEndTimeText = findViewById(R.id.endTimeText);
         mStartTimeText = findViewById(R.id.startTimeText);
         mAllDaySwitch = findViewById(R.id.allDaySwitch);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        //set text view of end
 
+        //set text view of end
         if (edit.getEndTime() != null) {
             int year = Integer.parseInt(edit.getEndTime().split("T")[0].split("-")[0]);
             int month = Integer.parseInt(edit.getEndTime().split("T")[0].split("-")[1])-1;
@@ -124,7 +126,6 @@ public class EditTask extends AppCompatActivity {
             mEndTimePicker.setMinute(Integer.parseInt(et2));
 
             mEndDatePicker.updateDate(year, month, day);
-
 
         }
         //set text view of start
@@ -157,13 +158,11 @@ public class EditTask extends AppCompatActivity {
             mStartTimePicker.setMinute(Integer.parseInt(st2));
 
             mStartDatePicker.init(year, month, day, null);
-
-
+        }
+        else {
+          mAllDaySwitch.setChecked(true);
 
         }
-      else {
-          mAllDaySwitch.setChecked(true);
-      }
         mEndTimePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker timePicker, int i, int i1) {
@@ -236,24 +235,32 @@ public class EditTask extends AppCompatActivity {
         mDeleteButton.setVisibility(View.VISIBLE);
 
         mDurationText = findViewById(R.id.durationText);
-        // todo: setting the duration to database value
-
-        //  if(edit.getDuration() != null)
-        //     mDurationText.setText(edit.getDuration());
 
         mStartDatePicker.setVisibility(View.GONE);
         mEndDatePicker.setVisibility(View.GONE);
         mStartTimePicker.setVisibility(View.GONE);
         mEndTimePicker.setVisibility(View.GONE);
 
+        Integer dur = edit.getDuration();
+        final String duration = dur.toString();
+
         mAllDaySwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mAllDaySwitch.isChecked()) {
-                    //mDurationText.setText(edit.getDuration());
+                    mDurationText.setText(duration);
+                    mDurationText.setEnabled(true);
                     mStartTimeText.setVisibility(View.GONE);
                     mEndTimeText.setVisibility(View.GONE);
-                } else if (!mAllDaySwitch.isChecked()) { //todo:not working as expected, should work like AddTask
+
+                    mEndDateText.setVisibility(View.GONE);
+                    mStartDateText.setVisibility(View.GONE);
+                    //mEndDateText.setText("");
+                    //mStartDateText.setText("");
+                }
+                else if (!mAllDaySwitch.isChecked()) {
+                    mDurationText.setEnabled(false);
+
                     date_e = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
                     mEndDateText.setText(date_e);
                     date_s = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
@@ -265,7 +272,6 @@ public class EditTask extends AppCompatActivity {
                     DateFormat df = new SimpleDateFormat("hh:mm");
                     mStartTimePicker.setHour(Calendar.HOUR_OF_DAY);
                     mStartTimePicker.setMinute(Calendar.MINUTE);
-
 
                     String date_str = df.format(calendar.getTime());
                     mStartTimeText.setText(date_str);
@@ -279,6 +285,10 @@ public class EditTask extends AppCompatActivity {
 
                     mStartTimeText.setVisibility(View.VISIBLE);
                     mEndTimeText.setVisibility(View.VISIBLE);
+
+
+                    mEndDateText.setVisibility(View.VISIBLE);
+                    mStartDateText.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -455,7 +465,13 @@ public class EditTask extends AppCompatActivity {
     }
 
     public int getDuration(String s1, String s2) {
-        return Integer.parseInt(s2.split("T")[1].split(":")[0]) - Integer.parseInt(s1.split("T")[1].split(":")[0]);
+        int a = Integer.parseInt(s2.split("T")[1].split(":")[0]);
+        int b = Integer.parseInt(s1.split("T")[1].split(":")[0]);
+        int c = Integer.parseInt(s2.split("T")[1].split(":")[1]);
+        int d = Integer.parseInt(s1.split("T")[1].split(":")[1]);
+        int hours = (a - b) * 60;
+        int minutes = (c - d);
+        return (hours + minutes);
     }
 
     public void addListenerOnSpinnerItemSelection(Spinner spin) {
