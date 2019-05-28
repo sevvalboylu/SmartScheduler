@@ -211,7 +211,7 @@ public class AddTask extends AppCompatActivity {
         String address = mLocationField.getText().toString();
         Point pnt = new Point(latitude, longitude);
         final Task.Location location;
-        if (locpos == -1)
+        if (locpos == 0)
             location = new Task.Location(address, pnt);
         else {
             location = new Task.Location(locarr.get(locpos-1).getAddress(), locarr.get(locpos-1).getCoordinate());
