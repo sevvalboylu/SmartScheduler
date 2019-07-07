@@ -25,18 +25,21 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.yandex.mapkit.geometry.Point;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class Profile extends AppCompatActivity {
 
+
+    private static final String TAG = "";
 
     public static class LocLoader {
         private ArrayList<Profile.Location> locs = new ArrayList<>();
@@ -180,7 +183,7 @@ public class Profile extends AppCompatActivity {
                     for (Profile.Location t : mLocations) {
                         Gson gson = new Gson();
                         String json = gson.toJson(t);
-                        editor.putString("address" + writeId++, json);
+                        editor.putString(t.title, json);
                     }
                     writeId = 1;
                     for (String k : keys) {
@@ -206,17 +209,34 @@ public class Profile extends AppCompatActivity {
             String json = s.getString(entry.getKey(), "");
             mLocations.add(gson.fromJson(json, Location.class));
         }
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+        final SharedPreferences pref = getSharedPreferences("addresses",MODE_PRIVATE);
         final SharedPreferences.Editor sedit = getSharedPreferences("locations", MODE_PRIVATE).edit();
         mDeleteButton = findViewById(R.id.button3);
         mDeleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Object[] cm = keys.keySet().toArray();
-                for (int i = 0; i < config.checkedlocs.size(); i++) {
-                    if (config.checkedlocs.get(i))
-                        sedit.remove(String.valueOf(cm[i]));
-                }
+                for (Map.Entry<String, Boolean> entry : config.checkedlocs.entrySet()) {
+                    if(entry.getValue()){
+                        sedit.remove(entry.getKey());
+                        Query removeQuery = ref.child("addresses").child(FirebaseAuth.getInstance().getUid()).child(entry.getKey());
+                        removeQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (DataSnapshot locSnapshot : dataSnapshot.getChildren()) {
+                                  locSnapshot.getRef().removeValue();
+                                }
+                                }
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                            }
+
+                    });
                 sedit.apply();
+                Intent myIntent = new Intent(Profile.this, Profile.class);
+                Profile.this.startActivity(myIntent);
+            }
+                }
             }
         });
 
@@ -253,18 +273,20 @@ public class Profile extends AppCompatActivity {
         EditText ed = findViewById(R.id.editTitle);
         Profile.Location pl = new Profile.Location(adr,ed.getText().toString(),lon,lat);
         mDatabase.child("addresses").child(FirebaseAuth.getInstance().getUid()).child(ed.getText().toString()).setValue(pl);
+        Intent myIntent = new Intent(Profile.this, Profile.class);
+        Profile.this.startActivity(myIntent);
     }
 }
 
 class RecyclerView_Loc {
     private Context mContext;
     private LocAdapter mLocAdapter;
-    public ArrayList<Boolean> checkedlocs;
+    public HashMap<String,Boolean> checkedlocs;
 
     public void setConfig(RecyclerView recyclerView, Context context, List<Profile.Location> locations) {
         mContext = context;
         mLocAdapter = new LocAdapter(locations);
-        checkedlocs = new ArrayList<>(Collections.nCopies(locations.size(), false));
+        checkedlocs = new HashMap<String,Boolean>();
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(mLocAdapter);
         mLocAdapter.notifyDataSetChanged();
@@ -320,9 +342,9 @@ class RecyclerView_Loc {
                 public void onItemClick(View v, int pos) {
                     CheckBox chk = (CheckBox) v;
                     if (chk.isChecked()) {
-                        checkedlocs.set(pos, true);
+                        checkedlocs.put(mLoclist.get(pos).getTitle(), true);
                     } else {
-                        checkedlocs.set(pos, false);
+                        checkedlocs.put(mLoclist.get(pos).getTitle(), false);
                     }
                 }
             });
@@ -334,7 +356,4 @@ class RecyclerView_Loc {
         }
 
     }
-
-
-
 }
