@@ -1,5 +1,6 @@
 package com.sabanciuniv.smartschedule.app;
 
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -12,7 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+
+import java.util.Calendar;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -20,9 +28,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Date;
 
-public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
+public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView>  {
 
     private Context context;
 
@@ -34,6 +41,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
     private ArrayList<Task> taskArrayList;
     public ArrayList<Task> checkedTasks = new ArrayList<>();
 
+
     public TaskAdapter(Context context, ArrayList<Task> taskList,boolean check, boolean onclick, boolean onlongclick, boolean reminderEnable) {
         this.context = context;
         this.taskArrayList = taskList;
@@ -44,6 +52,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
 
     }
 
+
     public class TaskView extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
         TextView taskTitle;
         TextView taskTime;
@@ -51,6 +60,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         TextView taskImp;
         CheckBox checkbox;
         ToggleButton reminder;
+        TimePickerDialog timePicker;
 
         ItemLongClickListener itemLongClickListener;
         ItemClickListener itemClickListener;
@@ -101,13 +111,32 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
             }
         }
 
-
         public void setReminder(Task t, boolean value){
             String tid = t.getTid();
+            String t_name = t.getTitle();
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
             String userId = mAuth.getUid();
             mDatabase.child("tasks").child(userId).child(tid).child("reminderEnabled").setValue(value);
+            if(value == true)
+                setTimePicker(t_name);
+            else
+                cancelAlarm(t_name);
+        }
+
+        public void setTimePicker(String t_name){
+            timePicker = new TimePickerDialog(context, new TimePickerDialog.OnTimeSetListener() {
+                @Override
+                public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
+                    Calendar c = Calendar.getInstance();
+                    c.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    c.set(Calendar.MINUTE, minute);
+                    c.set(Calendar.SECOND, 0);
+                    startAlarm(c, t_name);
+                }
+            },12,0,true);
+            timePicker.setMessage("Select time for reminder");
+            timePicker.show();
         }
 
         @Override
@@ -164,6 +193,35 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
         public void setNoReminder(){
             reminder.setVisibility(itemView.GONE);
         }
+
+        private void startAlarm(Calendar c, String t_name) {
+            String xxx = "Reminder is set to " + c.get(Calendar.HOUR_OF_DAY) +":" + c.get(Calendar.MINUTE);
+
+            Toast.makeText(context, xxx, Toast.LENGTH_LONG).show();
+
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(context, AlertReceiver.class);
+            intent.putExtra("text", t_name);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent, 0);
+
+            if (c.before(Calendar.getInstance())) {
+                c.add(Calendar.DATE, 1);
+            }
+
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
+        }
+
+        private void cancelAlarm(String t_name) {
+            Toast.makeText(context, "Reminder is cancelled", Toast.LENGTH_LONG).show();
+
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(context, AlertReceiver.class);
+            intent.putExtra("text", t_name);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent, 0);
+
+            alarmManager.cancel(pendingIntent);
+        }
+
     }
 
     @NonNull
@@ -219,10 +277,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskView> {
 
     }
 
+
     @Override
     public int getItemCount() {
         return taskArrayList.size();
     }
-
 
 }

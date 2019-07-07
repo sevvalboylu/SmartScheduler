@@ -211,7 +211,7 @@ public class AddTask extends AppCompatActivity {
         String address = mLocationField.getText().toString();
         Point pnt = new Point(latitude, longitude);
         final Task.Location location;
-        if (locpos == -1)
+        if (locpos == 0)
             location = new Task.Location(address, pnt);
         else {
             location = new Task.Location(locarr.get(locpos-1).getAddress(), locarr.get(locpos-1).getCoordinate());
@@ -298,7 +298,13 @@ public class AddTask extends AppCompatActivity {
     }
 
     public int getDuration(String s1, String s2) {
-        return Integer.parseInt(s2.split("T")[1].split(":")[0]) - Integer.parseInt(s1.split("T")[1].split(":")[0]);
+        int a = Integer.parseInt(s2.split("T")[1].split(":")[0]);
+        int b = Integer.parseInt(s1.split("T")[1].split(":")[0]);
+        int c = Integer.parseInt(s2.split("T")[1].split(":")[1]);
+        int d = Integer.parseInt(s1.split("T")[1].split(":")[1]);
+        int hours = (a - b) * 60;
+        int minutes = (c - d);
+        return (hours + minutes);
     }
 
     @Override

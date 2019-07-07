@@ -90,6 +90,8 @@
             android:name=".SavedSchedule"
             android:theme="@style/AppTheme.NoActionBar"></activity>
 
+        <receiver android:name="com.sabanciuniv.smartschedule.app.AlertReceiver" />
+
     </application>
 
 </manifest>
