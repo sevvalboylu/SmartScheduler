@@ -7,8 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.location.Address;
 import android.location.Criteria;
-import android.location.Location;
+import android.location.Geocoder;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,12 +38,14 @@ import com.yandex.runtime.image.ImageProvider;
 import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MapKitRouteActivity extends Activity implements DrivingSession.DrivingRouteListener {
 
-    protected Location location;
+    protected Task.Location location;
 
     private String provider;
     private LocationManager locationManager;
@@ -70,7 +73,58 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         }
 
 
-        location = locationManager.getLastKnownLocation(provider);
+        //location = locationManager.getLastKnownLocation(provider);
+
+             /*
+        final Location[] curr = new Location[1];
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location loc) {
+                // Called when a new location is found by the network location provider.
+                if(curr[0]==null) {
+                    curr[0] = loc;
+                    location = new Task.Location("", new Point(curr[0].getLatitude(), curr[0].getLongitude()));
+                    getDrivingMins();
+                }
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            public void onProviderEnabled(String provider) {
+            }
+
+            public void onProviderDisabled(String provider) {
+            }
+        };
+
+        // Register the listener with the Location Manager to receive location updates
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+   */
+            List<Address> address;
+            String addressLine = "";
+            Point c = new Point(40.892152, 29.378957); //location.getLatitude(),location.getLongitude()
+            final Geocoder geocoder = new Geocoder(MapKitRouteActivity.this, Locale.getDefault());
+            try {
+                address = geocoder.getFromLocation(c.getLatitude(), c.getLongitude(), 1);
+                addressLine = address.get(0).getAddressLine(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            location = new Task.Location(addressLine, c);
 
         super.onCreate(savedInstanceState);
         MapKitFactory.setApiKey(MAPKIT_API_KEY);
@@ -142,10 +196,12 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
    public void goToYandexApp(View v){
         // Map point based on address
        String routeQuery = "?rtext=";
+       routeQuery += location.coordinate.getLatitude() + ","  + location.coordinate.getLongitude() + "~";
        for(Task t: tasks ){
           routeQuery+= t.getLocation().coordinate.getLatitude() + ",";
           routeQuery+= t.getLocation().coordinate.getLongitude() + "~";
        }
+       routeQuery= routeQuery.substring(0, routeQuery.length() - 1);
        routeQuery += "&rtt=auto";
        Uri uri = Uri.parse("yandexmaps://maps.yandex.ru/"+ routeQuery);
        Intent routeIntent = new Intent(Intent.ACTION_VIEW, uri);
