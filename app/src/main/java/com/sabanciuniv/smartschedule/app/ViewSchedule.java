@@ -1,20 +1,14 @@
 package com.sabanciuniv.smartschedule.app;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -93,7 +87,7 @@ public class ViewSchedule extends AppCompatActivity {
         scheduleEnd = getIntent().getStringExtra("endTime"); //ending time will be used in scheduler
 
         //todo: dummy location??? not safe.
-        /*
+
         List<Address> address;
         String addressLine = "";
         Point c = new Point(40.892152, 29.378957); //location.getLatitude(),location.getLongitude()
@@ -104,7 +98,9 @@ public class ViewSchedule extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        location = new Task.Location(addressLine, c);*/
+        location = new Task.Location(addressLine, c);
+        getDrivingMins();
+        /*
         final Location[] curr = new Location[1];
         // Acquire a reference to the system Location Manager
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -142,8 +138,8 @@ public class ViewSchedule extends AppCompatActivity {
             return;
         }
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+   */
     }
-
 
     public void getDrivingMins() {
         ArrayList<Task> cTasks = new ArrayList<>(adapter.checkedTasks);

@@ -38,5 +38,6 @@
             app:backgroundTint="@color/common_google_signin_btn_text_dark_default"
             app:srcCompat="@android:drawable/checkbox_on_background" />
 
+
     </com.yandex.mapkit.mapview.MapView>
 </RelativeLayout>

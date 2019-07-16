@@ -4,13 +4,17 @@ package com.sabanciuniv.smartschedule.app;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.view.View;
 import android.widget.Toast;
 
 import com.yandex.mapkit.Animation;
@@ -133,6 +137,27 @@ public class MapKitRouteActivity extends Activity implements DrivingSession.Driv
         mapView.getMap().move(new CameraPosition(wayPoints.get(0), 12.0f, 0.0f, 0.0f), new Animation(Animation.Type.SMOOTH, 5), null);
 
     }
+
+
+   public void goToYandexApp(View v){
+        // Map point based on address
+       String routeQuery = "?rtext=";
+       for(Task t: tasks ){
+          routeQuery+= t.getLocation().coordinate.getLatitude() + ",";
+          routeQuery+= t.getLocation().coordinate.getLongitude() + "~";
+       }
+       routeQuery += "&rtt=auto";
+       Uri uri = Uri.parse("yandexmaps://maps.yandex.ru/"+ routeQuery);
+       Intent routeIntent = new Intent(Intent.ACTION_VIEW, uri);
+       PackageManager packageManager = getPackageManager();
+       List<ResolveInfo> activities = packageManager.queryIntentActivities(routeIntent, 0);
+       boolean isIntentSafe = activities.size() > 0;
+       // Start an activity if it's safe
+       if (isIntentSafe) { startActivity(routeIntent);
+        }
+
+   }
+
 
     @Override
     public void onDrivingRoutesError(@NonNull Error error) {
